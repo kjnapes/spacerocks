@@ -6,7 +6,7 @@ use pyo3::types::PyType;
 use std::sync::Arc;
 use std::rc::Rc; 
 
-use spacerocks::nbody::integrators::{Integrator, Leapfrog, IAS15};
+use spacerocks::nbody::integrators::{Integrator, Leapfrog, IAS15, MVS};
 
 #[pyclass]
 #[pyo3(name = "Integrator")]
@@ -26,6 +26,11 @@ impl PyIntegrator {
     #[classmethod]
     pub fn ias15(_cls: &PyType, timestep: f64) -> PyResult<Self> {
         Ok(PyIntegrator { inner: Box::new(IAS15::new(timestep)) })
+    }
+
+    #[classmethod]
+    pub fn mvs(_cls: &PyType, timestep: f64) -> PyResult<Self> {
+        Ok(PyIntegrator { inner: Box::new(MVS::new(timestep)) })
     }
 
     #[getter]
