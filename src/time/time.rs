@@ -1,6 +1,6 @@
 use std::ops::{AddAssign, Add, Sub};
 use std::collections::HashMap;
-use chrono::{DateTime, TimeZone, Utc};
+// use chrono::{DateTime, TimeZone, Utc};
 use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
@@ -85,15 +85,15 @@ impl Time {
         }
     }
     
-    pub fn now() -> Self {
-        let now = Utc::now();
-        let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-        Time {
-            epoch: isot_to_julian(&x),
-            timescale: TimeScale::UTC,
-            format: TimeFormat::JD,
-        }
-    }
+    // pub fn now() -> Self {
+    //     let now = Utc::now();
+    //     let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    //     Time {
+    //         epoch: isot_to_julian(&x),
+    //         timescale: TimeScale::UTC,
+    //         format: TimeFormat::JD,
+    //     }
+    // }
 
     // pub fn from_fuzzy_str(s: &str) -> Self {
     //     let s = s.to_lowercase();
@@ -243,18 +243,18 @@ fn get_leap_seconds_at_epoch(jd: f64) -> f64 {
     return num_leap_seconds;
 }
 
-fn get_isot_now() -> String {
-    let now = Utc::now();
-    let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-    return x;
-}
+// fn get_isot_now() -> String {
+//     let now = Utc::now();
+//     let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+//     return x;
+// }
 
-fn isot_to_julian(isot: &str) -> f64 {
-    let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
-    let unix_time = datetime.timestamp() as f64;
-    let julian_day = unix_time / 86400.0 + 2440587.5;
-    julian_day
-}
+// fn isot_to_julian(isot: &str) -> f64 {
+//     let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
+//     let unix_time = datetime.timestamp() as f64;
+//     let julian_day = unix_time / 86400.0 + 2440587.5;
+//     julian_day
+// }
 
 
 

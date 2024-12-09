@@ -18,7 +18,11 @@
 /// let result = transforms::calc_eccentric_anomaly_from_true_anomaly(eccentricity, true_anomaly);
 /// ```
 pub fn calc_eccentric_anomaly_from_true_anomaly(eccentricity: f64, true_anomaly: f64) -> f64 {
-    
+
+    if eccentricity.abs() < 1.0e-10 {
+        return true_anomaly;
+    }
+
     if eccentricity < 1.0 {
         2.0 * ((1.0 - eccentricity).sqrt() * (true_anomaly / 2.0).sin()).atan2((1.0 + eccentricity).sqrt() * (true_anomaly / 2.0).cos())
     }
