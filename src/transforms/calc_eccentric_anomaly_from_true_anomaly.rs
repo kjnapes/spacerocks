@@ -60,22 +60,3 @@ mod tests {
 
     }
 }
-
-
-
-// let mut E;
-
-    // if e < 1.0 {
-    //     let E = 2.0 * ((1.0 - e).sqrt() * (f / 2.0).sin()).atan2((1.0 + e).sqrt() * (f / 2.0).cos());
-    // }
-
-    // else {
-    //     // let cta = f.cos();
-    //     // E = ((cta + e) / (1.0 + e * cta)).acosh();
-    //     // if f < 0.0 {
-    //     //     E *= -1.0;
-    //     // }
-
-    //     let E = 2.0 * (((e - 1.0) / (e + 1.0)).sqrt() * (f / 2.0).tan()).atanh();
-    // }
-    // return E;
