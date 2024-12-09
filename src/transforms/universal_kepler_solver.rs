@@ -1,6 +1,5 @@
 use crate::transforms::stumpff::{stumpff_c, stumpff_s};
 
-
 fn f(chi: f64, r0: f64, vr0: f64, alpha: f64, mu: f64, dt: f64) -> f64 {
     let z = alpha * chi.powi(2);
     let first_term = r0 * vr0 / mu.sqrt() * chi.powi(2) * stumpff_c(z);
@@ -17,7 +16,6 @@ fn df_dchi(chi: f64, r0: f64, vr0: f64, alpha: f64, mu: f64) -> f64 {
     let third_term = r0;
     first_term + second_term + third_term
 }
-
 
 pub fn newton_raphson(chi0: f64, r0: f64, vr0: f64, alpha: f64, mu: f64, dt: f64, tol: f64, max_iter: usize) -> f64 {
     let mut chi = chi0;
@@ -38,4 +36,3 @@ fn lagrange_f_and_g(chi: f64, r0: f64, vr0: f64, alpha: f64, mu: f64, dt: f64) -
     let g = dt - chi.powi(3) / mu.sqrt() * stumpff_s(z);
     (f, g)
 }
-

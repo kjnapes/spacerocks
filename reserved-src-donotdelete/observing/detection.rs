@@ -4,6 +4,12 @@ use nalgebra::Vector3;
 
 use std::sync::Arc;
 
+// pub enum DetectionType {
+//     Astrometric, // ra dec
+//     Streak, // ra, dec, rates
+//     Radar, // ra, dec, range, range rate
+// }
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Detection {
 
