@@ -41,3 +41,5 @@ We actually use very few of the `cspice` functions, so it should be possible to 
 If you would like to help with this, please send a message!
 
 Testing! Tom ruch 12/9
+Need to rename c.toml to cargo.toml when we want to reintroduce py-spacerocks
+

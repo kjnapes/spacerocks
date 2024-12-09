@@ -1,0 +1,983 @@
+kjnapier-py-spacerocks 🚀: maturin build --release > warnings.txt
+🔗 Found pyo3 bindings
+🐍 Found CPython 3.12 at /Users/kjnapier/anaconda3/envs/dev/bin/python3
+💻 Using `MACOSX_DEPLOYMENT_TARGET=11.0` for aarch64-apple-darwin by default
+   Compiling autocfg v1.1.0
+   Compiling libc v0.2.153
+   Compiling proc-macro2 v1.0.78
+   Compiling unicode-ident v1.0.12
+   Compiling cfg-if v1.0.0
+   Compiling pin-project-lite v0.2.13
+   Compiling libm v0.2.8
+   Compiling serde v1.0.197
+   Compiling futures-sink v0.3.30
+   Compiling target-lexicon v0.12.13
+   Compiling memchr v2.7.1
+   Compiling core-foundation-sys v0.8.6
+   Compiling futures-core v0.3.30
+   Compiling once_cell v1.19.0
+   Compiling num-traits v0.2.18
+   Compiling slab v0.4.9
+   Compiling futures-channel v0.3.30
+   Compiling bytes v1.5.0
+   Compiling glob v0.3.1
+   Compiling futures-io v0.3.30
+   Compiling futures-task v0.3.30
+   Compiling pin-utils v0.1.0
+   Compiling itoa v1.0.10
+   Compiling clang-sys v1.7.0
+   Compiling aho-corasick v1.1.2
+   Compiling indexmap v1.9.3
+   Compiling quote v1.0.35
+   Compiling lock_api v0.4.11
+   Compiling syn v2.0.48
+   Compiling hashbrown v0.14.3
+   Compiling regex-syntax v0.8.2
+   Compiling parking_lot_core v0.9.9
+   Compiling lazy_static v1.4.0
+   Compiling pyo3-build-config v0.20.2
+   Compiling rustix v0.38.31
+   Compiling futures-util v0.3.30
+   Compiling socket2 v0.5.5
+   Compiling num_cpus v1.16.0
+   Compiling mio v0.8.10
+   Compiling errno v0.3.8
+   Compiling atty v0.2.14
+   Compiling hashbrown v0.12.3
+   Compiling smallvec v1.13.1
+   Compiling scopeguard v1.2.0
+   Compiling bitflags v2.4.2
+   Compiling regex-automata v0.4.5
+   Compiling os_str_bytes v6.6.1
+   Compiling termcolor v1.4.1
+   Compiling minimal-lexical v0.2.1
+   Compiling clap_lex v0.2.4
+   Compiling libloading v0.8.1
+   Compiling nom v7.1.3
+   Compiling tokio v1.36.0
+   Compiling core-foundation v0.9.4
+   Compiling tracing-core v0.1.32
+   Compiling matrixmultiply v0.3.8
+   Compiling bitflags v1.3.2
+   Compiling log v0.4.20
+   Compiling crossbeam-utils v0.8.19
+   Compiling textwrap v0.16.0
+   Compiling syn v1.0.109
+   Compiling bindgen v0.60.1
+   Compiling fnv v1.0.7
+   Compiling humantime v2.1.0
+   Compiling home v0.5.9
+   Compiling either v1.10.0
+   Compiling strsim v0.10.0
+   Compiling cexpr v0.6.0
+   Compiling regex v1.10.3
+   Compiling which v4.4.2
+   Compiling clap v3.2.25
+   Compiling http v0.2.11
+   Compiling env_logger v0.9.3
+   Compiling tracing v0.1.40
+   Compiling num-integer v0.1.46
+   Compiling serde_derive v1.0.197
+   Compiling security-framework-sys v2.9.1
+   Compiling getrandom v0.2.12
+   Compiling rustc-hash v1.1.0
+   Compiling paste v1.0.14
+   Compiling peeking_take_while v0.1.2
+   Compiling httparse v1.8.0
+   Compiling lazycell v1.3.0
+   Compiling fastrand v2.0.1
+   Compiling shlex v1.3.0
+   Compiling equivalent v1.0.1
+   Compiling bytemuck v1.14.3
+   Compiling native-tls v0.2.11
+   Compiling tinyvec_macros v0.1.1
+   Compiling rawpointer v0.2.1
+   Compiling tinyvec v1.6.0
+   Compiling safe_arch v0.7.1
+   Compiling tempfile v3.10.0
+   Compiling indexmap v2.2.3
+   Compiling tokio-util v0.7.10
+   Compiling security-framework v2.9.2
+   Compiling rand_core v0.6.4
+   Compiling pyo3-ffi v0.20.2
+   Compiling parking_lot v0.12.1
+   Compiling num-rational v0.4.1
+   Compiling serde_json v1.0.113
+   Compiling ryu v1.0.16
+   Compiling typenum v1.17.0
+   Compiling percent-encoding v2.3.1
+   Compiling siphasher v0.3.11
+   Compiling system-configuration-sys v0.5.0
+   Compiling try-lock v0.2.5
+   Compiling ppv-lite86 v0.2.17
+   Compiling want v0.3.1
+   Compiling phf_shared v0.11.2
+   Compiling rand_chacha v0.3.1
+   Compiling form_urlencoded v1.2.1
+   Compiling rand v0.8.5
+   Compiling crossbeam-epoch v0.9.18
+   Compiling h2 v0.3.24
+   Compiling unicode-normalization v0.1.22
+   Compiling wide v0.7.15
+   Compiling http-body v0.4.6
+   Compiling futures-executor v0.3.30
+   Compiling approx v0.5.1
+   Compiling memoffset v0.9.0
+   Compiling unicode-bidi v0.3.15
+   Compiling num-complex v0.4.5
+   Compiling rayon-core v1.12.1
+   Compiling tower-service v0.3.2
+   Compiling heck v0.4.1
+   Compiling cspice-sys v1.0.4
+   Compiling thiserror v1.0.57
+   Compiling httpdate v1.0.3
+   Compiling pyo3-macros-backend v0.20.2
+   Compiling simba v0.8.1
+   Compiling nalgebra-macros v0.2.1
+   Compiling hyper v0.14.28
+   Compiling idna v0.5.0
+   Compiling futures v0.3.30
+   Compiling tokio-native-tls v0.3.1
+   Compiling crossbeam-deque v0.8.5
+   Compiling phf_generator v0.11.2
+   Compiling thiserror-impl v1.0.57
+   Compiling serial_test_derive v2.0.0
+   Compiling pyo3 v0.20.2
+   Compiling dashmap v5.5.3
+   Compiling base64 v0.21.7
+   Compiling serial_test v2.0.0
+   Compiling rustls-pemfile v1.0.4
+   Compiling system-configuration v0.5.1
+   Compiling phf_macros v0.11.2
+   Compiling hyper-tls v0.5.0
+   Compiling pyo3-macros v0.20.2
+   Compiling nalgebra v0.32.3
+   Compiling url v2.5.0
+   Compiling itertools v0.12.1
+   Compiling rust-spice-derive v0.7.6
+   Compiling serde_urlencoded v0.7.1
+   Compiling uuid-macro-internal v1.7.0
+   Compiling serde_repr v0.1.18
+   Compiling console v0.15.8
+   Compiling iana-time-zone v0.1.60
+   Compiling encoding_rs v0.8.33
+   Compiling mime v0.3.17
+   Compiling sync_wrapper v0.1.2
+   Compiling ipnet v2.9.0
+   Compiling indoc v2.0.4
+   Compiling unindent v0.2.3
+   Compiling number_prefix v0.4.0
+   Compiling chrono v0.4.34
+   Compiling uuid v1.7.0
+   Compiling indicatif v0.16.2
+   Compiling phf v0.11.2
+   Compiling rayon v1.9.0
+   Compiling reqwest v0.11.24
+   Compiling rand_distr v0.4.3
+   Compiling ndarray v0.15.6
+   Compiling numpy v0.20.0
+   Compiling rust-spice v0.7.8
+   Compiling spacerocks v0.1.5 (/Users/kjnapier/spacerocks)
+warning: unused import: `crate::time::TimeFormat`
+ --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:8:5
+  |
+8 | use crate::time::TimeFormat;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `crate::time::TimeScale`
+ --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:9:5
+  |
+9 | use crate::time::TimeScale;
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `calc_E_from_M` and `calc_f_from_E`
+  --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:15:45
+   |
+15 | use crate::transforms::{calc_xyz_from_kepM, calc_E_from_M, calc_f_from_E};
+   |                                             ^^^^^^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `crate::transforms::calc_f_from_E`
+ --> /Users/kjnapier/spacerocks/src/spacerock/keplerorbit.rs:6:5
+  |
+6 | use crate::transforms::calc_f_from_E;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::borrow::Cow`
+ --> /Users/kjnapier/spacerocks/src/spacerock/origin.rs:1:5
+  |
+1 | use std::borrow::Cow;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> /Users/kjnapier/spacerocks/src/constants/observatories.rs:4:5
+  |
+4 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::constants::ROTATION_MATRICES`
+ --> /Users/kjnapier/spacerocks/src/observing/observer.rs:3:5
+  |
+3 | use crate::constants::ROTATION_MATRICES;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> /Users/kjnapier/spacerocks/src/observing/observer.rs:7:5
+  |
+7 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused imports: `Drag` and `SolarGR`
+ --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:9:53
+  |
+9 | use crate::nbody::forces::{Force, NewtonianGravity, Drag, SolarGR};
+  |                                                     ^^^^  ^^^^^^^
+
+warning: unused import: `Leapfrog`
+  --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:10:45
+   |
+10 | use crate::nbody::integrators::{Integrator, Leapfrog, IAS15};
+   |                                             ^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+  --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:16:5
+   |
+16 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+
+warning: denote infinite loops with `loop { ... }`
+   --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:247:9
+    |
+247 |         while true {
+    |         ^^^^^^^^^^ help: use `loop`
+    |
+    = note: `#[warn(while_true)]` on by default
+
+warning: unused import: `nalgebra::Vector3`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/force.rs:2:5
+  |
+2 | use nalgebra::Vector3;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `nalgebra::Vector3`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/gravity.rs:6:5
+  |
+6 | use nalgebra::Vector3;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Mutex`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/gravity.rs:8:5
+  |
+8 | use std::sync::Mutex;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `nalgebra::Vector3`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/solar_gr.rs:7:5
+  |
+7 | use nalgebra::Vector3;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::Simulation`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/integrator.rs:3:5
+  |
+3 | use crate::Simulation;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `core::fmt::Formatter`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/integrator.rs:6:5
+  |
+6 | use core::fmt::Formatter;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `core::fmt`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/integrator.rs:7:5
+  |
+7 | use core::fmt;
+  |     ^^^^^^^^^
+
+warning: unused import: `core::fmt::Debug`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/integrator.rs:8:5
+  |
+8 | use core::fmt::Debug;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::Simulation`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/leapfrog.rs:4:5
+  |
+4 | use crate::Simulation;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: denote infinite loops with `loop { ... }`
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:100:9
+    |
+100 |         while true {
+    |         ^^^^^^^^^^ help: use `loop`
+
+warning: unused import: `crate::Simulation`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/mvs.rs:4:5
+  |
+4 | use crate::Simulation;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `rayon::prelude::*`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/mvs.rs:9:5
+  |
+9 | use rayon::prelude::*;
+  |     ^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated method `chrono::TimeZone::datetime_from_str`: use `DateTime::parse_from_str` or `NaiveDateTime::parse_from_str` with `and_utc()` or `and_local_timezone()` instead
+   --> /Users/kjnapier/spacerocks/src/time/time.rs:253:39
+    |
+253 |     let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
+    |                                       ^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: unused import: `rayon::prelude`
+  --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:15:5
+   |
+15 | use rayon::prelude::*;
+   |     ^^^^^^^^^^^^^^
+
+warning: unused import: `rayon::prelude`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:6:5
+  |
+6 | use rayon::prelude::*;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `rayon::prelude`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/gravity.rs:5:5
+  |
+5 | use rayon::prelude::*;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `rayon::prelude`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/solar_gr.rs:6:5
+  |
+6 | use rayon::prelude::*;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `rayon::prelude`
+ --> /Users/kjnapier/spacerocks/src/nbody/integrators/leapfrog.rs:8:5
+  |
+8 | use rayon::prelude::*;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused variable: `mu`
+  --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:62:13
+   |
+62 |         let mu = Some(MU_BARY);
+   |             ^^ help: if this is intentional, prefix it with an underscore: `_mu`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: variable does not need to be mutable
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:178:13
+    |
+178 |         let mut ep = epoch.clone();
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: value assigned to `beta` is never read
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:367:21
+    |
+367 |             let mut beta = 0.0;
+    |                     ^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` on by default
+
+warning: variable does not need to be mutable
+ --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_f.rs:4:9
+  |
+4 |     let mut E;
+  |         ----^
+  |         |
+  |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+ --> /Users/kjnapier/spacerocks/src/transforms/calc_M_from_E.rs:3:9
+  |
+3 |     let mut M;
+  |         ----^
+  |         |
+  |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+ --> /Users/kjnapier/spacerocks/src/transforms/calc_f_from_E.rs:3:9
+  |
+3 |     let mut f;
+  |         ----^
+  |         |
+  |         help: remove this `mut`
+
+warning: value assigned to `ltt0` is never read
+  --> /Users/kjnapier/spacerocks/src/transforms/correct_for_ltt.rs:14:13
+   |
+14 |     let mut ltt0 = 0.0;
+   |             ^^^^
+   |
+   = help: maybe it is overwritten before being read?
+
+warning: variable does not need to be mutable
+  --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:52:17
+   |
+52 |             let mut particle = SpaceRock::from_spice(name, epoch, frame, origin);
+   |                 ----^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:69:17
+   |
+69 |             let mut particle = SpaceRock::from_spice(name, epoch, frame, origin);
+   |                 ----^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:88:17
+   |
+88 |             let mut particle = SpaceRock::from_spice(name, epoch, frame, origin);
+   |                 ----^^^^^^^^
+   |                 |
+   |                 help: remove this `mut`
+
+warning: unused variable: `key`
+   --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:145:18
+    |
+145 |             for (key, value) in self.particle_index_map.iter_mut() {
+    |                  ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `v_hat`
+  --> /Users/kjnapier/spacerocks/src/nbody/forces/drag.rs:50:17
+   |
+50 |             let v_hat = entity.velocity / v;
+   |                 ^^^^^ help: if this is intentional, prefix it with an underscore: `_v_hat`
+
+warning: unused variable: `g`
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:125:25
+    |
+125 |                     let g = &self.gs[idx];
+    |                         ^ help: if this is intentional, prefix it with an underscore: `_g`
+
+warning: unused variable: `ratio`
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:298:21
+    |
+298 |                 let ratio = self.timestep / self.last_timestep;
+    |                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_ratio`
+
+warning: unused variable: `g`
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:318:17
+    |
+318 |             let g = &self.gs[idx];
+    |                 ^ help: if this is intentional, prefix it with an underscore: `_g`
+
+warning: variable does not need to be mutable
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:290:21
+    |
+290 |                 let mut perturber = &mut particles[idx];
+    |                     ----^^^^^^^^^
+    |                     |
+    |                     help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:319:17
+    |
+319 |             let mut particle = &mut particles[idx];
+    |                 ----^^^^^^^^
+    |                 |
+    |                 help: remove this `mut`
+
+warning: trait `ForceClone` is more private than the item `Force`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/force.rs:4:1
+  |
+4 | pub trait Force: Send + Sync + ForceClone {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ trait `Force` is reachable at visibility `pub`
+  |
+note: but trait `ForceClone` is only usable at visibility `pub(self)`
+ --> /Users/kjnapier/spacerocks/src/nbody/forces/force.rs:9:1
+  |
+9 | trait ForceClone {
+  | ^^^^^^^^^^^^^^^^
+  = note: `#[warn(private_bounds)]` on by default
+
+warning: trait `IntegratorClone` is more private than the item `Integrator`
+  --> /Users/kjnapier/spacerocks/src/nbody/integrators/integrator.rs:10:1
+   |
+10 | pub trait Integrator: Send + Sync + IntegratorClone {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ trait `Integrator` is reachable at visibility `pub`
+   |
+note: but trait `IntegratorClone` is only usable at visibility `pub(self)`
+  --> /Users/kjnapier/spacerocks/src/nbody/integrators/integrator.rs:17:1
+   |
+17 | trait IntegratorClone {
+   | ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `get_isot_now` is never used
+   --> /Users/kjnapier/spacerocks/src/time/time.rs:246:4
+    |
+246 | fn get_isot_now() -> String {
+    |    ^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: function `acos_safe` is never used
+  --> /Users/kjnapier/spacerocks/src/transforms/calc_kep_from_xyz.rs:10:4
+   |
+10 | fn acos_safe(x: f64) -> f64 {
+   |    ^^^^^^^^^
+
+warning: associated function `new` is never used
+   --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:362:8
+    |
+361 | impl CoefficientSeptet {
+    | ---------------------- associated function in this implementation
+362 |     fn new(p0: Vector3<f64>, p1: Vector3<f64>, p2: Vector3<f64>, p3: Vector3<f64>, p4: Vector3<f64>, p5: Vector3<f64>, p6: Vector3<f64>) -> ...
+    |        ^^^
+
+warning: variable `dM` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:312:17
+    |
+312 |             let dM = orbit.n() * dt;
+    |                 ^^ help: convert the identifier to snake case: `d_m`
+    |
+    = note: `#[warn(non_snake_case)]` on by default
+
+warning: variable `M_new` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:313:17
+    |
+313 |             let M_new = orbit.M() + dM;
+    |                 ^^^^^ help: convert the identifier to snake case: `m_new`
+
+warning: unused `Result` that must be used
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:328:9
+    |
+328 |         self.change_frame("J2000");
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+328 |         let _ = self.change_frame("J2000");
+    |         +++++++
+
+warning: variable `H` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:360:17
+    |
+360 |             let H = properties.H.unwrap();
+    |                 ^ help: convert the identifier to snake case: `h`
+
+warning: variable `Gslope` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/spacerock/spacerock.rs:361:17
+    |
+361 |             let Gslope = properties.Gslope.unwrap();
+    |                 ^^^^^^ help: convert the identifier to snake case: `gslope`
+
+warning: structure field `H` should have a snake case name
+ --> /Users/kjnapier/spacerocks/src/spacerock/properties.rs:5:9
+  |
+5 |     pub H: Option<f64>,
+  |         ^ help: convert the identifier to snake case: `h`
+
+warning: structure field `Gslope` should have a snake case name
+ --> /Users/kjnapier/spacerocks/src/spacerock/properties.rs:6:9
+  |
+6 |     pub Gslope: Option<f64>,
+  |         ^^^^^^ help: convert the identifier to snake case: `gslope`
+
+warning: method `M` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/spacerock/keplerorbit.rs:51:12
+   |
+51 |     pub fn M(&self) -> f64 {
+   |            ^ help: convert the identifier to snake case: `m`
+
+warning: variable `E` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/spacerock/keplerorbit.rs:52:13
+   |
+52 |         let E = self.E();
+   |             ^ help: convert the identifier to snake case: `e`
+
+warning: variable `M` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/spacerock/keplerorbit.rs:53:13
+   |
+53 |         let M = calc_M_from_E::calc_M_from_E(self.e, E);
+   |             ^ help: convert the identifier to snake case: `m`
+
+warning: method `E` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/spacerock/keplerorbit.rs:57:12
+   |
+57 |     pub fn E(&self) -> f64 {
+   |            ^ help: convert the identifier to snake case: `e`
+
+warning: variable `E` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/spacerock/keplerorbit.rs:58:13
+   |
+58 |         let E = calc_E_from_f::calc_E_from_f(self.e, self.f);
+   |             ^ help: convert the identifier to snake case: `e`
+
+warning: unused return value of `std::str::<impl str>::to_uppercase` that must be used
+  --> /Users/kjnapier/spacerocks/src/spacerock/origin.rs:20:9
+   |
+20 |         s.to_uppercase();
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: this returns the uppercase string as a new String, without modifying the original
+help: use `let _ = ...` to ignore the resulting value
+   |
+20 |         let _ = s.to_uppercase();
+   |         +++++++
+
+warning: variable `T` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/observing/observatory.rs:69:9
+   |
+69 |     let T = (epoch - 2451545.0) / 36525.0;
+   |         ^ help: convert the identifier to snake case: `t`
+
+warning: variable `Tprime` should have a snake case name
+  --> /Users/kjnapier/spacerocks/src/observing/observatory.rs:70:9
+   |
+70 |     let Tprime = 1.0 / 36525.0;
+   |         ^^^^^^ help: convert the identifier to snake case: `tprime`
+
+warning: module `calc_E_from_M` should have a snake case name
+ --> /Users/kjnapier/spacerocks/src/transforms/mod.rs:2:9
+  |
+2 | pub mod calc_E_from_M;
+  |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_m`
+
+warning: module `calc_M_from_E` should have a snake case name
+ --> /Users/kjnapier/spacerocks/src/transforms/mod.rs:4:9
+  |
+4 | pub mod calc_M_from_E;
+  |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_m_from_e`
+
+warning: module `calc_f_from_E` should have a snake case name
+ --> /Users/kjnapier/spacerocks/src/transforms/mod.rs:5:9
+  |
+5 | pub mod calc_f_from_E;
+  |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_f_from_e`
+
+warning: module `calc_xyz_from_kepM` should have a snake case name
+ --> /Users/kjnapier/spacerocks/src/transforms/mod.rs:6:9
+  |
+6 | pub mod calc_xyz_from_kepM;
+  |         ^^^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_xyz_from_kep_m`
+
+warning: function `calc_E_from_M` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:151:8
+    |
+151 | pub fn calc_E_from_M(e: f64, M: f64) -> f64 {
+    |        ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_m`
+
+warning: variable `M` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:151:30
+    |
+151 | pub fn calc_E_from_M(e: f64, M: f64) -> f64 {
+    |                              ^ help: convert the identifier to snake case: `m`
+
+warning: variable `E` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:153:13
+    |
+153 |     let mut E;
+    |             ^ help: convert the identifier to snake case: `e`
+
+warning: variable `M` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:178:17
+    |
+178 |         let mut M = M;
+    |                 ^ help: convert the identifier to snake case: `m`
+
+warning: variable `sinM` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:185:13
+    |
+185 |         let sinM = M.sin();
+    |             ^^^^ help: convert the identifier to snake case: `sin_m`
+
+warning: variable `esinE` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:193:17
+    |
+193 |             let esinE = e * E.sin();
+    |                 ^^^^^ help: convert the identifier to snake case: `esin_e`
+
+warning: variable `ecosE` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:194:17
+    |
+194 |             let ecosE = e * E.cos();
+    |                 ^^^^^ help: convert the identifier to snake case: `ecos_e`
+
+warning: variable `f_E` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:196:17
+    |
+196 |             let f_E = E - esinE - M;
+    |                 ^^^ help: convert the identifier to snake case: `f_e`
+
+warning: variable `fP_E` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:205:17
+    |
+205 |             let fP_E = 1.0 - ecosE;
+    |                 ^^^^ help: convert the identifier to snake case: `f_p_e`
+
+warning: variable `fPP_E` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:206:17
+    |
+206 |             let fPP_E = esinE;
+    |                 ^^^^^ help: convert the identifier to snake case: `f_pp_e`
+
+warning: variable `fPPP_E` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:207:17
+    |
+207 |             let fPPP_E = ecosE;
+    |                 ^^^^^^ help: convert the identifier to snake case: `f_ppp_e`
+
+warning: variable `F` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_E_from_M.rs:221:13
+    |
+221 |           let mut F = E - e * E.sinh() + M;
+    |                   ^ help: convert the identifier to snake case (notice the capitalization): `f`
+
+warning: variable `E` should have a snake case name
+   --> /Users/kjnapier/spacerocks/src/transforms/calc_kep_from_xyz.rs:159:15
+    |
+159 |       let mut E = argument.acosh();
+    |               ^ help: convert the identifier to snake case: `e`
+
+warning: unused `Result` that must be used
+   --> /Users/kjnapier/spacerocks/src/nbody/simulation.rs:129:9
+    |
+129 |         particle.change_frame(self.frame.clone().unwrap().as_str());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+    |
+129 |         let _ = particle.change_frame(self.frame.clone().unwrap().as_str());
+    |         +++++++
+
+warning: constant `h` should have an upper case name
+  --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:12:7
+   |
+12 | const h: [f64; 8] = [0.0, 0.0562625605369221464656521910318, 0.180240691736892364987579942780, 0.352624717113169637373907769648, 
+   |       ^ help: convert the identifier to upper case: `H`
+   |
+   = note: `#[warn(non_upper_case_globals)]` on by default
+
+warning: constant `rr` should have an upper case name
+  --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:15:7
+   |
+15 | const rr: [f64; 28] = [0.0562625605369221464656522, 0.1802406917368923649875799, 0.1239781311999702185219278, 0.3526247171131696373739078, 
+   |       ^^ help: convert the identifier to upper case: `RR`
+
+warning: constant `c` should have an upper case name
+  --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:23:7
+   |
+23 | const c: [f64; 21] = [-0.0562625605369221464656522, 0.0101408028300636299864818, -0.2365032522738145114532321, -0.0035758977292516175949345, 
+   |       ^ help: convert the identifier to upper case (notice the capitalization): `C`
+
+warning: constant `d` should have an upper case name
+  --> /Users/kjnapier/spacerocks/src/nbody/integrators/ias15.rs:30:7
+   |
+30 | const d: [f64; 21] = [0.0562625605369221464656522, 0.0031654757181708292499905, 0.2365032522738145114532321, 0.0001780977692217433881125, 
+   |       ^ help: convert the identifier to upper case: `D`
+
+warning: `spacerocks` (lib) generated 89 warnings (run `cargo fix --lib -p spacerocks` to apply 33 suggestions)
+   Compiling spacerocks v3.0.0-alpha.0 (/Users/kjnapier/spacerocks/py-spacerocks)
+warning: unused import: `spacerocks::KeplerOrbit`
+ --> src/py_spacerock/spacerock.rs:7:5
+  |
+7 | use spacerocks::KeplerOrbit;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `pyo3::types::PyBool`
+ --> src/py_spacerock/rockcollection.rs:4:5
+  |
+4 | use pyo3::types::PyBool;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `pyo3::types::PyList`
+ --> src/py_spacerock/rockcollection.rs:5:5
+  |
+5 | use pyo3::types::PyList;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `pyo3::exceptions::PyValueError`
+ --> src/py_spacerock/rockcollection.rs:6:5
+  |
+6 | use pyo3::exceptions::PyValueError;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `numpy::ToPyArray`
+ --> src/py_spacerock/rockcollection.rs:7:5
+  |
+7 | use numpy::ToPyArray;
+  |     ^^^^^^^^^^^^^^^^
+
+warning: unused import: `spacerocks::Detection`
+  --> src/py_spacerock/rockcollection.rs:13:5
+   |
+13 | use spacerocks::Detection;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+  --> src/py_spacerock/rockcollection.rs:21:5
+   |
+21 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+
+warning: unused import: `Origin`
+ --> src/py_observing/observer.rs:5:46
+  |
+5 | use spacerocks::spacerock::{CoordinateFrame, Origin}; 
+  |                                              ^^^^^^
+
+warning: unused import: `std::sync::Arc`
+  --> src/py_nbody/simulation.rs:14:5
+   |
+14 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src/py_nbody/integrator.rs:6:5
+  |
+6 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `std::rc::Rc`
+ --> src/py_nbody/integrator.rs:7:5
+  |
+7 | use std::rc::Rc; 
+  |     ^^^^^^^^^^^
+
+warning: module `calc_E_from_M` should have a snake case name
+ --> src/py_transforms/mod.rs:3:9
+  |
+3 | pub mod calc_E_from_M;
+  |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_m`
+  |
+  = note: `#[warn(non_snake_case)]` on by default
+
+warning: module `calc_E_from_f` should have a snake case name
+ --> src/py_transforms/mod.rs:6:9
+  |
+6 | pub mod calc_E_from_f;
+  |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_f`
+
+warning: module `calc_M_from_E` should have a snake case name
+ --> src/py_transforms/mod.rs:9:9
+  |
+9 | pub mod calc_M_from_E;
+  |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_m_from_e`
+
+warning: module `calc_f_from_E` should have a snake case name
+  --> src/py_transforms/mod.rs:12:9
+   |
+12 | pub mod calc_f_from_E;
+   |         ^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_f_from_e`
+
+warning: function `calc_E_from_M_py` should have a snake case name
+ --> src/py_transforms/calc_E_from_M.rs:7:8
+  |
+7 | pub fn calc_E_from_M_py(e: f64, M: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_m_py`
+
+warning: variable `M` should have a snake case name
+ --> src/py_transforms/calc_E_from_M.rs:7:33
+  |
+7 | pub fn calc_E_from_M_py(e: f64, M: f64) -> PyResult<f64> {
+  |                                 ^ help: convert the identifier to snake case: `m`
+
+warning: module `calc_E_from_M_py` should have a snake case name
+ --> src/py_transforms/calc_E_from_M.rs:7:8
+  |
+7 | pub fn calc_E_from_M_py(e: f64, M: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_m_py`
+
+warning: function `calc_E_from_f_py` should have a snake case name
+ --> src/py_transforms/calc_E_from_f.rs:7:8
+  |
+7 | pub fn calc_E_from_f_py(e: f64, f: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_f_py`
+
+warning: module `calc_E_from_f_py` should have a snake case name
+ --> src/py_transforms/calc_E_from_f.rs:7:8
+  |
+7 | pub fn calc_E_from_f_py(e: f64, f: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_e_from_f_py`
+
+warning: function `calc_M_from_E_py` should have a snake case name
+ --> src/py_transforms/calc_M_from_E.rs:7:8
+  |
+7 | pub fn calc_M_from_E_py(e: f64, E: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_m_from_e_py`
+
+warning: variable `E` should have a snake case name
+ --> src/py_transforms/calc_M_from_E.rs:7:33
+  |
+7 | pub fn calc_M_from_E_py(e: f64, E: f64) -> PyResult<f64> {
+  |                                 ^ help: convert the identifier to snake case: `e`
+
+warning: module `calc_M_from_E_py` should have a snake case name
+ --> src/py_transforms/calc_M_from_E.rs:7:8
+  |
+7 | pub fn calc_M_from_E_py(e: f64, E: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_m_from_e_py`
+
+warning: function `calc_f_from_E_py` should have a snake case name
+ --> src/py_transforms/calc_f_from_E.rs:7:8
+  |
+7 | pub fn calc_f_from_E_py(e: f64, f: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_f_from_e_py`
+
+warning: module `calc_f_from_E_py` should have a snake case name
+ --> src/py_transforms/calc_f_from_E.rs:7:8
+  |
+7 | pub fn calc_f_from_E_py(e: f64, f: f64) -> PyResult<f64> {
+  |        ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `calc_f_from_e_py`
+
+warning: variable `M` should have a snake case name
+  --> src/py_spacerock/spacerock.rs:81:94
+   |
+81 | ...f64, e: f64, inc: f64, arg: f64, node: f64, M: f64, epoch: PyRef<PyTime>, frame: &str, origin: PyRef<PyOrigin>) -> PyResult<Self> {
+   |                                                ^ help: convert the identifier to snake case: `m`
+
+warning: variable `H` should have a snake case name
+   --> src/py_spacerock/spacerock.rs:105:42
+    |
+105 |     fn set_absolute_magnitude(&mut self, H: f64) {
+    |                                          ^ help: convert the identifier to snake case: `h`
+
+warning: unused `Result` that must be used
+   --> src/py_spacerock/spacerock.rs:139:9
+    |
+139 |         self.inner.change_frame(frame);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this `Result` may be an `Err` variant, which should be handled
+    = note: `#[warn(unused_must_use)]` on by default
+help: use `let _ = ...` to ignore the resulting value
+    |
+139 |         let _ = self.inner.change_frame(frame);
+    |         +++++++
+
+warning: unused `Result` that must be used
+  --> src/py_observing/observer.rs:51:9
+   |
+51 |         self.inner.change_frame(&frame);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this `Result` may be an `Err` variant, which should be handled
+help: use `let _ = ...` to ignore the resulting value
+   |
+51 |         let _ = self.inner.change_frame(&frame);
+   |         +++++++
+
+warning: `spacerocks` (lib) generated 29 warnings (run `cargo fix --lib -p spacerocks` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 26.07s
+📦 Built wheel for CPython 3.12 to /Users/kjnapier/spacerocks/py-spacerocks/target/wheels/spacerocks-3.0.0a0-cp312-cp312-macosx_11_0_arm64.whl

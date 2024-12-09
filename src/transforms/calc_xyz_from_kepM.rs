@@ -1,13 +1,10 @@
-use crate::StateVector;
-use crate::constants::MU_BARY;
-
 use crate::transforms::calc_E_from_M;
 use crate::transforms::calc_f_from_E;
 
 use nalgebra::Vector3;
 
 #[allow(non_snake_case)]
-pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64) -> StateVector {
+pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64, mu: f64) -> (Vector3<f64>, Vector3<f64>) {
 
     let E = calc_E_from_M(e, M);
 
@@ -22,7 +19,7 @@ pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64)
         let omece = 1.0 - e * cosE;
         let f = calc_f_from_E(e, E);
         let r = a * omece;
-        let c = (MU_BARY * a).sqrt() / r;
+        let c = (mu * a).sqrt() / r;
     
         ox = r * f.cos();
         oy = r * f.sin();
@@ -33,7 +30,7 @@ pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64)
         
         let f = calc_f_from_E(e, E);
         let r = a * (1.0 - e*e) / (1.0 + e * f.cos());
-        let c = (-MU_BARY * a).sqrt() / r;
+        let c = (-mu * a).sqrt() / r;
     
         ox = r * f.cos();
         oy = r * f.sin();
@@ -61,6 +58,5 @@ pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64)
     let position = Vector3::new(ox * c1 - oy * c2, ox * c3 + oy * c4, ox * c5 + oy * c6);
     let velocity = Vector3::new(vox * c1 - voy * c2, vox * c3 + voy * c4, vox * c5 + voy * c6);
 
-    return StateVector { position: position, velocity: velocity };
-
+    return (position, velocity);
 }
