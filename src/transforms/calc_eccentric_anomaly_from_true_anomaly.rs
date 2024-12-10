@@ -1,3 +1,5 @@
+use crate::error::OrbitError;
+
 /// Calculate the eccentric anomaly from the true anomaly.
 ///
 /// # Arguments
@@ -7,7 +9,7 @@
 ///
 /// # Returns
 ///
-/// * `Option<f64>` - The eccentric anomaly in radians.
+/// * `Result<f64, OrbitError>` - The eccentric anomaly in radians.
 ///
 /// # Example
 ///
@@ -17,21 +19,24 @@
 /// let true_anomaly = 0.5;
 /// let result = transforms::calc_eccentric_anomaly_from_true_anomaly(eccentricity, true_anomaly);
 /// ```
-pub fn calc_eccentric_anomaly_from_true_anomaly(eccentricity: f64, true_anomaly: f64) -> f64 {
+pub fn calc_eccentric_anomaly_from_true_anomaly(eccentricity: f64, true_anomaly: f64) -> Result<f64, OrbitError> {
+
+    if eccentricity < 0.0 {
+        return Err(OrbitError::NegativeEccentricity(eccentricity));
+    }
 
     if eccentricity.abs() < 1.0e-10 {
-        return true_anomaly;
+        return Ok(true_anomaly);
     }
 
     if eccentricity < 1.0 {
-        2.0 * ((1.0 - eccentricity).sqrt() * (true_anomaly / 2.0).sin()).atan2((1.0 + eccentricity).sqrt() * (true_anomaly / 2.0).cos())
+        Ok(2.0 * ((1.0 - eccentricity).sqrt() * (true_anomaly / 2.0).sin()).atan2((1.0 + eccentricity).sqrt() * (true_anomaly / 2.0).cos()))
     }
     else {
-        2.0 * (((eccentricity - 1.0) / (eccentricity + 1.0)).sqrt() * (true_anomaly / 2.0).tan()).atanh()
+        Ok(2.0 * (((eccentricity - 1.0) / (eccentricity + 1.0)).sqrt() * (true_anomaly / 2.0).tan()).atanh())
     }
 
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -41,26 +46,17 @@ mod tests {
     fn test_calc_eccentric_anomaly_from_true_anomaly() {
         let e = 0.0;
         let f = 0.0;
-        let result = calc_eccentric_anomaly_from_true_anomaly(e, f);
-        assert_eq!(result, 0.0);
+        match calc_eccentric_anomaly_from_true_anomaly(e, f) {
+            Ok(result) => assert_eq!(result, 0.0),
+            Err(_) => assert!(false),
+        }
+
+        let e = -0.1;
+        let f = 0.0;
+        match calc_eccentric_anomaly_from_true_anomaly(e, f) {
+            Ok(_) => assert!(false),
+            Err(_) => assert!(true),
+        }
+
     }
 }
-
-
-
-// let mut E;
-
-    // if e < 1.0 {
-    //     let E = 2.0 * ((1.0 - e).sqrt() * (f / 2.0).sin()).atan2((1.0 + e).sqrt() * (f / 2.0).cos());
-    // }
-
-    // else {
-    //     // let cta = f.cos();
-    //     // E = ((cta + e) / (1.0 + e * cta)).acosh();
-    //     // if f < 0.0 {
-    //     //     E *= -1.0;
-    //     // }
-
-    //     let E = 2.0 * (((e - 1.0) / (e + 1.0)).sqrt() * (f / 2.0).tan()).atanh();
-    // }
-    // return E;

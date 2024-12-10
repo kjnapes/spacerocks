@@ -25,4 +25,10 @@ impl SpiceKernel {
         self.loaded_files = vec![];
     }
 
+    pub fn display(&self) {
+        for file in &self.loaded_files {
+            println!("{}", file);
+        }
+    }
+
 }

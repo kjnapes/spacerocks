@@ -7,6 +7,10 @@ pub mod time;
 pub mod spice;
     pub use spice::SpiceKernel;
 
+mod error;
+    pub use error::OrbitError;
+    
+
 // pub mod spacerock;
 //     pub use spacerock::{SpaceRock, StateVector, KeplerOrbit, Properties, CoordinateFrame, Origin};
 
