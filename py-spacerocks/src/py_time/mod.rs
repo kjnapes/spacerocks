@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 pub mod time;
 
 pub fn make_time_submodule(py: Python, m: &PyModule) -> PyResult<()> {
-    // Add the `spice` submodule
+    // Add the `time` submodule
     let submodule = PyModule::new(py, "time")?;
 
     submodule.add_class::<time::PyTime>()?;

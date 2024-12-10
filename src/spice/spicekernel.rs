@@ -32,3 +32,9 @@ impl SpiceKernel {
     }
 
 }
+
+impl Default for SpiceKernel {
+    fn default() -> Self {
+        SpiceKernel::new()
+    }
+}

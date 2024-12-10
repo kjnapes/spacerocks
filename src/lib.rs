@@ -9,20 +9,19 @@ pub mod spice;
 
 mod error;
     pub use error::OrbitError;
+
+pub mod orbit_type;
+    pub use orbit_type::OrbitType;
     
 
 // pub mod spacerock;
 //     pub use spacerock::{SpaceRock, StateVector, KeplerOrbit, Properties, CoordinateFrame, Origin};
-
 
 // pub mod constants;
 //     pub use constants::OBSERVATORIES;
 
 // pub mod observing;
 //     pub use observing::{Detection, Observatory, Observer};
-
-
-
 
 // pub mod nbody;
 //     pub use nbody::Simulation;

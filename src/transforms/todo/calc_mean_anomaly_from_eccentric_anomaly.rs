@@ -34,3 +34,25 @@ pub fn calc_mean_anomaly_from_eccentric_anomaly(eccentricity: f64, eccentric_ano
     }
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calc_mean_anomaly_from_eccentric_anomaly() {
+        let eccentricity = 0.0;
+        let eccentric_anomaly = 0.0;
+        match calc_mean_anomaly_from_eccentric_anomaly(eccentricity, eccentric_anomaly) {
+            Ok(result) => assert_eq!(result, 0.0),
+            Err(_) => assert!(false),
+        }
+
+        let eccentricity = -0.1;
+        let eccentric_anomaly = 0.0;
+        match calc_mean_anomaly_from_eccentric_anomaly(eccentricity, eccentric_anomaly) {
+            Ok(_) => assert!(false),
+            Err(_) => assert!(true),
+        }
+    }
+}
