@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
+use crate::error::TimeError;
 use lazy_static::lazy_static;
 use serde::{Serialize, Deserialize};
 
@@ -68,22 +69,22 @@ pub struct Time {
 
 impl Time {
 
-    pub fn new(epoch: f64, timescale: &str, format: &str) -> Self {
+    pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
         let timescale = match timescale.to_lowercase().as_str() {
             "utc" => TimeScale::UTC,
             "tdb" => TimeScale::TDB,
-            _ => panic!("Invalid timescale: {}", timescale),
+            _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
         };
         let format = match format.to_lowercase().as_str() {
             "jd" => TimeFormat::JD,
             "mjd" => TimeFormat::MJD,
-            _ => panic!("Invalid format: {}", format),
+            _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
         };
-        Time {
-            epoch: epoch,
-            timescale: timescale,
-            format: format,
-        }
+        Ok(Time {
+            epoch,
+            timescale,
+            format,
+        })
     }
     
     // pub fn now() -> Self {
@@ -130,20 +131,18 @@ impl Time {
 
 
 
-    pub fn jd(&mut self) -> &mut Self {
-        if self.format == TimeFormat::MJD {
-            self.epoch += 2400000.5; // Convert MJD to JD -- Can probably add this to constants
-            self.format = TimeFormat::JD;
+    pub fn jd(&self) -> f64 {
+        match self.format {
+            TimeFormat::JD => self.epoch,
+            TimeFormat::MJD => self.epoch + 2400000.5, // Convert MJD to JD
         }
-        self
     }
 
-    pub fn mjd(&mut self) -> &mut Self {
-        if self.format == TimeFormat::JD {
-            self.epoch -= 2400000.5; // Convert JD to MJD
-            self.format = TimeFormat::MJD;
+    pub fn mjd(&self) -> f64 {
+        match self.format {
+            TimeFormat::JD => self.epoch - 2400000.5, // Convert JD to MJD
+            TimeFormat::MJD => self.epoch,
         }
-        self
     }
 
 }

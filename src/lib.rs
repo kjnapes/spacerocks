@@ -9,9 +9,11 @@ pub mod spice;
 
 mod error;
     pub use error::OrbitError;
+    pub use error::TimeError;
 
 pub mod orbit_type;
     pub use orbit_type::OrbitType;
+
     
 
 // pub mod spacerock;
