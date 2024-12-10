@@ -69,13 +69,14 @@ pub struct Time {
 impl Time {
 
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Self {
-        let timescale = match timescale {
+        let timescale = match timescale.to_lowercase().as_str() {
             "utc" => TimeScale::UTC,
             "tdb" => TimeScale::TDB,
             _ => panic!("Invalid timescale: {}", timescale),
         };
-        let format = match format {
+        let format = match format.to_lowercase().as_str() {
             "jd" => TimeFormat::JD,
+            "mjd" => TimeFormat::MJD,
             _ => panic!("Invalid format: {}", format),
         };
         Time {
@@ -107,35 +108,42 @@ impl Time {
     //     Time::new(epoch, timescale, format)
     // }
 
-    pub fn to_utc(&mut self) {
-        if self.timescale == TimeScale::UTC {
-            return;
+    pub fn utc(&mut self) -> &mut Self {
+        if self.timescale != TimeScale::UTC {
+            self.epoch = tdb_to_utc(self.epoch);
+            self.timescale = TimeScale::UTC;
         }
-
-        self.epoch = tdb_to_utc(self.epoch);
-        self.timescale = TimeScale::UTC;
+        self
     }
 
-    pub fn to_tdb(&mut self) {
-        if self.timescale == TimeScale::TDB {
-            return;
+    pub fn tdb(&mut self) -> &mut Self {
+        if self.timescale != TimeScale::TDB {
+            self.epoch = utc_to_tdb(self.epoch);
+            self.timescale = TimeScale::TDB;
         }
-        self.epoch = utc_to_tdb(self.epoch);
-        self.timescale = TimeScale::TDB;
-    }
-
-    pub fn change_timescale(&mut self, timescale: TimeScale) {
-        if timescale == TimeScale::UTC {
-            self.to_utc();
-        } else if timescale == TimeScale::TDB {
-            self.to_tdb();
-        } else {
-            panic!("Invalid timescale: {:?}", timescale);
-        }
+        self
     }
 
     pub fn calendar(&self) -> String {
         return jd_to_calendar(&self.epoch);
+    }
+
+
+
+    pub fn jd(&mut self) -> &mut Self {
+        if self.format == TimeFormat::MJD {
+            self.epoch += 2400000.5; // Convert MJD to JD -- Can probably add this to constants
+            self.format = TimeFormat::JD;
+        }
+        self
+    }
+
+    pub fn mjd(&mut self) -> &mut Self {
+        if self.format == TimeFormat::JD {
+            self.epoch -= 2400000.5; // Convert JD to MJD
+            self.format = TimeFormat::MJD;
+        }
+        self
     }
 
 }
