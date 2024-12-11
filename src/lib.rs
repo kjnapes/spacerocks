@@ -7,7 +7,7 @@ pub mod time;
 pub mod spice;
     pub use spice::SpiceKernel;
 
-mod error;
+pub mod error;
     pub use error::OrbitError;
     pub use error::TimeError;
 

@@ -145,6 +145,29 @@ impl Time {
         }
     }
 
+    pub fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError> {
+        let timescale = match timescale {
+            Some(ts) => match ts.to_lowercase().as_str() {
+                "utc" => TimeScale::UTC,
+                "tdb" => TimeScale::TDB,
+                _ => return Err(TimeError::InvalidTimeScale(ts.to_string())),
+            },
+            None => TimeScale::UTC,
+        };
+        
+        let format = if epoch > 100_000.0 {
+            TimeFormat::JD
+        } else {
+            TimeFormat::MJD
+        };
+        
+        Ok(Time {
+            epoch,
+            timescale,
+            format,
+        })
+    }
+
 }
 
 
