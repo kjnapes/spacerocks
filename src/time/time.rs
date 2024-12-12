@@ -1,7 +1,7 @@
 use std::ops::{AddAssign, Add, Sub};
 use std::collections::HashMap;
-// use chrono::{DateTime, TimeZone, Utc};
 use chrono::{Utc, DateTime};
+
 use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
@@ -57,9 +57,6 @@ fn jd_to_calendar(jd: &f64) -> String {
 }
 
 
-
-
-
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct Time {
     pub epoch: f64,
@@ -69,18 +66,25 @@ pub struct Time {
 
 
 impl Time {
-
     /// Create a new `Time` object.
     ///
     /// # Arguments
     ///
-    /// * `epoch` - The time in JD or MJD format.
+    /// * `epoch` - The epoch of the time (JD or MJD).
     /// * `timescale` - The timescale of the time (UTC or TDB).
     /// * `format` - The format of the time (JD or MJD).
     ///
     /// # Returns
     ///
     /// * `Result<Time, TimeError>` - The time object.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use spacerocks::time::Time;
+    ///
+    /// let t = Time::new(2451545.0, "UTC", "JD").unwrap();
+    /// ```
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
         let timescale = match timescale.to_lowercase().as_str() {
             "utc" => TimeScale::UTC,
@@ -92,11 +96,12 @@ impl Time {
             "mjd" => TimeFormat::MJD,
             _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
         };
-        Ok(Time {
+        let t = Time {
             epoch,
             timescale,
             format,
-        })
+        };
+        Ok(t)
     }
     
     /// Create a new `Time` object from the current time.
