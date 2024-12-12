@@ -1,7 +1,7 @@
 use std::ops::{AddAssign, Add, Sub};
 use std::collections::HashMap;
 use chrono::{Utc, DateTime};
-
+use chrono::TimeZone;
 use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
@@ -81,9 +81,9 @@ impl Time {
     /// # Example
     ///
     /// ```
-    /// use spacerocks::time::Time;
+    /// use spacerocks::Time;
     ///
-    /// let t = Time::new(2451545.0, "UTC", "JD").unwrap();
+    /// let t = Time::new(2451545.0, "UTC", "JD");
     /// ```
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
         let timescale = match timescale.to_lowercase().as_str() {
@@ -337,8 +337,8 @@ fn get_leap_seconds_at_epoch(jd: f64) -> f64 {
 // }
 
 fn isot_to_julian(isot: &str) -> f64 {
-    // let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
-    let datetime: DateTime<Utc> = DateTime::parse_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap().with_timezone(&Utc);
+    let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
+    // let datetime: DateTime<Utc> = DateTime::parse_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap().into();
     let unix_time = datetime.timestamp() as f64;
     let julian_day = unix_time / 86400.0 + 2440587.5;
     julian_day

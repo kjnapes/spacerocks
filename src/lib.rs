@@ -14,13 +14,20 @@ pub mod error;
 pub mod orbit_type;
     pub use orbit_type::OrbitType;
 
-    
+pub mod spacerock;
+    pub use spacerock::SpaceRock;
+
+pub mod coordinates;
+    pub use coordinates::Origin;
+    pub use coordinates::ReferencePlane;
+
+pub mod constants;
+    pub use constants::OBSERVATORIES;
+
 
 // pub mod spacerock;
 //     pub use spacerock::{SpaceRock, StateVector, KeplerOrbit, Properties, CoordinateFrame, Origin};
 
-// pub mod constants;
-//     pub use constants::OBSERVATORIES;
 
 // pub mod observing;
 //     pub use observing::{Detection, Observatory, Observer};
