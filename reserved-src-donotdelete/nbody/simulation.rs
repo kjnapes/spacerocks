@@ -7,7 +7,7 @@ use crate::spacerock::{CoordinateFrame, Origin};
 
 
 use crate::nbody::forces::{Force, NewtonianGravity, Drag, SolarGR};
-use crate::nbody::integrators::{Integrator, Leapfrog, IAS15};
+use crate::nbody::integrators::{Integrator, IAS15};
 
 
 use nalgebra::Vector3;

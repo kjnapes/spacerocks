@@ -8,7 +8,7 @@ use crate::errors::SimulationError;
 
 
 use crate::nbody::forces::{Force, NewtonianGravity};
-use crate::nbody::integrators::{Integrator, Leapfrog};
+use crate::nbody::integrators::{Integrator, IAS15};
 
 
 use nalgebra::Vector3;
@@ -35,7 +35,7 @@ impl Simulation {
             forces: vec![Box::new(NewtonianGravity)],
             reference_plane: ReferencePlane::ECLIPJ2000,
             origin: Origin::SSB,
-            integrator: Box::new(Leapfrog::new(1.0)),
+            integrator: Box::new(IAS15::new(1.0)),
             particle_index_map: HashMap::new()
         }
     }
@@ -44,7 +44,7 @@ impl Simulation {
 
         let mut sim = Simulation::new();
         sim.epoch = epoch.clone();
-        sim.integrator = Box::new(Leapfrog::new(1.0));
+        sim.integrator = Box::new(IAS15::new(1.0));
 
         // add sun, jupiter barycenter, saturn barycenter, uranus barycenter, neptune barycenter.
         for name in ["sun", "jupiter barycenter", "saturn barycenter", "uranus barycenter", "neptune barycenter"].iter() {
@@ -57,15 +57,13 @@ impl Simulation {
     pub fn add(&mut self, mut particle: SpaceRock) -> Result<(), Box<dyn std::error::Error>> {
 
         if self.epoch != particle.epoch {
-            // return Err(SimulationError::EpochMismatch(particle.epoch.clone(), self.epoch.clone(), particle.name.clone()));
             let err = SimulationError::EpochMismatch(particle.epoch.clone(), self.epoch.clone(), particle.name.clone());
             return Err(err.into());
         }
 
         if particle.origin.clone() != self.origin {
             if !self.particle_index_map.contains_key(&particle.origin.to_string()) {
-                // return Err(SimulationError::OriginMismatch(particle.origin, self.origin.clone()));
-                let err = SimulationError::OriginMismatch(particle.origin.clone(), self.origin.clone());
+                let err = SimulationError::OriginMismatch(particle.origin.clone(), self.origin.clone(), particle.name.clone());
                 return Err(err.into());
             }
             let origin = &self.particles[self.particle_index_map[&particle.origin.to_string()]];
@@ -80,23 +78,18 @@ impl Simulation {
         Ok(())
     }
 
-    pub fn remove(&mut self, name: &str) -> Result<(), String> {
+    pub fn remove(&mut self, name: &str) -> Result<(), SimulationError> {
         if self.particle_index_map.contains_key(name) {
             let idx = self.particle_index_map[name];
             self.particles.remove(idx);
             self.particle_index_map.remove(name);
-            // for (key, value) in self.particle_index_map.iter_mut() {
-            //     if *value > idx {
-            //         *value -= 1;
-            //     }
-            // }
             for value in self.particle_index_map.values_mut() {
                 if *value > idx {
                     *value -= 1;
                 }
             }
         } else {
-            return Err(format!("No particle found with name {}", name));
+            return Err(SimulationError::ParticleNotFound(name.to_string()));
         }
         Ok(())
     }

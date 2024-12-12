@@ -4,8 +4,8 @@ pub mod integrator;
 pub mod leapfrog;
     pub use self::leapfrog::Leapfrog;
 
-// pub mod ias15;
-//     pub use self::ias15::IAS15;
+pub mod ias15;
+    pub use self::ias15::IAS15;
 
 // pub mod mvs;
 //     pub use self::mvs::MVS;
