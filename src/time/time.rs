@@ -9,6 +9,16 @@ use crate::error::TimeError;
 use lazy_static::lazy_static;
 use serde::{Serialize, Deserialize};
 
+
+// add tt, tai
+// break finctions into different files
+// add tests
+// finish docs
+// bind to python
+// benchmarks?
+// levenshtein distance -> did you mean this?
+
+
 // hash mapping integers to month name
 lazy_static! {
     static ref MONTHS: HashMap<u32, &'static str> = {
@@ -103,6 +113,7 @@ impl Time {
         };
         Ok(t)
     }
+
     
     /// Create a new `Time` object from the current time.
     ///
