@@ -70,6 +70,17 @@ pub struct Time {
 
 impl Time {
 
+    /// Create a new `Time` object.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The time in JD or MJD format.
+    /// * `timescale` - The timescale of the time (UTC or TDB).
+    /// * `format` - The format of the time (JD or MJD).
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Time, TimeError>` - The time object.
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
         let timescale = match timescale.to_lowercase().as_str() {
             "utc" => TimeScale::UTC,
@@ -88,6 +99,11 @@ impl Time {
         })
     }
     
+    /// Create a new `Time` object from the current time.
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - The time object with the current time in UTC and JD format.
     pub fn now() -> Self {
         let now = Utc::now();
         let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
@@ -98,6 +114,15 @@ impl Time {
         }
     }
 
+    /// Create a new `Time` object from a fuzzy string.
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - A string representing a time in the format "epoch timescale format".
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Time, TimeError>` - The time object.
     pub fn from_fuzzy_str(s: &str) -> Result<Self, TimeError> {
         let s = s.to_lowercase();
         if s == "now" {
@@ -110,6 +135,11 @@ impl Time {
         Ok(Time::new(epoch, timescale, format)?)
     }
 
+    /// Convert the time to UTC.
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - The time object in with the timescale set to UTC.
     pub fn utc(&mut self) -> &mut Self {
         if self.timescale != TimeScale::UTC {
             self.epoch = tdb_to_utc(self.epoch);
@@ -118,6 +148,11 @@ impl Time {
         self
     }
 
+    /// Convert the time to TDB.
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - The time object in with the timescale set to TDB.
     pub fn tdb(&mut self) -> &mut Self {
         if self.timescale != TimeScale::TDB {
             self.epoch = utc_to_tdb(self.epoch);
@@ -126,12 +161,22 @@ impl Time {
         self
     }
 
+    /// Convert the time to a human-readable calendar date.
+    /// 
+    /// # Returns
+    ///
+    /// * `String` - The calendar date in the format "DD Mon YYYY" in UTC.
     pub fn calendar(&self) -> String {
-        return jd_to_calendar(&self.epoch);
+        // clone the time object and convert to UTC
+        let mut time = self.clone();
+        jd_to_calendar(&time.utc().jd())
     }
 
-
-
+    /// Return the time as a JD.
+    ///
+    /// # Returns
+    ///
+    /// * `f64` - The time as a JD.
     pub fn jd(&self) -> f64 {
         match self.format {
             TimeFormat::JD => self.epoch,
@@ -139,6 +184,11 @@ impl Time {
         }
     }
 
+    /// Return the time as an MJD.
+    ///
+    /// # Returns
+    ///
+    /// * `f64` - The time as an MJD.
     pub fn mjd(&self) -> f64 {
         match self.format {
             TimeFormat::JD => self.epoch - 2400000.5, // Convert JD to MJD
@@ -146,6 +196,7 @@ impl Time {
         }
     }
 
+    
     pub fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError> {
         let timescale = match timescale {
             Some(ts) => match ts.to_lowercase().as_str() {
@@ -243,7 +294,7 @@ fn utc_to_tdb(epoch: f64) -> f64 {
     // to tdb
     let g = (357.53 + 0.9856003 * (epoch - 2451545.0)).to_radians();
     epoch += (0.001658 * g.sin() + 0.000014 * (2.0 * g).sin()) / 86400.0;
-    return epoch;
+    epoch
 }
 
 fn tdb_to_utc(epoch: f64) -> f64 {
@@ -258,7 +309,7 @@ fn tdb_to_utc(epoch: f64) -> f64 {
     // to utc
     let leapseconds = get_leap_seconds_at_epoch(epoch);
     epoch -= leapseconds / 86400.0;
-    return epoch;
+    epoch
 }
 
 
@@ -271,7 +322,7 @@ fn get_leap_seconds_at_epoch(jd: f64) -> f64 {
             break;
         }
     }
-    return num_leap_seconds;
+    num_leap_seconds
 }
 
 // fn get_isot_now() -> String {
