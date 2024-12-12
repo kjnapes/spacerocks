@@ -1,7 +1,5 @@
-use crate::time::Time;
-use crate::coordinates::{Origin, ReferencePlane};
+use crate::{Origin, ReferencePlane, Time, Properties};
 use crate::constants::*;
-use crate::Properties;
 
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
@@ -24,12 +22,11 @@ pub struct SpaceRock {
     pub velocity: Vector3<f64>,
 
     pub properties: Option<Properties>,
-
 }
 
 impl SpaceRock {
 
-    /// Instantiate a SpaceRock from a spice kernel
+    /// Instantiate a SpaceRock from a spice kernel. A kernel must be loaded before calling this method.
     ///
     /// # Arguments
     /// * `name` - The name of the object
@@ -51,7 +48,7 @@ impl SpaceRock {
     pub fn from_spice(name: &str, epoch: &Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
 
         let reference_plane = ReferencePlane::from_str(reference_plane)?;
-        let origin = Origin::from_string(origin)?;
+        let origin = Origin::from_str(origin)?;
 
         let mut ep = epoch.clone();
         let et = spice::str2et(&format!("JD{epoch} UTC", epoch=ep.utc().jd()));
@@ -59,7 +56,7 @@ impl SpaceRock {
         let position = Vector3::new(state[0], state[1], state[2]) * KM_TO_AU;
         let velocity = Vector3::new(state[3], state[4], state[5]) * KM_TO_AU * SECONDS_PER_DAY;
 
-        let rock = SpaceRock {
+        let mut rock = SpaceRock {
             name: name.to_string().into(),
             position: position,
             velocity: velocity,
@@ -69,10 +66,10 @@ impl SpaceRock {
             properties: None,
         };
 
-        // let mass = match MASSES.get(name.to_lowercase().as_str()) {
-        //     Some(m) => *m,
-        //     None => 0.0,
-        // };
+        match MASSES.get(name.to_lowercase().as_str()) {
+            Some(m) => rock.set_mass(*m),
+            None => (),
+        };
 
         Ok(rock)
 
@@ -106,7 +103,7 @@ impl SpaceRock {
     pub fn from_xyz(name: &str, x: f64, y: f64, z: f64, vx: f64, vy: f64, vz: f64, epoch: Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
 
         let reference_plane = ReferencePlane::from_str(reference_plane)?;
-        let origin = Origin::from_string(origin)?;
+        let origin = Origin::from_str(origin)?;
 
         let position = Vector3::new(x, y, z);
         let velocity = Vector3::new(vx, vy, vz);
@@ -208,7 +205,6 @@ impl SpaceRock {
         
         let data: Vec<f64> = first_data_line.split(',').filter_map(|s| s.trim().parse::<f64>().ok()).collect();
         let (x, y, z, vx, vy, vz) = (data[1], data[2], data[3], data[4], data[5], data[6]);
-        // let (dx, dy, dz, dvx, dvy, dvz) = (data[7], data[8], data[9], data[10], data[11], data[12]);
 
         let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch.clone(), reference_plane, origin)?;
         return Ok(rock);
@@ -250,6 +246,79 @@ impl SpaceRock {
         Ok(rock)
     }
 
+    /// Change the reference plane of the SpaceRock
+    ///
+    /// # Arguments
+    /// * `reference_plane` - The new reference plane
+    pub fn change_reference_plane(&mut self, reference_plane: &str) -> Result<(), Box<dyn std::error::Error>> {
+
+        let reference_plane = ReferencePlane::from_str(reference_plane)?;
+        if reference_plane == self.reference_plane {
+            return Ok(());
+        }
+
+        let inv = self.reference_plane.get_rotation_matrix().try_inverse().ok_or("Could not invert rotation matrix")?;
+        let rot = reference_plane.get_rotation_matrix() * inv;
+
+        self.position = rot * self.position;
+        self.velocity = rot * self.velocity;
+        self.reference_plane = reference_plane;
+
+        Ok(())
+    }
+
+    /// Change the origin of the SpaceRock
+    ///
+    /// # Arguments
+    /// * `origin` - The SpaceRock object to change the origin to
+    pub fn change_origin(&mut self, origin: &SpaceRock) {
+
+        let origin_position = origin.position;
+        let origin_velocity = origin.velocity;
+
+        self.position -= origin_position;
+        self.velocity -= origin_velocity;
+
+        self.origin = Origin::new_custom(origin.mass() * GRAVITATIONAL_CONSTANT, &origin.name);
+    }
+
+    /// Change the origin of the SpaceRock to the solar system barycenter
+    /// 
+    /// # Example
+    /// ```
+    /// use spacerocks::SpaceRock;
+    /// use spacerocks::Time;
+    ///
+    /// let epoch = Time::now();
+    /// let rock = SpaceRock::from_horizons("Arrokoth", &epoch, "J2000", "SSB");
+    /// rock.to_ssb();
+    /// ```
+    pub fn to_ssb(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        // get the ssb from spice
+        let mut ssb = SpaceRock::from_spice("ssb", &self.epoch, self.reference_plane.as_str(), self.origin.as_str())?;
+        ssb.set_mass(MU_BARY / GRAVITATIONAL_CONSTANT);
+        self.change_origin(&ssb);
+        Ok(())
+    }
+
+    /// Change the origin of the SpaceRock to the heliocenter
+    ///
+    /// # Example
+    /// ```
+    /// use spacerocks::SpaceRock;
+    /// use spacerocks::Time;
+    ///
+    /// let epoch = Time::now();
+    /// let rock = SpaceRock::from_horizons("Arrokoth", &epoch, "J2000", "SSB");
+    /// rock.to_helio();
+    /// ```
+    pub fn to_helio(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        // get the sun from spice
+        let sun = SpaceRock::from_spice("sun", &self.epoch, self.reference_plane.as_str(), self.origin.as_str())?;
+        self.change_origin(&sun);
+        Ok(())
+    }
+
     pub fn r_squared(&self) -> f64 {
         self.position.dot(&self.position)
     }
@@ -267,6 +336,16 @@ impl SpaceRock {
             self.properties = Some(Properties::default());
         }
         self.properties.as_mut().unwrap().mass = Some(mass);
+    }
+
+    pub fn mass(&self) -> f64 {
+        match &self.properties {
+            Some(p) => match p.mass {
+                Some(m) => m,
+                None => 0.0,
+            },
+            None => 0.0,
+        }
     }
 
     pub fn set_absolute_magnitude(&mut self, absolute_magnitude: f64) {
@@ -317,6 +396,19 @@ impl SpaceRock {
 
     pub fn e(&self) -> f64 {
         self.evec().norm()
+    }
+
+    pub fn specific_energy(&self) -> f64 {
+        self.v_squared() / 2.0 - self.origin.mu() / self.r()
+    }
+
+    pub fn a(&self) -> f64 {
+        -self.origin.mu() / (2.0 * self.specific_energy())
+    }
+
+    pub fn inc (&self) -> f64 {
+        let hvec = self.hvec();
+        (self.hvec().z / hvec.norm()).acos()
     }
 
 }
@@ -395,50 +487,15 @@ impl SpaceRock {
     //     self.analytic_propagate(epoch)
     // }
 
-    // pub fn change_reference_plane(&mut self, reference_plane: &str) -> Result<(), Box<dyn std::error::Error>> {
-
-    //     let reference_plane = ReferencePlane::from_str(reference_plane)?;
-    //     if reference_plane == self.reference_plane {
-    //         return Ok(());
-    //     }
-
-    //     let inv = self.reference_plane.get_rotation_matrix().try_inverse().ok_or("Could not invert rotation matrix")?;
-    //     let rot = reference_plane.get_rotation_matrix() * inv;
-
-    //     self.position = rot * self.position;
-    //     self.velocity = rot * self.velocity;
-    //     self.reference_plane = reference_plane;
-
-    //     Ok(())
-    // }
-
-    // pub fn change_origin(&mut self, origin: &SpaceRock) {
-
-    //     let origin_position = origin.position;
-    //     let origin_velocity = origin.velocity;
-
-    //     self.position -= origin_position;
-    //     self.velocity -= origin_velocity;
-
-    //     // self.mu = Some(origin.mass * GRAVITATIONAL_CONSTANT);
-    //     // self.origin = (*origin.name).clone().into();
-    //     self.origin = Origin::new_custom(origin.mass * GRAVITATIONAL_CONSTANT, &origin.name);
-    //     self.orbit = Some(KeplerOrbit::from_xyz(StateVector {position: self.position, velocity: self.velocity}));
-    // }
-
-    // pub fn to_ssb(&mut self) {
-    //     // get the ssb from spice
-    //     let mut ssb = SpaceRock::from_spice("ssb", &self.epoch, &self.reference_plane, &self.origin);
-    //     ssb.mass = MU_BARY / GRAVITATIONAL_CONSTANT;
-    //     self.change_origin(&ssb);
-    // }
-
-    // pub fn to_helio(&mut self) {
-    //     // get the sun from spice
-    //     let sun = SpaceRock::from_spice("sun", &self.epoch, &self.reference_plane, &self.origin);
-    //     self.change_origin(&sun);
-    // }
 
     // pub fn calculate_orbit(&mut self) {
     //     self.orbit = Some(KeplerOrbit::from_xyz(StateVector {position: self.position, velocity: self.velocity}));
     // }
+
+
+/// Display the SpaceRock object with each field on a new line
+impl std::fmt::Display for SpaceRock {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "SpaceRock: {}\nEpoch: {:?}\nReference Plane: {}\nOrigin: {}\nPosition: {:?}\nVelocity: {:?}\nProperties: {:?}", self.name, self.epoch, self.reference_plane, self.origin, self.position, self.velocity, self.properties)
+    }
+}

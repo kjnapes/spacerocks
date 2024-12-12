@@ -1,10 +1,8 @@
 use lazy_static::lazy_static;
 use phf;
-use phf::phf_map;
-// use std::collections::HashMap;
 
 lazy_static! {
-    pub static ref OBSERVATORIES: phf::Map<&'static str, (f64, f64, f64)> = phf_map! {
+    pub static ref OBSERVATORIES: phf::Map<&'static str, (f64, f64, f64)> = phf::phf_map! {
         "000" => (0.0, 0.62411, 0.77873),
         "001" => (0.0026912977065752563, 0.62992, 0.77411),
         "002" => (0.010821041362364843, 0.622, 0.781),

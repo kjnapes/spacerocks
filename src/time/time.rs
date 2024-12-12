@@ -177,6 +177,18 @@ impl Time {
         self
     }
 
+    /// Change the timescale of the time.
+    ///
+    /// # Arguments
+    ////
+    /// * `timescale` - The timescale to change to (UTC or TDB).
+    pub fn change_timescale(&mut self, timescale: TimeScale) -> &mut Self {
+        match timescale {
+            TimeScale::UTC => self.utc(),
+            TimeScale::TDB => self.tdb(),
+        }
+    }
+
     /// Convert the time to a human-readable calendar date.
     /// 
     /// # Returns

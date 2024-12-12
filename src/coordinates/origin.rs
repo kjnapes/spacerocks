@@ -14,11 +14,19 @@ impl Origin {
         Origin::Custom { mu: mu, name: name.to_string() }
     }
 
-    pub fn from_string(s: &str) -> Result<Origin, OriginError> {
+    pub fn from_str(s: &str) -> Result<Origin, OriginError> {
         match s.to_uppercase().as_str() {
             "SUN" => Ok(Origin::SUN),
             "SSB" => Ok(Origin::SSB),
             _ => Err(OriginError::InvalidOrigin(s.to_string())),
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        match self {
+            Origin::SUN => "SUN",
+            Origin::SSB => "SSB",
+            Origin::Custom { name, .. } => name,
         }
     }
 
