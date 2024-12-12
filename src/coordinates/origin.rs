@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use crate::error::OriginError;
+use crate::errors::OriginError;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Origin {

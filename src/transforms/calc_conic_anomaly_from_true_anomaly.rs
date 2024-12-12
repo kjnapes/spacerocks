@@ -1,4 +1,3 @@
-use crate::error::OrbitError;
 use crate::orbit_type::OrbitType;
 
 /// Calculate the eccentric anomaly from the true anomaly.
@@ -20,7 +19,7 @@ use crate::orbit_type::OrbitType;
 /// let true_anomaly = 0.5;
 /// let result = transforms::calc_conic_anomaly_from_true_anomaly(e, true_anomaly);
 /// ```
-pub fn calc_conic_anomaly_from_true_anomaly(e: f64, true_anomaly: f64) -> Result<f64, OrbitError> {
+pub fn calc_conic_anomaly_from_true_anomaly(e: f64, true_anomaly: f64) -> Result<f64, Box<dyn std::error::Error>> {
 
     let orbit_type = OrbitType::from_eccentricity(e, 1e-10)?; // returns OrbitError error if e < 0.0
     match orbit_type {

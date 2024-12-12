@@ -1,4 +1,4 @@
-use crate::error::OrbitError;
+use crate::errors::OrbitError;
 
 #[derive(Debug, PartialEq)]
 pub enum OrbitType {

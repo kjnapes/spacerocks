@@ -5,7 +5,7 @@ use chrono::TimeZone;
 use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
-use crate::error::TimeError;
+use crate::errors::TimeError;
 use lazy_static::lazy_static;
 use serde::{Serialize, Deserialize};
 
