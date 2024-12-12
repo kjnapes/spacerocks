@@ -6,8 +6,8 @@ use crate::Properties;
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
 
-use rand;
-use rand::Rng;
+// use rand;
+// use rand::Rng;
 
 use std::collections::HashMap;
 
@@ -144,9 +144,6 @@ impl SpaceRock {
     /// ```
     pub fn from_horizons(name: &str, epoch: &Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
 
-        // let reference_plane = ReferencePlane::from_str(reference_plane)?;
-        // let origin = Origin::from_string(origin)?;
-
         let client = reqwest::blocking::Client::new();
 
         let mut params = HashMap::new();
@@ -162,7 +159,7 @@ impl SpaceRock {
         match reference_plane.to_uppercase().as_str() {
             "J2000" => {
                 params.insert("ref_system", "'J2000'");
-                params.insert("ref_plane", "'reference_plane'");
+                params.insert("ref_plane", "'frame'");
             },
             "ECLIPJ2000" => {
                 params.insert("ref_system", "'J2000'");
@@ -172,6 +169,7 @@ impl SpaceRock {
                 return Err("Frame not recognized".into());
             }
         }
+
 
         if timescale == "UTC" {
             params.insert("TIME_TYPE", "'UT'");
@@ -212,20 +210,7 @@ impl SpaceRock {
         let (x, y, z, vx, vy, vz) = (data[1], data[2], data[3], data[4], data[5], data[6]);
         // let (dx, dy, dz, dvx, dvy, dvz) = (data[7], data[8], data[9], data[10], data[11], data[12]);
 
-        let position = Vector3::new(x, y, z);
-        let velocity = Vector3::new(vx, vy, vz);
-
         let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch.clone(), reference_plane, origin)?;
-
-        // let rock = SpaceRock {
-        //     name: name.to_string().into(),
-        //     position: position,
-        //     velocity: velocity,
-        //     epoch: epoch.clone(),
-        //     reference_plane: reference_plane,
-        //     origin: origin,
-        //     properties: None,
-        // };
         return Ok(rock);
     }
 
@@ -265,20 +250,52 @@ impl SpaceRock {
         Ok(rock)
     }
 
-    fn r_squared(&self) -> f64 {
+    pub fn r_squared(&self) -> f64 {
         self.position.dot(&self.position)
     }
 
-    fn v_squared(&self) -> f64 {
+    pub fn v_squared(&self) -> f64 {
         self.velocity.dot(&self.velocity)
     }
 
-    fn v(&self) -> f64 {
+    pub fn v(&self) -> f64 {
         self.velocity.norm()
     }
 
     pub fn set_mass(&mut self, mass: f64) {
-        !todo!();
+        if self.properties.is_none() {
+            self.properties = Some(Properties::default());
+        }
+        self.properties.as_mut().unwrap().mass = Some(mass);
+    }
+
+    pub fn set_absolute_magnitude(&mut self, absolute_magnitude: f64) {
+        if self.properties.is_none() {
+            self.properties = Some(Properties::default());
+        }
+        self.properties.as_mut().unwrap().absolute_magnitude = Some(absolute_magnitude);
+        self.properties.as_mut().unwrap().gslope = Some(0.15);
+    }
+
+    pub fn set_gslope(&mut self, gslope: f64) {
+        if self.properties.is_none() {
+            self.properties = Some(Properties::default());
+        }
+        self.properties.as_mut().unwrap().gslope = Some(gslope);
+    }
+
+    pub fn set_radius(&mut self, radius: f64) {
+        if self.properties.is_none() {
+            self.properties = Some(Properties::default());
+        }
+        self.properties.as_mut().unwrap().radius = Some(radius);
+    }
+
+    pub fn set_albedo(&mut self, albedo: f64) {
+        if self.properties.is_none() {
+            self.properties = Some(Properties::default());
+        }
+        self.properties.as_mut().unwrap().albedo = Some(albedo);
     }
 
     pub fn r(&self) -> f64 {
