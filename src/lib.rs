@@ -25,6 +25,9 @@ pub mod constants;
     pub use constants::OBSERVATORIES;
 
 
+pub mod properties;
+    pub use properties::Properties;
+
 // pub mod spacerock;
 //     pub use spacerock::{SpaceRock, StateVector, KeplerOrbit, Properties, CoordinateFrame, Origin};
 
