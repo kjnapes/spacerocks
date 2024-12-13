@@ -28,7 +28,12 @@ impl PySpiceKernel {
     }
 
     fn __repr__(&self) -> String {
-        format!("SpiceKernel: {:?}", self.inner.loaded_files)
+        let mut s = "SpiceKernel".to_string();
+        for f in &self.inner.loaded_files {
+            s.push_str(&format!("\n - {}", f));
+        }
+        s
+        // format!("SpiceKernel: {:?}", self.inner.loaded_files)
     }
 
     #[getter]
