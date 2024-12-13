@@ -37,25 +37,25 @@ impl PySimulation {
         Ok(PySimulation { inner: sim.unwrap() })
     }
 
-    #[classmethod]
-    pub fn planets(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
-        let ep = &epoch.inner;
-        let or = &origin.inner;
+    // #[classmethod]
+    // pub fn planets(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
+    //     let ep = &epoch.inner;
+    //     let or = &origin.inner;
 
-        let frame = CoordinateFrame::from_str(frame).unwrap();
-        let sim = Simulation::planets(ep, &frame, or);
-        Ok(PySimulation { inner: sim.unwrap() })
-    }
+    //     let frame = CoordinateFrame::from_str(frame).unwrap();
+    //     let sim = Simulation::planets(ep, &frame, or);
+    //     Ok(PySimulation { inner: sim.unwrap() })
+    // }
 
-    #[classmethod]
-    pub fn horizons(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
-        let ep = &epoch.inner;
-        let or = &origin.inner;
+    // #[classmethod]
+    // pub fn horizons(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
+    //     let ep = &epoch.inner;
+    //     let or = &origin.inner;
 
-        let frame = CoordinateFrame::from_str(frame).unwrap();
-        let sim = Simulation::horizons(ep, &frame, or);
-        Ok(PySimulation { inner: sim.unwrap() })
-    }
+    //     let frame = CoordinateFrame::from_str(frame).unwrap();
+    //     let sim = Simulation::horizons(ep, &frame, or);
+    //     Ok(PySimulation { inner: sim.unwrap() })
+    // }
 
     pub fn add(&mut self, rock: &PySpaceRock) -> PyResult<()> {
         match self.inner.add(rock.inner.clone()) {
@@ -128,11 +128,6 @@ impl PySimulation {
     pub fn particles(&self) -> RockCollection {
         RockCollection { rocks: self.inner.particles.clone(), name_hash_map: self.inner.particle_index_map.clone() }
     }
-
-    // #[getter]
-    // pub fn perturbers(&self) -> RockCollection {
-    //     RockCollection { rocks: self.inner.perturbers.clone(), name_hash_map: self.inner.perturber_index_map.clone() }
-    // }
 
     #[getter]
     pub fn epoch(&self) -> PyTime {

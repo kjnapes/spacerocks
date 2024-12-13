@@ -192,7 +192,6 @@ impl SpaceRock {
         params.insert("vec_table", "'2x'");
         params.insert("vec_labels", "'no'");
 
-    
         let response = client.get("https://ssd.jpl.nasa.gov/api/horizons.api?")
             .query(&params)
             .send()?;
@@ -207,7 +206,7 @@ impl SpaceRock {
         let (x, y, z, vx, vy, vz) = (data[1], data[2], data[3], data[4], data[5], data[6]);
 
         let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch.clone(), reference_plane, origin)?;
-        return Ok(rock);
+        Ok(rock)
     }
 
     /// Instantiate a SpaceRock from spherical coordinates (Napier and Holman 2024)
