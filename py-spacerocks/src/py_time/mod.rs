@@ -1,24 +1,6 @@
 use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
 
 pub mod time;
-
-
-// use pyo3::prelude::*;
-
-// pub fn make_time_submodule(py: Python, m: &PyModule) -> PyResult<()> {
-//     // Add the `time` submodule
-//     let submodule = PyModule::new(py, "time")?;
-
-//     submodule.add_class::<time::PyTime>()?;
-
-//     m.add_submodule(submodule)?;
-//     py.import("sys")?
-//         .getattr("modules")?
-//         .set_item("spacerocks.time", submodule)?;
-//     submodule.setattr("__name__", "spacerocks.time")?;
-//     Ok(())
-// }
 
 pub fn make_time_submodule(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Create a submodule named "time"

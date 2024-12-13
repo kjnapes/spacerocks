@@ -47,6 +47,8 @@ impl SpaceRock {
     /// ```
     pub fn from_spice(name: &str, epoch: &Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
 
+        // check a priori if the name is in the list of loaded kernels
+
         let reference_plane = ReferencePlane::from_str(reference_plane)?;
         let origin = Origin::from_str(origin)?;
 

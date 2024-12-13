@@ -6,8 +6,8 @@ use pyo3::prelude::*;
 // mod py_spacerock;
 // use py_spacerock::make_spacerock_submodule;
 
-// mod py_spice;
-// use py_spice::make_spice_submodule;
+mod py_spice;
+use py_spice::make_spice_submodule;
 
 mod py_time;
 use py_time::make_time_submodule;
@@ -31,7 +31,7 @@ pub fn spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // make_spacerock_submodule(py, m)?;
 
     // Add the `spice` submodule
-    // make_spice_submodule(py, m)?;
+    make_spice_submodule(py, m)?;
 
     // // Add the `time` submodule
     make_time_submodule(py, m)?;

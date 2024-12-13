@@ -22,7 +22,6 @@ use crate::orbit_type::OrbitType;
 /// ```
 #[allow(non_snake_case)]
 pub fn calc_conic_anomaly_from_mean_anomaly(e: f64, mean_anomaly: f64) -> Result<f64, OrbitError> {
-    
     let orbit_type = OrbitType::from_eccentricity(e, 1e-10)?; // returns OrbitError error if e < 0.0
     match orbit_type {
         OrbitType::Circular => Ok(kepler_circular(e, mean_anomaly)),

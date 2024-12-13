@@ -1,5 +1,4 @@
 use spacerocks::{SpaceRock, Time, SpiceKernel};
-// hash map
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -14,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
 
     // load earth from spice
-    // let earth = SpaceRock::from_spice("EarTh", &epoch, "EcLiPj2000", "sSb")?;
+    let earth = SpaceRock::from_spice("EarTh", &epoch, "EcLiPj2000", "sSb")?;
     // println!("{}", earth);
 
     // load arrokoth from spice
