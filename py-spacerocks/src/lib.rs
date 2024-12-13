@@ -22,7 +22,7 @@ use py_time::make_time_submodule;
 // use orbfit::make_orbfit_submodule;
 
 #[pymodule]
-pub fn spacerocks(py: Python, m: &PyModule) -> PyResult<()> {
+pub fn spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Add the `transforms` submodule
     // make_transforms_submodule(py, m)?;
