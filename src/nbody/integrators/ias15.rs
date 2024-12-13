@@ -461,9 +461,9 @@ pub fn calculate_new_timestep(particles: &Vec<SpaceRock>, accelerations: &Vec<Ve
     }
 
     if min_timescale2.is_normal() {
-        return min_timescale2.sqrt() * last_timestep * (epsilon * 5040.0).powf(1.0 / 7.0);
+        min_timescale2.sqrt() * last_timestep * (epsilon * 5040.0).powf(1.0 / 7.0)
     } else {
-        return last_timestep / SAFETY_FACTOR;
+        last_timestep / SAFETY_FACTOR
     }
 
 }
