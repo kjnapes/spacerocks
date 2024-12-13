@@ -78,7 +78,6 @@ impl Time {
     /// ```
     /// let t = Time::now();
     /// ```
-
     pub fn now() -> Self {
         let now = Utc::now();
         let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
@@ -104,7 +103,6 @@ impl Time {
     /// ```
     /// let t = Time::from_fuzzy_str("2451545.0 UTC JD");
     /// ```
-
     pub fn from_fuzzy_str(s: &str) -> Result<Self, TimeError> {
         let s = s.to_lowercase();
         if s == "now" {
@@ -285,6 +283,16 @@ impl Time {
         match self.format {
             TimeFormat::JD => self.epoch - 2400000.5, // Convert JD to MJD
             TimeFormat::MJD => self.epoch,
+        }
+    }
+
+
+    pub fn change_timescale(&mut self, timescale: TimeScale) -> &mut Self {
+        match timescale {
+            TimeScale::UTC => self.utc(),
+            TimeScale::TDB => self.tdb(),
+            TimeScale::TT => self.tt(),
+            TimeScale::TAI => self.tai(),
         }
     }
 
