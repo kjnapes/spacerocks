@@ -40,6 +40,17 @@ impl Simulation {
         }
     }
 
+    /// Instantiate a simulation with the solar system giants.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the simulation.
+    /// * `reference_plane` - The reference plane of the simulation.
+    /// * `origin` - The origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Simulation, Box<dyn std::error::Error>>` - The simulation with the solar system giants.
     pub fn giants(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
 
         let mut sim = Simulation::new();
@@ -54,6 +65,11 @@ impl Simulation {
         Ok(sim)
     }
 
+    /// Add a particle to the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `particle` - The particle to add to the simulation.
     pub fn add(&mut self, mut particle: SpaceRock) -> Result<(), Box<dyn std::error::Error>> {
 
         if self.epoch != particle.epoch {
@@ -78,6 +94,11 @@ impl Simulation {
         Ok(())
     }
 
+    /// Remove a particle from the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the particle to remove.
     pub fn remove(&mut self, name: &str) -> Result<(), SimulationError> {
         if self.particle_index_map.contains_key(name) {
             let idx = self.particle_index_map[name];
@@ -94,10 +115,12 @@ impl Simulation {
         Ok(())
     }
 
+    /// Step the simulation forward in time by one timestep.
     pub fn step(&mut self) {
         self.integrator.step(&mut self.particles, &mut self.epoch, &self.forces);
     }
 
+    /// Move the simulation to the center of mass.
     pub fn move_to_center_of_mass(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         let mut total_mass = 0.0;
         let mut center_of_mass = Vector3::new(0.0, 0.0, 0.0);
@@ -138,6 +161,11 @@ impl Simulation {
         Ok(())
     }
 
+    /// Change the origin of the simulation.
+    ///
+    /// # Arguments
+    ///     
+    /// * `origin` - The name of the particle to set as the origin.
     pub fn change_origin(&mut self, origin: &str) -> Result<(), String> {
 
         if !self.particle_index_map.contains_key(origin) {
@@ -159,6 +187,11 @@ impl Simulation {
         Ok(())
     }
 
+    /// Integrate the simulation to a new epoch.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The new epoch to integrate to.
     pub fn integrate(&mut self, epoch: &Time) {
 
         let mut epoch = epoch.clone();
@@ -204,15 +237,25 @@ impl Simulation {
         self.integrator.set_timestep(old_timestep);
     }
 
-    pub fn get_particle(&self, name: &str) -> Result<&SpaceRock, Box<dyn std::error::Error>> {
+    /// Get a particle from the simulation by name.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the particle to get.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<&SpaceRock, SimulationError>` - The particle with the given name.
+    pub fn get_particle(&self, name: &str) -> Result<&SpaceRock, SimulationError> {
         if self.particle_index_map.contains_key(name) { 
             let idx = self.particle_index_map[name];
             let p = &self.particles[idx];
             return Ok(p);
         }
-        return Err(format!("{} not found in simulation", name).into());
+        return Err(SimulationError::ParticleNotFound(name.to_string()).into());
     }
 
+    /// Get the energy of the simulation.
     pub fn energy(&self) -> f64 {
         let mut kinetic_energy = 0.0;
         let mut potential_energy = 0.0;
@@ -227,6 +270,11 @@ impl Simulation {
         return kinetic_energy + potential_energy;
     }
 
+    /// Add a force to the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `force` - The force to add to the simulation.
     pub fn add_force(&mut self, force: Box<dyn Force + Send + Sync>) {
         self.forces.push(force);
     }
