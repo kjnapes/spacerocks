@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use spacerocks::time::{Time, TimeFormat, TimeScale};
-    use spacerocks::error::TimeError;
+    use spacerocks::errors::TimeError;
 
     // Time Creation
     #[test]

@@ -1,7 +1,9 @@
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum TimeScale {
+    #[default]
     UTC,
     TDB,
 }
@@ -24,8 +26,3 @@ impl std::fmt::Display for TimeScale {
     }
 }
 
-impl Default for TimeScale {
-    fn default() -> Self {
-        TimeScale::UTC
-    }
-}

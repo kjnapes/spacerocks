@@ -57,19 +57,16 @@ impl SpaceRock {
         let velocity = Vector3::new(state[3], state[4], state[5]) * KM_TO_AU * SECONDS_PER_DAY;
 
         let mut rock = SpaceRock {
-            name: name.to_string().into(),
-            position: position,
-            velocity: velocity,
+            name: name.to_string(),
+            position,
+            velocity,
             epoch: epoch.clone(),
-            reference_plane: reference_plane,
-            origin: origin,
+            reference_plane,
+            origin,
             properties: None,
         };
 
-        match MASSES.get(name.to_lowercase().as_str()) {
-            Some(m) => rock.set_mass(*m),
-            None => (),
-        };
+        if let Some(m) = MASSES.get(name.to_lowercase().as_str()) { rock.set_mass(*m) };
 
         Ok(rock)
 
@@ -108,10 +105,10 @@ impl SpaceRock {
         let position = Vector3::new(x, y, z);
         let velocity = Vector3::new(vx, vy, vz);
         let rock = SpaceRock {
-                name: name.to_string().into(),
-                position: position,
-                velocity: velocity,
-                epoch: epoch,
+                name: name.to_string(),
+                position,
+                velocity,
+                epoch,
                 reference_plane: reference_plane.clone(),
                 origin: origin.clone(),
                 properties: None,
@@ -180,7 +177,7 @@ impl SpaceRock {
         let tf = format!("'{}'", timeformat);
         params.insert("TLIST_TYPE", tf.as_str());
 
-        let center = format!("'@{}'", origin.to_string());
+        let center = format!("'@{}'", origin);
         params.insert("center", center.as_str());
 
         params.insert("make_ephem", "'yes'");
@@ -199,8 +196,8 @@ impl SpaceRock {
         let json: serde_json::Value = response.json()?;
         let text = json["result"].as_str();
 
-        let lines: Vec<&str> = text.ok_or_else(| | "No data")?.split('\n').collect();
-        let first_data_line = lines.iter().skip_while(|&line| !line.starts_with("$$SOE")).skip(1).next().ok_or("No data")?;
+        let lines: Vec<&str> = text.ok_or("No data")?.split('\n').collect();
+        let first_data_line = lines.iter().skip_while(|&line| !line.starts_with("$$SOE")).nth(1).ok_or("No data")?;
         
         let data: Vec<f64> = first_data_line.split(',').filter_map(|s| s.trim().parse::<f64>().ok()).collect();
         let (x, y, z, vx, vy, vz) = (data[1], data[2], data[3], data[4], data[5], data[6]);
@@ -339,10 +336,7 @@ impl SpaceRock {
 
     pub fn mass(&self) -> f64 {
         match &self.properties {
-            Some(p) => match p.mass {
-                Some(m) => m,
-                None => 0.0,
-            },
+            Some(p) => p.mass.unwrap_or(0.0),
             None => 0.0,
         }
     }

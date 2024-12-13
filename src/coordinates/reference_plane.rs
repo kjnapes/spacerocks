@@ -4,8 +4,10 @@ use crate::constants::{ROTATION_J2000, ROTATION_ECLIPJ2000, ROTATION_INVARIABLE,
 use serde::{Serialize, Deserialize};
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum ReferencePlane {
     J2000,
+    #[default]
     ECLIPJ2000,
     INVARIABLE,
     GALACTIC,
@@ -47,11 +49,6 @@ impl ReferencePlane {
 
 }
 
-impl Default for ReferencePlane {
-    fn default() -> Self {
-        ReferencePlane::ECLIPJ2000
-    }
-}
 
 
 impl std::fmt::Display for ReferencePlane {

@@ -2,7 +2,9 @@ use serde::{Serialize, Deserialize};
 
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum TimeFormat {
+    #[default]
     JD,
     MJD,
 }
@@ -33,8 +35,3 @@ impl std::fmt::Display for TimeFormat {
     }
 }
 
-impl Default for TimeFormat {
-    fn default() -> Self {
-        TimeFormat::JD
-    }
-}

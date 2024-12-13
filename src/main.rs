@@ -1,8 +1,5 @@
-use spacerocks::{SpaceRock, Time, SpiceKernel, Simulation};
-use plotters::prelude::*;
-use nalgebra::Vector3;
+use spacerocks::{SpaceRock, Time, SpiceKernel};
 // hash map
-use std::collections::HashMap;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 

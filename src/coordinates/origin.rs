@@ -2,8 +2,10 @@ use serde::{Serialize, Deserialize};
 use crate::errors::OriginError;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum Origin {
     SUN,
+    #[default]
     SSB,
     Custom {name: String, mu: f64},
 }
@@ -11,7 +13,7 @@ pub enum Origin {
 impl Origin {
 
     pub fn new_custom(mu: f64, name: &str) -> Origin {
-        Origin::Custom { mu: mu, name: name.to_string() }
+        Origin::Custom { mu, name: name.to_string() }
     }
 
     pub fn from_str(s: &str) -> Result<Origin, OriginError> {
@@ -40,7 +42,7 @@ impl Origin {
 
     pub fn mu(&self) -> f64 {
         match self {
-            Origin::SUN => 0.00029591220828411951,
+            Origin::SUN => 0.000_295_912_208_284_119_5,
             Origin::SSB => 0.00029630927493457475,
             Origin::Custom { mu, .. } => *mu,
         }
@@ -60,11 +62,6 @@ impl Origin {
 }
 
 
-impl Default for Origin {
-    fn default() -> Origin {
-        Origin::SSB
-    }
-}
 
 impl std::fmt::Display for Origin {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

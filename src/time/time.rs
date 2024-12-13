@@ -148,7 +148,7 @@ impl Time {
         let epoch = parts.next().unwrap().parse::<f64>().unwrap();
         let timescale = parts.next().unwrap();
         let format = parts.next().unwrap();
-        Ok(Time::new(epoch, timescale, format)?)
+        Time::new(epoch, timescale, format)
     }
 
     /// Convert the time to UTC.
@@ -363,8 +363,8 @@ fn isot_to_julian(isot: &str) -> f64 {
     let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
     // let datetime: DateTime<Utc> = DateTime::parse_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap().into();
     let unix_time = datetime.timestamp() as f64;
-    let julian_day = unix_time / 86400.0 + 2440587.5;
-    julian_day
+    
+    unix_time / 86400.0 + 2440587.5
 }
 
 

@@ -26,6 +26,12 @@ pub struct Simulation {
     pub forces: Vec<Box<dyn Force + Send + Sync>>,
 }
 
+impl Default for Simulation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Simulation {
 
     pub fn new() -> Simulation {
@@ -83,7 +89,7 @@ impl Simulation {
                 return Err(err.into());
             }
             let origin = &self.particles[self.particle_index_map[&particle.origin.to_string()]];
-            particle.change_origin(&origin);
+            particle.change_origin(origin);
             println!("Changing origin of {} from {} to {}", particle.name, particle.origin, origin.name);
         }
 
@@ -202,10 +208,8 @@ impl Simulation {
             return;
         }
 
-        if dt < 0.0 {
-            if self.integrator.timestep() > 0.0 {
-                self.integrator.set_timestep(-self.integrator.timestep());
-            }
+        if dt < 0.0 && self.integrator.timestep() > 0.0 {
+            self.integrator.set_timestep(-self.integrator.timestep());
         }
 
         loop {
@@ -217,10 +221,8 @@ impl Simulation {
                 if self.integrator.timestep() > 0.0 {
                     self.integrator.set_timestep(-self.integrator.timestep());
                 }
-            } else {
-                if self.integrator.timestep() < 0.0 {
-                    self.integrator.set_timestep(-self.integrator.timestep());
-                }
+            } else if self.integrator.timestep() < 0.0 {
+                self.integrator.set_timestep(-self.integrator.timestep());
             }
             self.step();
         }
@@ -252,7 +254,7 @@ impl Simulation {
             let p = &self.particles[idx];
             return Ok(p);
         }
-        return Err(SimulationError::ParticleNotFound(name.to_string()).into());
+        Err(SimulationError::ParticleNotFound(name.to_string()))
     }
 
     /// Get the energy of the simulation.
@@ -267,7 +269,7 @@ impl Simulation {
                 potential_energy -= GRAVITATIONAL_CONSTANT * self.particles[idx].mass() * self.particles[jdx].mass() / r;
             }
         }
-        return kinetic_energy + potential_energy;
+        kinetic_energy + potential_energy
     }
 
     /// Add a force to the simulation.

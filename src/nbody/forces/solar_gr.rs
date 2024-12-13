@@ -16,7 +16,7 @@ impl Force for SolarGR {
 
         let mut acceleration = vec![Vector3::zeros(); entities.len()];
 
-        let sun_index = entities.iter().position(|x| x.name == "sun".to_string()).unwrap();
+        let sun_index = entities.iter().position(|x| x.name == *"sun").unwrap();
         let sun = entities[sun_index].clone();
         let mu = GRAVITATIONAL_CONSTANT * sun.mass();
 
