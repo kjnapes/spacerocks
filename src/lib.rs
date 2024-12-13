@@ -17,8 +17,9 @@ pub mod coordinates;
     pub use coordinates::Origin;
     pub use coordinates::ReferencePlane;
 
-pub mod constants;
-    pub use constants::OBSERVATORIES;
+pub mod data;
+    pub use data::OBSERVATORIES;
+    pub use data::constants;
 
 
 pub mod properties;
