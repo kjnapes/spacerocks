@@ -6,6 +6,8 @@ pub enum TimeScale {
     #[default]
     UTC,
     TDB,
+    TT, 
+    TAI,
 }
 
 impl TimeScale {
@@ -13,6 +15,8 @@ impl TimeScale {
         match self {
             TimeScale::UTC => "UTC",
             TimeScale::TDB => "TDB",
+            TimeScale::TT => "TT",
+            TimeScale::TAI => "TAI",
         }
     }
 }
@@ -22,6 +26,8 @@ impl std::fmt::Display for TimeScale {
         match self {
             TimeScale::UTC => write!(f, "UTC"),
             TimeScale::TDB => write!(f, "TDB"),
+            TimeScale::TT => write!(f, "TT"),
+            TimeScale::TAI => write!(f, "TAI"),
         }
     }
 }

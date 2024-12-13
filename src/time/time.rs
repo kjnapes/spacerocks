@@ -1,71 +1,21 @@
 use std::ops::{AddAssign, Add, Sub};
-use std::collections::HashMap;
+// use std::collections::HashMap;
 use chrono::{Utc, DateTime};
-use chrono::TimeZone;
-use crate::time::leapseconds::LEAP_SECONDS;
+// use chrono::TimeZone;
+// use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
 use crate::errors::TimeError;
-use lazy_static::lazy_static;
+// use lazy_static::lazy_static;
 use serde::{Serialize, Deserialize};
+use crate::time::conversions::*;
 
 
-// add tt, tai
-// break finctions into different files
-// add tests
+
 // finish docs
 // bind to python
 // benchmarks?
 // levenshtein distance -> did you mean this?
-
-
-// hash mapping integers to month name
-lazy_static! {
-    static ref MONTHS: HashMap<u32, &'static str> = {
-        let mut m = HashMap::new();
-        m.insert(1, "Jan");
-        m.insert(2, "Feb");
-        m.insert(3, "Mar");
-        m.insert(4, "Apr");
-        m.insert(5, "May");
-        m.insert(6, "Jun");
-        m.insert(7, "Jul");
-        m.insert(8, "Aug");
-        m.insert(9, "Sep");
-        m.insert(10, "Oct");
-        m.insert(11, "Nov");
-        m.insert(12, "Dec");
-        m
-    };
-}
-
-fn jd_to_calendar(jd: &f64) -> String {
-    let jd = jd + 0.5;
-    let z = jd.trunc() as i32;
-    let a = if z < 2299161 {
-        z
-    } else {
-        let alpha = ((z as f64 - 1867216.25) / 36524.25).floor() as i32;
-        z + 1 + alpha - (alpha / 4)
-    };
-    let b = a + 1524;
-    let c = ((b as f64 - 122.1) / 365.25).floor() as i32;
-    let d = (365.25 * c as f64).floor() as i32;
-    let e = ((b as f64 - d as f64) / 30.6001).floor() as u32;
-    let day = b - d - ((30.6001 * e as f64) as i32);
-    let month = if e < 14 {
-        e - 1
-    } else {
-        e - 13
-    };
-    let year = if month > 2 {
-        c - 4716
-    } else {
-        c - 4715
-    };
-    format!("{} {} {}", day, MONTHS.get(&month).unwrap(), year)
-}
-
 
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct Time {
@@ -99,6 +49,8 @@ impl Time {
         let timescale = match timescale.to_lowercase().as_str() {
             "utc" => TimeScale::UTC,
             "tdb" => TimeScale::TDB,
+            "tt" => TimeScale::TT,
+            "tai" => TimeScale::TAI,
             _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
         };
         let format = match format.to_lowercase().as_str() {
@@ -120,6 +72,13 @@ impl Time {
     /// # Returns
     ///
     /// * `Time` - The time object with the current time in UTC and JD format.
+    /// 
+    /// # Example
+    ///
+    /// ```
+    /// let t = Time::now();
+    /// ```
+
     pub fn now() -> Self {
         let now = Utc::now();
         let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
@@ -139,6 +98,13 @@ impl Time {
     /// # Returns
     ///
     /// * `Result<Time, TimeError>` - The time object.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let t = Time::from_fuzzy_str("2451545.0 UTC JD");
+    /// ```
+
     pub fn from_fuzzy_str(s: &str) -> Result<Self, TimeError> {
         let s = s.to_lowercase();
         if s == "now" {
@@ -151,15 +117,71 @@ impl Time {
         Time::new(epoch, timescale, format)
     }
 
+    /// Infer the time format from the epoch and create a new `Time` object.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the time.
+    /// * `timescale` - The timescale of the time as a str.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Time, TimeError>` - The time object.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let t = Time::infer_time_format(2451545.0, None);
+    /// ```
+    pub fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError> {
+        let timescale = match timescale {
+            Some(ts) => match ts.to_lowercase().as_str() {
+                "utc" => TimeScale::UTC,
+                "tdb" => TimeScale::TDB,
+                "tt" => TimeScale::TT,
+                "tai" => TimeScale::TAI,
+                _ => return Err(TimeError::InvalidTimeScale(ts.to_string())),
+            },
+            None => TimeScale::UTC,
+        };
+        
+        let format = if epoch > 100_000.0 {
+            TimeFormat::JD
+        } else {
+            TimeFormat::MJD
+        };
+        
+        Ok(Time {
+            epoch,
+            timescale,
+            format,
+        })
+    }
+
+
+    // Setters for the timescale of the time object
+
+
     /// Convert the time to UTC.
     ///
     /// # Returns
     ///
-    /// * `Time` - The time object in with the timescale set to UTC.
+    /// * `Time` - The time object with the timescale set to UTC.
     pub fn utc(&mut self) -> &mut Self {
-        if self.timescale != TimeScale::UTC {
-            self.epoch = tdb_to_utc(self.epoch);
-            self.timescale = TimeScale::UTC;
+        match self.timescale {
+            TimeScale::UTC => {}, // Already UTC
+            TimeScale::TDB => {
+                self.epoch = tdb_to_utc(self.epoch);
+                self.timescale = TimeScale::UTC;
+            },
+            TimeScale::TT => {
+                self.epoch = tt_to_utc(self.epoch);
+                self.timescale = TimeScale::UTC;
+            },
+            TimeScale::TAI => {
+                self.epoch = tai_to_utc(self.epoch);
+                self.timescale = TimeScale::UTC;
+            },
         }
         self
     }
@@ -168,37 +190,79 @@ impl Time {
     ///
     /// # Returns
     ///
-    /// * `Time` - The time object in with the timescale set to TDB.
+    /// * `Time` - The time object with the timescale set to TDB.
     pub fn tdb(&mut self) -> &mut Self {
-        if self.timescale != TimeScale::TDB {
-            self.epoch = utc_to_tdb(self.epoch);
-            self.timescale = TimeScale::TDB;
+        match self.timescale {
+            TimeScale::UTC => {
+                self.epoch = utc_to_tdb(self.epoch);
+                self.timescale = TimeScale::TDB;
+            },
+            TimeScale::TDB => {}, // Already TDB
+            TimeScale::TT => {
+                self.epoch = tt_to_tdb(self.epoch);
+                self.timescale = TimeScale::TDB;
+            },
+            TimeScale::TAI => {
+                // Convert TAI -> TT -> TDB
+                let tt = tai_to_tt(self.epoch);
+                self.epoch = tt_to_tdb(tt);
+                self.timescale = TimeScale::TDB;
+            },
         }
         self
     }
 
-    /// Change the timescale of the time.
+    /// Convert the time to TT.
     ///
-    /// # Arguments
-    ////
-    /// * `timescale` - The timescale to change to (UTC or TDB).
-    pub fn change_timescale(&mut self, timescale: TimeScale) -> &mut Self {
-        match timescale {
-            TimeScale::UTC => self.utc(),
-            TimeScale::TDB => self.tdb(),
-        }
-    }
-
-    /// Convert the time to a human-readable calendar date.
-    /// 
     /// # Returns
     ///
-    /// * `String` - The calendar date in the format "DD Mon YYYY" in UTC.
-    pub fn calendar(&self) -> String {
-        // clone the time object and convert to UTC
-        let mut time = self.clone();
-        jd_to_calendar(&time.utc().jd())
+    /// * `Time` - The time object with the timescale set to TT.
+    pub fn tt(&mut self) -> &mut Self {
+        match self.timescale {
+            TimeScale::UTC => {
+                self.epoch = utc_to_tt(self.epoch);
+                self.timescale = TimeScale::TT;
+            },
+            TimeScale::TDB => {
+                self.epoch = tdb_to_tt(self.epoch);
+                self.timescale = TimeScale::TT;
+            },
+            TimeScale::TT => {}, // Already TT
+            TimeScale::TAI => {
+                self.epoch = tai_to_tt(self.epoch);
+                self.timescale = TimeScale::TT;
+            },
+        }
+        self
     }
+
+    /// Convert the time to TAI.
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - The time object with the timescale set to TAI.
+    pub fn tai(&mut self) -> &mut Self {
+        match self.timescale {
+            TimeScale::UTC => {
+                self.epoch = utc_to_tai(self.epoch);
+                self.timescale = TimeScale::TAI;
+            },
+            TimeScale::TDB => {
+                // Convert TDB -> TT -> TAI
+                let tt = tdb_to_tt(self.epoch);
+                self.epoch = tt_to_tai(tt);
+                self.timescale = TimeScale::TAI;
+            },
+            TimeScale::TT => {
+                self.epoch = tt_to_tai(self.epoch);
+                self.timescale = TimeScale::TAI;
+            },
+            TimeScale::TAI => {}, // Already TAI
+        }
+        self
+    }
+
+    // Getters for the time format of the time object
 
     /// Return the time as a JD.
     ///
@@ -224,32 +288,18 @@ impl Time {
         }
     }
 
-    
-    pub fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError> {
-        let timescale = match timescale {
-            Some(ts) => match ts.to_lowercase().as_str() {
-                "utc" => TimeScale::UTC,
-                "tdb" => TimeScale::TDB,
-                _ => return Err(TimeError::InvalidTimeScale(ts.to_string())),
-            },
-            None => TimeScale::UTC,
-        };
-        
-        let format = if epoch > 100_000.0 {
-            TimeFormat::JD
-        } else {
-            TimeFormat::MJD
-        };
-        
-        Ok(Time {
-            epoch,
-            timescale,
-            format,
-        })
+    /// Convert the time to a human-readable calendar date.
+    /// 
+    /// # Returns
+    ///
+    /// * `String` - A string representing the date in the format "DD Mon YYYY"
+    pub fn calendar(&self) -> String {
+        // clone the time object and convert to UTC
+        let mut time = self.clone();
+        jd_to_calendar(&time.utc().jd())
     }
 
 }
-
 
 impl Sub<&Time> for &Time {
     type Output = f64;
@@ -262,25 +312,12 @@ impl Sub<&Time> for &Time {
     }
 }
 
-impl Sub<f64> for &Time {
+impl Sub<f64> for Time {
     type Output = Time;
 
     fn sub(self, dt: f64) -> Time {
         Time {
             epoch: self.epoch - dt,
-            timescale: self.timescale.clone(),
-            format: self.format.clone(),
-        }
-    }
-
-}
-
-impl Add<f64> for &Time {
-    type Output = Time;
-
-    fn add(self, dt: f64) -> Time {
-        Time {
-            epoch: self.epoch + dt,
             timescale: self.timescale.clone(),
             format: self.format.clone(),
         }
@@ -309,49 +346,7 @@ impl AddAssign<f64> for Time {
 }
 
 
-fn utc_to_tdb(epoch: f64) -> f64 {
-    // to tai
-    let leapseconds = get_leap_seconds_at_epoch(epoch);
-    let mut epoch = epoch;
-
-    epoch += leapseconds / 86400.0;
-
-    // to tt
-    epoch += 32.184 / 86400.0;
-
-    // to tdb
-    let g = (357.53 + 0.9856003 * (epoch - 2451545.0)).to_radians();
-    epoch += (0.001658 * g.sin() + 0.000014 * (2.0 * g).sin()) / 86400.0;
-    epoch
-}
-
-fn tdb_to_utc(epoch: f64) -> f64 {
-    // to  tt
-    let g = (357.53 + 0.9856003 * (epoch - 2451545.0)).to_radians();
-    let mut epoch = epoch;
-    epoch -= (0.001658 * g.sin() + 0.000014 * (2.0 * g).sin()) / 86400.0;
-
-    // to tai
-    epoch -= 32.184 / 86400.0;
-
-    // to utc
-    let leapseconds = get_leap_seconds_at_epoch(epoch);
-    epoch -= leapseconds / 86400.0;
-    epoch
-}
-
-
-fn get_leap_seconds_at_epoch(jd: f64) -> f64 {
-   
-    let mut num_leap_seconds = 0.0;
-    for &(time, leap_seconds) in &LEAP_SECONDS {
-        if jd >= time {
-            num_leap_seconds = leap_seconds;
-            break;
-        }
-    }
-    num_leap_seconds
-}
+// Need to get this back 
 
 // fn get_isot_now() -> String {
 //     let now = Utc::now();
@@ -359,13 +354,6 @@ fn get_leap_seconds_at_epoch(jd: f64) -> f64 {
 //     return x;
 // }
 
-fn isot_to_julian(isot: &str) -> f64 {
-    let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
-    // let datetime: DateTime<Utc> = DateTime::parse_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap().into();
-    let unix_time = datetime.timestamp() as f64;
-    
-    unix_time / 86400.0 + 2440587.5
-}
 
 
 
