@@ -4,6 +4,7 @@ use pyo3::types::PyType;
 use spacerocks::SpaceRock;
 use spacerocks::Properties;
 use spacerocks::ReferencePlane;
+use spacerocks::Time;
 
 use nalgebra::Vector3;
 
@@ -20,11 +21,11 @@ pub struct PySpaceRock {
 impl PySpaceRock {
 
     #[classmethod]
-    // #[pyo3(signature = (name, epoch, frame="J2000", origin=PyOrigin::ssb()))]
-    fn from_horizons(_cls: Py<PyType>, name: &str, epoch: PyRef<PyTime>, frame: &str, origin: &str) -> PyResult<Self> {
+    #[pyo3(signature = (name, epoch, reference_plane="ECLIPJ2000", origin="SSB"))]
+    fn from_horizons(_cls: Py<PyType>, name: &str, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
         let ep = &epoch.inner;
 
-        let rock = SpaceRock::from_horizons(name, ep, frame, origin);
+        let rock = SpaceRock::from_horizons(name, ep, reference_plane, origin);
         if rock.is_err() {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from Horizons for name: {}", name)));
         }
