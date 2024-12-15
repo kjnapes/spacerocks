@@ -2,18 +2,18 @@ use pyo3::prelude::*;
 use pyo3::types::PyType;
 
 use spacerocks::spacerock::SpaceRock;
-use spacerocks::spacerock::CoordinateFrame;
+use spacerocks::spacerock::ReferencePlane;
 
-use spacerocks::KeplerOrbit;
+// use spacerocks::KeplerOrbit;
 use spacerocks::Properties;
-use spacerocks::constants::MU_BARY;
-use spacerocks::transforms::calc_xyz_from_kepM;
+// use spacerocks::constants::MU_BARY;
+// use spacerocks::transforms::calc_xyz_from_kepM;
 
 use nalgebra::Vector3;
 
 use crate::py_time::time::PyTime;
-use crate::py_observing::detection::PyDetection;
-use crate::py_observing::observer::PyObserver;
+// use crate::py_observing::detection::PyDetection;
+// use crate::py_observing::observer::PyObserver;
 use crate::py_spacerock::origin::PyOrigin;
 
 
@@ -32,7 +32,7 @@ impl PySpaceRock {
         let ep = &epoch.inner;
         let or = &origin.inner;
 
-        let frame = CoordinateFrame::from_str(frame).unwrap();
+        let frame = ReferencePlane::from_str(frame).unwrap();
         let rock = SpaceRock::from_horizons(name, ep, &frame, or);
         if rock.is_err() {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from Horizons for name: {}", name)));
@@ -46,7 +46,7 @@ impl PySpaceRock {
         let ep = &epoch.inner;
         let or = &origin.inner;
 
-        let frame = CoordinateFrame::from_str(frame).unwrap();
+        let frame = ReferencePlane::from_str(frame).unwrap();
         let rock = SpaceRock::from_spice(name, &ep, &frame, &or);
         Ok(PySpaceRock { inner: rock })
     }
@@ -61,7 +61,7 @@ impl PySpaceRock {
         let ep = &epoch.inner;
         let or = &origin.inner;
 
-        let frame = CoordinateFrame::from_str(frame).unwrap();
+        let frame = ReferencePlane::from_str(frame).unwrap();
         let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, ep.clone(), &frame, or);
         Ok(PySpaceRock { inner: rock })
     }
@@ -71,7 +71,7 @@ impl PySpaceRock {
         let ep = &epoch.inner;
         let or = &origin.inner;
 
-        let frame = CoordinateFrame::from_str(frame).unwrap();
+        let frame = ReferencePlane::from_str(frame).unwrap();
         let rock = SpaceRock::from_spherical(name, phi, theta, r, vr, vo, psi, ep.clone(), &frame, or);
         Ok(PySpaceRock { inner: rock })
     }
@@ -84,8 +84,8 @@ impl PySpaceRock {
         let state = calc_xyz_from_kepM(a, e, inc, arg, node, M);
         let acceleration = Vector3::new(0.0, 0.0, 0.0);
 
-        // let frame = CoordinateFrame::from_str(frame).unwrap();
-        let frame = CoordinateFrame::from_str(frame).unwrap();
+        // let frame = ReferencePlane::from_str(frame).unwrap();
+        let frame = ReferencePlane::from_str(frame).unwrap();
 
         let rock = SpaceRock {
             name: name.to_string().into(),
@@ -116,33 +116,33 @@ impl PySpaceRock {
         format!("SpaceRock: {}", self.inner.name)
     }
 
-    fn analytic_propagate(&mut self, t: &PyTime) {
-        self.inner.analytic_propagate(&t.inner);
-    }
+    // fn analytic_propagate(&mut self, t: &PyTime) {
+    //     self.inner.analytic_propagate(&t.inner);
+    // }
 
-    fn at(&mut self, t: &PyTime) {
-        self.inner.at(&t.inner);
-    }
+    // fn at(&mut self, t: &PyTime) {
+    //     self.inner.at(&t.inner);
+    // }
 
-    fn observe(&mut self, observer: &PyObserver) -> PyResult<PyDetection> {
-        if observer.inner.frame != CoordinateFrame::J2000 {
-            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
-        }
+    // fn observe(&mut self, observer: &PyObserver) -> PyResult<PyDetection> {
+    //     if observer.inner.frame != ReferencePlane::J2000 {
+    //         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
+    //     }
 
-        match self.inner.observe(&observer.inner) {
-            Ok(obs) => Ok(PyDetection { inner: obs }),
-            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks. Error: {}", e))),
-        }
-    }
+    //     match self.inner.observe(&observer.inner) {
+    //         Ok(obs) => Ok(PyDetection { inner: obs }),
+    //         Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks. Error: {}", e))),
+    //     }
+    // }
 
     fn change_frame(&mut self, frame: &str) -> PyResult<()> {
         self.inner.change_frame(frame);
         Ok(())
     }
 
-    fn calculate_orbit(&mut self) {
-        self.inner.calculate_orbit();
-    }
+    // fn calculate_orbit(&mut self) {
+    //     self.inner.calculate_orbit();
+    // }
 
     #[getter]
     fn epoch(&self) -> PyTime {
@@ -150,8 +150,8 @@ impl PySpaceRock {
     }
 
     #[getter]
-    fn frame(&self) -> String {
-        self.inner.frame.to_string()
+    fn reference_plane(&self) -> String {
+        self.inner.reference_plane.to_string()
     }
 
     #[getter]
@@ -164,53 +164,53 @@ impl PySpaceRock {
         self.inner.r()
     }
 
-    #[getter]
-    fn e(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.e),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn e(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.e),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn a(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.a),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn a(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.a),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn inc(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.inc),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn inc(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.inc),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn node(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.node),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn node(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.node),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn arg(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.arg),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn arg(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.arg),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn varpi(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.varpi()),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn varpi(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.varpi()),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
     #[getter]
     fn name(&self) -> String {
@@ -333,37 +333,37 @@ impl PySpaceRock {
         self.inner.origin.mu()
     }
 
-    #[getter]
-    fn mean_anomaly(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.M()),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn mean_anomaly(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.M()),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn mean_longitude(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok((orbit.M() + orbit.varpi()) % (2.0 * std::f64::consts::PI)),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn mean_longitude(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok((orbit.M() + orbit.varpi()) % (2.0 * std::f64::consts::PI)),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
-    #[getter]
-    fn t_peri(&self) -> PyResult<PyTime> {
-        let t0 = &self.inner.epoch;
-        let mean_motion = (self.a()?.powi(3) / MU_BARY).sqrt();
-        let dt = self.mean_anomaly()? * mean_motion;
-        Ok(PyTime { inner: t0 + dt })
-    }
+    // #[getter]
+    // fn t_peri(&self) -> PyResult<PyTime> {
+    //     let t0 = &self.inner.epoch;
+    //     let mean_motion = (self.a()?.powi(3) / MU_BARY).sqrt();
+    //     let dt = self.mean_anomaly()? * mean_motion;
+    //     Ok(PyTime { inner: t0 + dt })
+    // }
 
-    #[getter]
-    fn q(&self) -> PyResult<f64> {
-        match self.inner.orbit.as_ref() {
-            Some(orbit) => Ok(orbit.q()),
-            None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
-        }
-    }
+    // #[getter]
+    // fn q(&self) -> PyResult<f64> {
+    //     match self.inner.orbit.as_ref() {
+    //         Some(orbit) => Ok(orbit.q()),
+    //         None => Err(PyErr::new::<pyo3::exceptions::PyAttributeError, _>("Orbit not calculated. Use the calculate_orbit() method to calculate the orbit.")),
+    //     }
+    // }
 
 }
 

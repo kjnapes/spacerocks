@@ -3,8 +3,8 @@ use pyo3::prelude::*;
 // mod py_transforms;
 // use py_transforms::make_transforms_submodule;
 
-// mod py_spacerock;
-// use py_spacerock::make_spacerock_submodule;
+mod py_spacerock;
+use py_spacerock::make_spacerock_submodule;
 
 mod py_spice;
 use py_spice::make_spice_submodule;
@@ -28,7 +28,7 @@ pub fn spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // make_transforms_submodule(py, m)?;
 
     // Add the `spacerock` submodule
-    // make_spacerock_submodule(py, m)?;
+    make_spacerock_submodule(py, m)?;
 
     // Add the `spice` submodule
     make_spice_submodule(py, m)?;

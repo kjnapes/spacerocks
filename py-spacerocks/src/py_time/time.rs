@@ -23,12 +23,12 @@ impl PyTime {
     }
 
     #[classmethod]
-    fn now(cls: Py<PyType>) -> PyResult<Self> {
+    fn now(_cls: Py<PyType>) -> PyResult<Self> {
         Ok(PyTime { inner: Time::now() })
     }
 
     #[classmethod]
-    fn from_fuzzy_str(cls: Py<PyType>, s: &str) -> PyResult<Self> {
+    fn from_fuzzy_str(_cls: Py<PyType>, s: &str) -> PyResult<Self> {
         match Time::from_fuzzy_str(s) {
             Ok(time) => Ok(PyTime { inner: time }),
             Err(e) => Err(PyValueError::new_err(e.to_string()))
@@ -36,7 +36,7 @@ impl PyTime {
     }
 
     #[classmethod]
-    fn infer_time_format(cls: Py<PyType>, epoch: f64, timescale: Option<&str>) -> PyResult<Self> {
+    fn infer_time_format(_cls: Py<PyType>, epoch: f64, timescale: Option<&str>) -> PyResult<Self> {
         match Time::infer_time_format(epoch, timescale) {
             Ok(time) => Ok(PyTime { inner: time }),
             Err(e) => Err(PyValueError::new_err(e.to_string()))

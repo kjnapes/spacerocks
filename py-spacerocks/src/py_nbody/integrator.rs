@@ -1,11 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PyType;
 
-
-// get Arc
-use std::sync::Arc;
-use std::rc::Rc; 
-
 use spacerocks::nbody::integrators::{Integrator, Leapfrog, IAS15};
 
 #[pyclass]

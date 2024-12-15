@@ -9,7 +9,7 @@ use numpy::ToPyArray;
 use rayon::prelude::*;
 
 use spacerocks::spacerock::SpaceRock;
-use spacerocks::spacerock::CoordinateFrame;
+use spacerocks::spacerock::ReferencePlane;
 use spacerocks::Detection;
 
 use crate::py_time::time::PyTime;
@@ -54,7 +54,6 @@ impl RockCollection {
         let rocks: Vec<SpaceRock> = (0..n).into_par_iter().map(|_| SpaceRock::random()).collect();
         let mut name_hash_map = HashMap::new();
         for (i, rock) in rocks.iter().enumerate() {
-            // name_hash_map.insert((*rock.name).clone(), i);
             name_hash_map.insert(rock.name.to_string(), i);
         }
         RockCollection { rocks: rocks, name_hash_map: name_hash_map }
@@ -111,7 +110,7 @@ impl RockCollection {
     pub fn observe(&mut self, observer: PyRef<PyObserver>) -> PyResult<DetectionCatalog> {
         let o = observer.inner.clone();
 
-        if o.frame != CoordinateFrame::J2000 {
+        if o.frame != ReferencePlane::J2000 {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
         }
 
