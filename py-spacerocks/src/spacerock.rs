@@ -8,7 +8,6 @@ use spacerocks::ReferencePlane;
 use nalgebra::Vector3;
 
 use crate::py_time::time::PyTime;
-use crate::py_spacerock::origin::PyOrigin;
 
 
 #[pyclass]
