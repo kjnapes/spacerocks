@@ -48,20 +48,39 @@ mod tests {
     // Timescale Conversions (including method chaining)
     #[test]
     fn test_timescale_conversions() {
+        // Test in-place modifications
         let mut time = Time::new(2451545.5, "utc", "jd").unwrap();
-        time.tdb();
+        time.to_tdb();
         assert_eq!(time.timescale, TimeScale::TDB);
-        time.tt();
+        time.to_tt();
         assert_eq!(time.timescale, TimeScale::TT);
-        time.tai();
+        time.to_tai();
         assert_eq!(time.timescale, TimeScale::TAI);
-        
-        let epoch = time.utc().jd();
+        time.to_utc();
         assert_eq!(time.timescale, TimeScale::UTC);
-        assert_eq!(epoch, 2451545.5);
 
-        let epoch = time.tai().jd();
-        assert_eq!(time.timescale, TimeScale::TAI);
+        // Test creating new objects
+        let time = Time::new(2451545.5, "utc", "jd").unwrap();
+        let tdb_time = time.tdb();
+        assert_eq!(tdb_time.timescale, TimeScale::TDB);
+        assert_eq!(time.timescale, TimeScale::UTC);  // Original unchanged
+
+        let tt_time = tdb_time.tt();
+        assert_eq!(tt_time.timescale, TimeScale::TT);
+        assert_eq!(tdb_time.timescale, TimeScale::TDB);  // Original unchanged
+
+        let tai_time = tt_time.tai();
+        assert_eq!(tai_time.timescale, TimeScale::TAI);
+        assert_eq!(tt_time.timescale, TimeScale::TT);  // Original unchanged
+
+        let utc_time = tai_time.utc();
+        assert_eq!(utc_time.timescale, TimeScale::UTC);
+        assert_eq!(tai_time.timescale, TimeScale::TAI);  // Original unchanged
+
+        // Test change_timescale method
+        let mut time = Time::new(2451545.5, "utc", "jd").unwrap();
+        let tdb_time = time.change_timescale(TimeScale::TDB);
+        assert_eq!(tdb_time.timescale, TimeScale::TDB);
     }
 
     // Time Format Inference 

@@ -3,6 +3,7 @@ use pyo3::types::PyType;
 use pyo3::exceptions::PyValueError;
 
 use spacerocks::time::Time;
+use spacerocks::time::TimeScale;
 
 #[pyclass]
 #[pyo3(name = "Time")]
@@ -43,25 +44,63 @@ impl PyTime {
         }
     }
 
+    // Methods that return new objects with converted timescale
+
+    fn utc(&self) -> PyTime {
+        PyTime { inner: self.inner.utc() }
+    }
+
+    fn tdb(&self) -> PyTime {
+        PyTime { inner: self.inner.tdb() }
+    }
+    
+    fn tt(&self) -> PyTime {
+        PyTime { inner: self.inner.tt() }
+    }
+    
+    fn tai(&self) -> PyTime {
+        PyTime { inner: self.inner.tai() }
+    }
+
     // Timescale conversion methods
 
-    fn utc(&mut self) -> PyResult<()> {
-        self.inner.utc();
+    fn to_utc(&mut self) -> PyResult<()> {
+        self.inner.to_utc();
         Ok(())
     }
 
-    fn tdb(&mut self) -> PyResult<()> {
-        self.inner.tdb();
+    fn to_tdb(&mut self) -> PyResult<()> {
+        self.inner.to_tdb();
         Ok(())
     }
     
-    fn tt(&mut self) -> PyResult<()> {
-        self.inner.tt();
+    fn to_tt(&mut self) -> PyResult<()> {
+        self.inner.to_tt();
         Ok(())
     }
     
-    fn tai(&mut self) -> PyResult<()> {
-        self.inner.tai();
+    fn to_tai(&mut self) -> PyResult<()> {
+        self.inner.to_tai();
+        Ok(())
+    }
+
+
+    pub fn change_timescale(&mut self, timescale: &str) -> PyResult<()> {
+        match timescale.to_lowercase().as_str() {
+            "utc" => {
+                self.to_utc()?;
+            },
+            "tdb" => {
+                self.to_tdb()?;
+            },
+            "tt" => {
+                self.to_tt()?;
+            },
+            "tai" => {
+                self.to_tai()?;
+            },
+            _ => return Err(PyValueError::new_err(format!("Invalid timescale: {}", timescale))),
+        }
         Ok(())
     }
 

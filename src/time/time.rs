@@ -157,15 +157,141 @@ impl Time {
     }
 
 
-    // Setters for the timescale of the time object
+    // Return a new Time object with converted timescale
 
 
-    /// Convert the time to UTC.
+    /// Create a new time object with UTC timescale
     ///
     /// # Returns
     ///
-    /// * `Time` - The time object with the timescale set to UTC.
-    pub fn utc(&mut self) -> &mut Self {
+    /// * `Time` - New time object with the timescale set to UTC.
+    ///
+    /// ```
+    /// let tdb_time = Time::new(2456205.5, "tdb", "jd").unwrap();
+    /// let utc_time = tdb_time.utc();  // Creates new Time object in UTC
+    /// assert!(tdb_time.epoch != utc_time.epoch);  // Epochs differ due to timescale conversion
+    /// ```
+    pub fn utc(&self) -> Time {
+        let mut new_time = self.clone();
+        match self.timescale {
+            TimeScale::UTC => new_time, // Already UTC
+            TimeScale::TDB => {
+                new_time.epoch = tdb_to_utc(self.epoch);
+                new_time.timescale = TimeScale::UTC;
+                new_time
+            },
+            TimeScale::TT => {
+                new_time.epoch = tt_to_utc(self.epoch);
+                new_time.timescale = TimeScale::UTC;
+                new_time
+            },
+            TimeScale::TAI => {
+                new_time.epoch = tai_to_utc(self.epoch);
+                new_time.timescale = TimeScale::UTC;
+                new_time
+            },
+        }
+    }
+
+    /// Create a new time object with TDB timescale
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - New time object with the timescale set to TDB.
+    pub fn tdb(&self) -> Time {
+        let mut new_time = self.clone();
+        match self.timescale {
+            TimeScale::UTC => {
+                new_time.epoch = utc_to_tdb(self.epoch);
+                new_time.timescale = TimeScale::TDB;
+                new_time
+            },
+            TimeScale::TDB => new_time, // Already TDB
+            TimeScale::TT => {
+                new_time.epoch = tt_to_tdb(self.epoch);
+                new_time.timescale = TimeScale::TDB;
+                new_time
+            },
+            TimeScale::TAI => {
+                // Convert TAI -> TT -> TDB
+                let tt = tai_to_tt(self.epoch);
+                new_time.epoch = tt_to_tdb(tt);
+                new_time.timescale = TimeScale::TDB;
+                new_time
+            },
+        }
+    }
+
+    /// Create a new time object with TT timescale
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - New time object with the timescale set to TT.
+    pub fn tt(&self) -> Time {
+        let mut new_time = self.clone();
+        match self.timescale {
+            TimeScale::UTC => {
+                new_time.epoch = utc_to_tt(self.epoch);
+                new_time.timescale = TimeScale::TT;
+                new_time
+            },
+            TimeScale::TDB => {
+                new_time.epoch = tdb_to_tt(self.epoch);
+                new_time.timescale = TimeScale::TT;
+                new_time
+            },
+            TimeScale::TT => new_time, // Already TT
+            TimeScale::TAI => {
+                new_time.epoch = tai_to_tt(self.epoch);
+                new_time.timescale = TimeScale::TT;
+                new_time
+            },
+        }
+    }
+
+    /// Create a new time object with TAI timescale
+    ///
+    /// # Returns
+    ///
+    /// * `Time` - New time object with the timescale set to TAI.
+    pub fn tai(&self) -> Time {
+        let mut new_time = self.clone();
+        match self.timescale {
+            TimeScale::UTC => {
+                new_time.epoch = utc_to_tai(self.epoch);
+                new_time.timescale = TimeScale::TAI;
+                new_time
+            },
+            TimeScale::TDB => {
+                // Convert TDB -> TT -> TAI
+                let tt = tdb_to_tt(self.epoch);
+                new_time.epoch = tt_to_tai(tt);
+                new_time.timescale = TimeScale::TAI;
+                new_time
+            },
+            TimeScale::TT => {
+                new_time.epoch = tt_to_tai(self.epoch);
+                new_time.timescale = TimeScale::TAI;
+                new_time
+            },
+            TimeScale::TAI => new_time, // Already TAI
+        }
+    }
+
+    // Modify the timescale of an object in-place
+
+    /// Convert the time object to UTC timescale in place
+    ///
+    /// Modifies the time object by converting its epoch and timescale to TT.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let mut time = Time::new(2456205.5, "tdb", "jd").unwrap();
+    /// time.to_utc();  // Converts time to UTC in place
+    /// assert_eq!(time.timescale, TimeScale::UTC);
+    /// ```
+    pub fn to_utc(&mut self) {
         match self.timescale {
             TimeScale::UTC => {}, // Already UTC
             TimeScale::TDB => {
@@ -181,15 +307,12 @@ impl Time {
                 self.timescale = TimeScale::UTC;
             },
         }
-        self
     }
 
-    /// Convert the time to TDB.
+    /// Convert the time object to UTC timescale in place
     ///
-    /// # Returns
-    ///
-    /// * `Time` - The time object with the timescale set to TDB.
-    pub fn tdb(&mut self) -> &mut Self {
+    /// Modifies the time object by converting its epoch and timescale to TDB.
+    pub fn to_tdb(&mut self) {
         match self.timescale {
             TimeScale::UTC => {
                 self.epoch = utc_to_tdb(self.epoch);
@@ -207,15 +330,12 @@ impl Time {
                 self.timescale = TimeScale::TDB;
             },
         }
-        self
     }
 
-    /// Convert the time to TT.
+    /// Convert the time object to UTC timescale in place
     ///
-    /// # Returns
-    ///
-    /// * `Time` - The time object with the timescale set to TT.
-    pub fn tt(&mut self) -> &mut Self {
+    /// Modifies the time object by converting its epoch and timescale to TT.
+    pub fn to_tt(&mut self) {
         match self.timescale {
             TimeScale::UTC => {
                 self.epoch = utc_to_tt(self.epoch);
@@ -231,15 +351,12 @@ impl Time {
                 self.timescale = TimeScale::TT;
             },
         }
-        self
     }
 
-    /// Convert the time to TAI.
+    /// Convert the time object to UTC timescale in place
     ///
-    /// # Returns
-    ///
-    /// * `Time` - The time object with the timescale set to TAI.
-    pub fn tai(&mut self) -> &mut Self {
+    /// Modifies the time object by converting its epoch and timescale to TAI.
+    pub fn to_tai(&mut self) {
         match self.timescale {
             TimeScale::UTC => {
                 self.epoch = utc_to_tai(self.epoch);
@@ -257,7 +374,6 @@ impl Time {
             },
             TimeScale::TAI => {}, // Already TAI
         }
-        self
     }
 
     // Getters for the time format of the time object
@@ -289,11 +405,12 @@ impl Time {
 
     pub fn change_timescale(&mut self, timescale: TimeScale) -> &mut Self {
         match timescale {
-            TimeScale::UTC => self.utc(),
-            TimeScale::TDB => self.tdb(),
-            TimeScale::TT => self.tt(),
-            TimeScale::TAI => self.tai(),
+            TimeScale::UTC => self.to_utc(),
+            TimeScale::TDB => self.to_tdb(),
+            TimeScale::TT => self.to_tt(),
+            TimeScale::TAI => self.to_tai(),
         }
+        self
     }
 
     /// Convert the time to a human-readable calendar date.
