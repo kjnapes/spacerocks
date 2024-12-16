@@ -23,14 +23,32 @@ impl PySpaceRock {
     #[classmethod]
     #[pyo3(signature = (name, epoch, reference_plane="ECLIPJ2000", origin="SSB"))]
     fn from_horizons(_cls: Py<PyType>, name: &str, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
-        let ep = &epoch.inner;
-
-        let rock = SpaceRock::from_horizons(name, ep, reference_plane, origin);
+        let rock = SpaceRock::from_horizons(name, &epoch.inner, reference_plane, origin);
         if rock.is_err() {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from Horizons for name: {}", name)));
         }
         Ok(PySpaceRock { inner: rock.unwrap() })
     }
+
+    #[classmethod]
+    #[pyo3(signature = (name, epoch, reference_plane="ECLIPJ2000", origin="SSB"))]
+    fn from_spice(_cls: Py<PyType>, name: &str, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
+        let rock = SpaceRock::from_spice(name, &epoch.inner, reference_plane, origin);
+        if rock.is_err() {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from Spice for name: {}", name)));
+        }
+        Ok(PySpaceRock { inner: rock.unwrap() })
+    }
+
+    #[classmethod]
+    fn from_xyz(_cls: Py<PyType>, name: &str, x: f64, y: f64, z: f64, vx: f64, vy: f64, vz: f64, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
+        let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch.inner.clone(), reference_plane, origin);
+        if rock.is_err() {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from XYZ for name: {}", name)));
+        }
+        Ok(PySpaceRock { inner: rock.unwrap() })
+    }
+
     
     fn __repr__(&self) -> String {
         format!("SpaceRock: {}", self.inner.name)

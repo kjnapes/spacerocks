@@ -13,18 +13,13 @@ pub struct PyForce {
 impl PyForce {
 
     #[classmethod]
-    pub fn newtonian_gravity(_cls: &PyType) -> PyResult<Self> {
+    pub fn newtonian_gravity(_cls: Py<PyType>) -> PyResult<Self> {
         Ok(PyForce { inner: Box::new(NewtonianGravity) })
     }
 
     #[classmethod]
-    pub fn solar_gr(_cls: &PyType) -> PyResult<Self> {
+    pub fn solar_gr(_cls: Py<PyType>) -> PyResult<Self> {
         Ok(PyForce { inner: Box::new(SolarGR) })
-    }
-
-    #[classmethod]
-    pub fn drag(_cls: &PyType) -> PyResult<Self> {
-        Ok(PyForce { inner: Box::new(Drag) })
     }
 
 

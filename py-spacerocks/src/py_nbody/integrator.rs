@@ -14,12 +14,12 @@ pub struct PyIntegrator {
 impl PyIntegrator {
 
     #[classmethod]
-    pub fn leapfrog(_cls: &PyType, timestep: f64) -> PyResult<Self> {
+    pub fn leapfrog(_cls: Py<PyType>, timestep: f64) -> PyResult<Self> {
         Ok(PyIntegrator { inner: Box::new(Leapfrog::new(timestep)) })
     }
 
     #[classmethod]
-    pub fn ias15(_cls: &PyType, timestep: f64) -> PyResult<Self> {
+    pub fn ias15(_cls: Py<PyType>, timestep: f64) -> PyResult<Self> {
         Ok(PyIntegrator { inner: Box::new(IAS15::new(timestep)) })
     }
 

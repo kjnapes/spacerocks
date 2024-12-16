@@ -2,14 +2,14 @@ use pyo3::prelude::*;
 use pyo3::types::PyType;
 
 use spacerocks::nbody::Simulation;
-use spacerocks::spacerock::CoordinateFrame;
+use spacerocks::coordinates::{ReferencePlane, Origin};
 
-use crate::py_spacerock::spacerock::PySpaceRock;
-use crate::py_spacerock::rockcollection::RockCollection;
+use crate::PySpaceRock;
+// use crate::py_spacerock::rockcollection::RockCollection;
 use crate::py_time::time::PyTime;
 use crate::py_nbody::integrator::PyIntegrator;
 use crate::py_nbody::force::PyForce;
-use crate::py_spacerock::origin::PyOrigin;
+use crate::py_coordinates::origin::PyOrigin;
 
 #[pyclass]
 #[pyo3(name = "Simulation")]
@@ -26,12 +26,9 @@ impl PySimulation {
     }
 
     #[classmethod]
-    pub fn giants(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
+    pub fn giants(_cls: Py<PyType>, epoch: &PyTime, reference_plane: &str, origin: &str) -> PyResult<Self> {
         let ep = &epoch.inner;
-        let or = &origin.inner;
-
-        let frame = CoordinateFrame::from_str(frame).unwrap();
-        let sim = Simulation::giants(ep, &frame, or);
+        let sim = Simulation::giants(ep, reference_plane, origin);
         Ok(PySimulation { inner: sim.unwrap() })
     }
 
@@ -91,13 +88,19 @@ impl PySimulation {
         self.inner.epoch = epoch.inner.clone();
     }
 
-    pub fn set_frame(&mut self, frame: &str) -> PyResult<()> {
-        let frame = CoordinateFrame::from_str(frame)?;
-        self.inner.frame = frame;
+    pub fn set_reference_plane(&mut self, reference_plane: &str) {
+        let reference_plane = ReferencePlane::from_str(reference_plane).unwrap();
+        self.inner.reference_plane = reference_plane;
     }
 
-    pub fn set_origin(&mut self, origin: &PyOrigin) {
-        self.inner.origin = origin.inner.clone();
+    pub fn set_origin(&mut self, origin: &str) -> PyResult<()> {
+        match Origin::from_str(origin) {
+            Ok(o) => {
+                self.inner.origin = o;
+                Ok(())
+            },
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        }
     }
 
     pub fn set_integrator(&mut self, integrator: PyRef<PyIntegrator>) {
@@ -122,10 +125,10 @@ impl PySimulation {
     }
 
 
-    #[getter]
-    pub fn particles(&self) -> RockCollection {
-        RockCollection { rocks: self.inner.particles.clone(), name_hash_map: self.inner.particle_index_map.clone() }
-    }
+    // #[getter]
+    // pub fn particles(&self) -> RockCollection {
+    //     RockCollection { rocks: self.inner.particles.clone(), name_hash_map: self.inner.particle_index_map.clone() }
+    // }
 
     #[getter]
     pub fn epoch(&self) -> PyTime {
@@ -133,12 +136,8 @@ impl PySimulation {
     }
 
     #[getter]
-    pub fn frame(&self) -> Option<String> {
-        let f = self.inner.frame.clone();
-        match f {
-            Some(frame) => Some(frame.to_string()),
-            None => None
-        }
+    pub fn reference_plane(&self) -> String {
+        self.inner.reference_plane.to_string()
     }
 
 
@@ -148,12 +147,9 @@ impl PySimulation {
     }
 
     #[getter]
-    pub fn origin(&self) -> Option<PyOrigin> {
+    pub fn origin(&self) -> PyOrigin {
         let o = self.inner.origin.clone();
-        match o {
-            Some(origin) => Some(PyOrigin { inner: origin.clone() }),
-            None => None
-        }
+        PyOrigin { inner: o }
     }
 
     // #[getter]
