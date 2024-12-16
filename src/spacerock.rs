@@ -52,8 +52,8 @@ impl SpaceRock {
         let reference_plane = ReferencePlane::from_str(reference_plane)?;
         let origin = Origin::from_str(origin)?;
 
-        let mut ep = epoch.clone();
-        let et = spice::str2et(&format!("JD{epoch} UTC", epoch=ep.utc().jd()));
+        // let mut ep = epoch.clone();
+        let et = spice::str2et(&format!("JD{epoch} UTC", epoch=epoch.utc().jd()));
         let (state, _) = spice::spkezr(name, et, reference_plane.as_str(), "NONE", &origin.to_string());
         let position = Vector3::new(state[0], state[1], state[2]) * KM_TO_AU;
         let velocity = Vector3::new(state[3], state[4], state[5]) * KM_TO_AU * SECONDS_PER_DAY;

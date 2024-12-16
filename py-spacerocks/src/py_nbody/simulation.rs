@@ -69,12 +69,16 @@ impl PySimulation {
     pub fn integrate(&mut self, epoch: &PyTime) {
         self.inner.integrate(&epoch.inner.clone());
     }
+    
     pub fn step(&mut self) {
         self.inner.step();
     }
 
-    pub fn move_to_center_of_mass(&mut self) {
-        self.inner.move_to_center_of_mass();
+    pub fn move_to_center_of_mass(&mut self) -> PyResult<()> {
+        match self.inner.move_to_center_of_mass() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        }
     }
 
     pub fn change_origin(&mut self, origin: &str) -> PyResult<()> {
@@ -129,6 +133,7 @@ impl PySimulation {
     // pub fn particles(&self) -> RockCollection {
     //     RockCollection { rocks: self.inner.particles.clone(), name_hash_map: self.inner.particle_index_map.clone() }
     // }
+
 
     #[getter]
     pub fn epoch(&self) -> PyTime {

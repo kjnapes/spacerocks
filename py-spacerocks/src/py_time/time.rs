@@ -3,7 +3,6 @@ use pyo3::types::PyType;
 use pyo3::exceptions::PyValueError;
 
 use spacerocks::time::Time;
-use spacerocks::time::TimeScale;
 
 #[pyclass]
 #[pyo3(name = "Time")]
@@ -37,6 +36,7 @@ impl PyTime {
     }
 
     #[classmethod]
+    #[pyo3(signature = (epoch, timescale=None))]
     fn infer_time_format(_cls: Py<PyType>, epoch: f64, timescale: Option<&str>) -> PyResult<Self> {
         match Time::infer_time_format(epoch, timescale) {
             Ok(time) => Ok(PyTime { inner: time }),

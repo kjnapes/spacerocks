@@ -1,12 +1,8 @@
 use std::ops::{AddAssign, Add, Sub};
-// use std::collections::HashMap;
-use chrono::{Utc, DateTime};
-// use chrono::TimeZone;
-// use crate::time::leapseconds::LEAP_SECONDS;
+use chrono::{Utc};
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
 use crate::errors::TimeError;
-// use lazy_static::lazy_static;
 use serde::{Serialize, Deserialize};
 use crate::time::conversions::*;
 
@@ -420,8 +416,8 @@ impl Time {
     /// * `String` - A string representing the date in the format "DD Mon YYYY"
     pub fn calendar(&self) -> String {
         // clone the time object and convert to UTC
-        let mut time = self.clone();
-        jd_to_calendar(&time.utc().jd())
+        // let mut time = self.clone();
+        jd_to_calendar(&self.utc().jd())
     }
 
 }

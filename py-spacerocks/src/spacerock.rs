@@ -2,13 +2,11 @@ use pyo3::prelude::*;
 use pyo3::types::PyType;
 
 use spacerocks::SpaceRock;
-use spacerocks::Properties;
-use spacerocks::ReferencePlane;
-use spacerocks::Time;
 
 use nalgebra::Vector3;
 
 use crate::py_time::time::PyTime;
+use crate::py_coordinates::origin::PyOrigin;
 
 
 #[pyclass]
@@ -65,8 +63,8 @@ impl PySpaceRock {
     }
 
     #[getter]
-    fn origin(&self) -> String {
-        self.inner.origin.to_string()   
+    fn origin(&self) -> PyOrigin {  
+        PyOrigin { inner: self.inner.origin.clone() }
     }
 
     #[getter]
@@ -193,6 +191,10 @@ impl PySpaceRock {
     #[getter]
     fn mu(&self) -> f64 {
         self.inner.origin.mu()
+    }
+
+    pub fn a(&self) -> f64 {
+        self.inner.a()
     }
 
 }
