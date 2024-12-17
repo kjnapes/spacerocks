@@ -1,5 +1,6 @@
-use crate::{Origin, ReferencePlane, Time, Properties};
+use crate::{Origin, ReferencePlane, Time, Properties, Observer, Observation};
 use crate::constants::*;
+use crate::correct_for_ltt;
 
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
@@ -406,6 +407,97 @@ impl SpaceRock {
         (self.hvec().z / hvec.norm()).acos()
     }
 
+
+    pub fn observe(&mut self, observer: &Observer) -> Result<Observation, Box<dyn std::error::Error>> {
+
+        self.change_reference_plane("J2000");
+
+        // throw an error if the observer and self have different epochs
+        if self.epoch != observer.spacerock.epoch {
+            return Err("Observer and SpaceRock have different epochs".into());
+        }
+
+        // Calculate the topocentric state, correct for light travel time
+        let cr = correct_for_ltt(&self, observer);
+
+        // Calaculate the ra, and dec
+        let mut ra = cr.position.y.atan2(cr.position.x);
+        if ra < 0.0 {
+            ra += 2.0 * std::f64::consts::PI;
+        }
+        let dec = (cr.position.z / cr.position.norm()).asin();
+
+        // Calculate the ra and dec rates
+        let xi = cr.position.x.powi(2) + cr.position.y.powi(2);
+        let ra_rate = - (cr.position.y * cr.velocity.x - cr.position.x * cr.velocity.y) / xi;
+        let num = -cr.position.z * (cr.position.x * cr.velocity.x + cr.position.y * cr.velocity.y) + xi * cr.velocity.z;
+        let denom = xi.sqrt() * cr.position.norm_squared();
+        let dec_rate = num / denom;
+
+        // calculate the topocentric range and range rate
+        let rho = cr.position.norm();
+        let rho_rate = cr.position.dot(&cr.velocity) / rho;
+
+        // if self has properties, calculate the magnitude
+        // let mut mag = None;
+        // if let Some(properties) = &self.properties {
+
+        //     let H = properties.H.unwrap();
+        //     let Gslope = properties.Gslope.unwrap();
+
+        //     let delta = cr.position.norm();
+        //     let sun_dist = (cr.position + observer.position).norm();
+        //     let earth_dist = observer.position.norm();
+        //     let q = (sun_dist.powi(2) + delta.powi(2) - earth_dist) / (2.0 * sun_dist * delta);
+        //     let mut beta = 0.0;
+        //     match q {
+        //         q if q <= -1.0 => beta = std::f64::consts::PI,
+        //         q if q >= 1.0 => beta = 0.0,
+        //         _ => beta = q.acos(),
+        //     };
+        //     let psi_1 = (-3.332 * ((beta / 2.0).tan()).powf(0.631)).exp();
+        //     let psi_2 = (-1.862 * ((beta / 2.0).tan()).powf(1.218)).exp();
+        //     mag = Some(H + 5.0 * (sun_dist * delta).log10());
+        //     if psi_1 == 0.0 && psi_2 == 0.0 {
+        //         mag = mag;
+        //     } else {
+        //         let mm = mag.unwrap() - 2.5 * ((1.0 - Gslope) * psi_1 + Gslope * psi_2).log10();
+        //         mag = Some(mm);
+        //     }
+        // }
+
+        // // construct the detection
+        // let obs = Detection {
+        //     ra: ra,
+        //     dec: dec,
+        //     ra_rate: Some(ra_rate),
+        //     dec_rate: Some(dec_rate),
+        //     rho: Some(rho),
+        //     rho_rate: Some(rho_rate),
+        //     epoch: self.epoch.clone(),
+        //     observer: observer.clone(),
+        //     name: self.name.clone(),
+
+        //     mag: mag,
+        //     filter: None,
+        //     ra_uncertainty: None,
+        //     dec_uncertainty: None,
+        //     ra_rate_uncertainty: None,
+        //     dec_rate_uncertainty: None,
+        //     rho_uncertainty: None,
+        //     rho_rate_uncertainty: None,
+        //     mag_uncertainty: None,
+        // };
+
+        // // Change the frame back to the original frame
+        // // self.change_frame(&original_frame);
+        
+        // return Ok(obs);
+
+        let observation = Observation::from_complete(self.epoch.clone(), ra, dec, ra_rate, dec_rate, rho, rho_rate, observer.clone());
+        Ok(observation)
+    }
+
 }
 
 
@@ -491,6 +583,7 @@ impl SpaceRock {
 /// Display the SpaceRock object with each field on a new line
 impl std::fmt::Display for SpaceRock {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "SpaceRock: {}\nEpoch: {:?}\nReference Plane: {}\nOrigin: {}\nPosition: {:?}\nVelocity: {:?}\nProperties: {:?}", self.name, self.epoch, self.reference_plane, self.origin, self.position, self.velocity, self.properties)
+        write!(f, "SpaceRock: {}\nEpoch: {:?}\nReference Plane: {}\nOrigin: {}\nPosition: {:?}\nVelocity: {:?}\nProperties: {:?}", 
+        self.name, self.epoch, self.reference_plane, self.origin, self.position, self.velocity, self.properties)
     }
 }

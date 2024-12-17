@@ -1,5 +1,6 @@
 
 pub mod transforms;
+    pub use transforms::correct_for_ltt;
 
 pub mod time;
     pub use time::Time;
@@ -21,7 +22,6 @@ pub mod data;
     pub use data::OBSERVATORIES;
     pub use data::constants;
 
-
 pub mod properties;
     pub use properties::Properties;
 
@@ -33,9 +33,12 @@ pub mod errors;
 pub mod nbody;
     pub use nbody::Simulation;
 
+pub mod structs;
+    pub use structs::KeplerOrbit;
+    pub use structs::StateVector;
 
-// pub mod observing;
-//     pub use observing::{Detection, Observatory, Observer};
+pub mod observing;
+    pub use observing::{Observatory, Observer, Observation};
 
 
 

@@ -25,27 +25,27 @@ plotters = "*"
 # rand_distr = "0.4.0"
 
 [target.'x86_64-unknown-linux-gnu'.dependencies]
-rust-spice = {version = "0.7.4", default-features = false, features = ["noclang"] }
+rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 
 # target macos
 [target.'x86_64-apple-darwin'.dependencies]
-rust-spice = {version = "0.7.4"}
+rust-spice = {version = "*"}
 
 # target mac m1
 [target.'aarch64-apple-darwin'.dependencies]
-rust-spice = {version = "0.7.4"}
+rust-spice = {version = "*"}
 
 # target aarch raspberry pi
 [target.'aarh64-unknown-linux-gnu'.dependencies]
-rust-spice = {version = "0.7.4", default-features = false, features = ["noclang"] }
+rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 
 # target arm raspberry pi
 [target.'arm-unknown-linux-gnueabihf'.dependencies]
-rust-spice = {version = "0.7.4", default-features = false, features = ["noclang"] }
+rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 
 # target windows
 [target.'x86_64-pc-windows-msvc'.dependencies]
-rust-spice = {version = "0.7.4"}
+rust-spice = {version = "*"}
 
 
 # [workspace]

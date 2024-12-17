@@ -1,4 +1,4 @@
-use spacerocks::{SpaceRock, Time, SpiceKernel};
+use spacerocks::{SpaceRock, Time, SpiceKernel, Observatory};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -7,18 +7,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // define the epoch
     let epoch = Time::now();
 
-    // load spice kernels
+    // // load spice kernels
     let mut kernel = SpiceKernel::new();
     kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
     kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
 
-    // load earth from spice
-    let earth = SpaceRock::from_spice("EarTh", &epoch, "EcLiPj2000", "sSb")?;
-    // println!("{}", earth);
+    let f51 = Observatory::from_obscode("F51")?;
 
-    // load arrokoth from spice
-    let rock = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
-    // println!("{}", rock);
+    let observer = f51.at(&epoch)?;
+
+    let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
+    let radec = arrokoth.observe(&observer)?;
+
+    println!("{:?}", radec);
+    
+
+
+    // // load arrokoth from spice
+    // let rock = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
+    // // println!("{}", rock);
 
     // create a simulation and add arrokoth
     // let mut sim = Simulation::giants(&epoch, "ECLIPJ2000", "SSB")?;
