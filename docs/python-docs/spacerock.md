@@ -74,6 +74,23 @@ Change the origin of the SpaceRock object.
 rock.change_origin(origin: str) -> None
 ```
 
+There are also a number of derived properties that can be calculated from the position and velocity data of a SpaceRock object. The general usage pattern is 
+```python
+rock.property()
+```
+where `property` is the name of the property you want to calculate. A list of the derived properties is given below.
+
+| Method | Returns | Description |
+| --- | --- | --- |
+| `a` | `float` | Calculate the semi-major axis of the SpaceRock in au. |
+| `e` | `float` | Calculate the eccentricity of the SpaceRock. |
+| `inc` | `float` | Calculate the inclination of the SpaceRock in radians. |
+| `h` | `float` | Calculate the specific angular momentum of the SpaceRock in au^2/day. |
+| `evec` | `np.ndarray` | Calculate the eccentricity vector of the SpaceRock. |
+| `hvec` | `np.ndarray` | Calculate the specific angular momentum vector of the SpaceRock. |
+| `r` | `float` | Calculate the distance from the origin to the SpaceRock in au. |
+| `v` | `float` | Calculate the speed of the SpaceRock in au/day. |
+| `specific_energy` | `float` | Calculate the specific energy of the SpaceRock in au^2 / day^2. |
 ---
 
 ### Setter Methods
