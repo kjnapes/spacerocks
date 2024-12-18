@@ -7,6 +7,8 @@ use nalgebra::Vector3;
 
 use crate::py_time::time::PyTime;
 use crate::py_coordinates::origin::PyOrigin;
+use crate::py_observing::observer::{PyObserver};
+use crate::py_observing::observation::{PyObservation};
 
 
 #[pyclass]
@@ -45,6 +47,18 @@ impl PySpaceRock {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from XYZ for name: {}", name)));
         }
         Ok(PySpaceRock { inner: rock.unwrap() })
+    }
+
+
+    fn observe(&mut self, observer: &PyObserver) -> PyResult<PyObservation> {
+        // if observer.inner.frame != ReferencePlane::J2000 {
+        //     return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
+        // }
+
+        match self.inner.observe(&observer.inner) {
+            Ok(obs) => Ok(PyObservation { inner: obs }),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to observe rock: {}", e))),
+        }
     }
 
     

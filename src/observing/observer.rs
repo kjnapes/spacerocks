@@ -24,6 +24,14 @@ impl Observer {
         self.spacerock.epoch.clone()
     }
 
+    pub fn reference_plane(&self) -> String {
+        self.spacerock.reference_plane.to_string()
+    }
+
+    pub fn origin(&self) -> String {
+        self.spacerock.origin.to_string()
+    }
+
     pub fn lat(&self) -> Option<f64> {
         self.observatory.lat()
     }

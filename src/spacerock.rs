@@ -467,34 +467,6 @@ impl SpaceRock {
         //     }
         // }
 
-        // // construct the detection
-        // let obs = Detection {
-        //     ra: ra,
-        //     dec: dec,
-        //     ra_rate: Some(ra_rate),
-        //     dec_rate: Some(dec_rate),
-        //     rho: Some(rho),
-        //     rho_rate: Some(rho_rate),
-        //     epoch: self.epoch.clone(),
-        //     observer: observer.clone(),
-        //     name: self.name.clone(),
-
-        //     mag: mag,
-        //     filter: None,
-        //     ra_uncertainty: None,
-        //     dec_uncertainty: None,
-        //     ra_rate_uncertainty: None,
-        //     dec_rate_uncertainty: None,
-        //     rho_uncertainty: None,
-        //     rho_rate_uncertainty: None,
-        //     mag_uncertainty: None,
-        // };
-
-        // // Change the frame back to the original frame
-        // // self.change_frame(&original_frame);
-        
-        // return Ok(obs);
-
         let observation = Observation::from_complete(self.epoch.clone(), ra, dec, ra_rate, dec_rate, rho, rho_rate, observer.clone());
         Ok(observation)
     }

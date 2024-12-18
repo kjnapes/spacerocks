@@ -2,11 +2,11 @@ use pyo3::prelude::*;
 use pyo3::types::PyType;
 
 use spacerocks::observing::Observer;
-use spacerocks::spacerock::{CoordinateFrame, Origin}; 
+// use spacerocks::spacerock::{ReferencePlane, Origin}; 
 
 use crate::py_time::time::PyTime;
-use crate::py_spacerock::origin::PyOrigin;
-use crate::py_spacerock::spacerock::PySpaceRock;
+use crate::{PySpaceRock};
+use crate::py_coordinates::origin::PyOrigin;
 
 use numpy::{PyArray1, IntoPyArray};
 
@@ -20,58 +20,66 @@ pub struct PyObserver {
 #[pymethods]
 impl PyObserver {
 
-    #[classmethod]
-    pub fn from_spacerock(_cls: &PyType, rock: &PySpaceRock) -> Self {
-        PyObserver { inner: Observer::from_spacerock(&rock.inner) }
-    }
+    // #[classmethod]
+    // pub fn from_spacerock(_cls: &PyType, rock: &PySpaceRock) -> Self {
+    //     PyObserver { inner: Observer::from_spacerock(&rock.inner) }
+    // }
 
     #[getter]
     fn position(&self, py: Python) -> Py<PyArray1<f64>> {
-        // let pos = vec![self.inner.position.x, self.inner.position.y, self.inner.position.z];
-        // pos.into_pyarray(py).to_owned()
-        self.inner.position().into_pyarray(py).to_owned()
+        let pos = vec![self.inner.position().x, self.inner.position().y, self.inner.position().z];
+        pos.into_pyarray(py).to_owned().into()
     }
 
     #[getter]
     fn velocity(&self, py: Python) -> Py<PyArray1<f64>> {
-        // let vel = vec![self.inner.velocity.x, self.inner.velocity.y, self.inner.velocity.z];
-        // vel.into_pyarray(py).to_owned()
-        self.inner.velocity().into_pyarray(py).to_owned()
+        let vel = vec![self.inner.velocity().x, self.inner.velocity().y, self.inner.velocity().z];
+        vel.into_pyarray(py).to_owned().into()
     }
 
     #[getter]
-    fn origin(&self) -> PyOrigin {
-        PyOrigin { inner: self.inner.origin.clone() }
+    fn origin(&self) -> String {
+        self.inner.origin().to_string()
     }
 
-    fn change_frame(&mut self, new_frame: &str) {
-        let frame = CoordinateFrame::from_str(new_frame).unwrap();
-        self.inner.change_frame(&frame);
-    }
+    // fn change_frame(&mut self, new_frame: &str) {
+    //     let frame = CoordinateFrame::from_str(new_frame).unwrap();
+    //     self.inner.change_frame(&frame);
+    // }
 
     #[getter]
     fn lat(&self) -> Option<f64> {
-        self.inner.lat
+        self.inner.observatory.lat()
     }
 
     #[getter]
     fn lon(&self) -> Option<f64> {
-        self.inner.lon
+        self.inner.observatory.lon()
     }
 
     #[getter]
     fn rho(&self) -> Option<f64> {
-        self.inner.rho
+        self.inner.observatory.rho()
     }
 
     #[getter]
-    fn frame(&self) -> String {
-        self.inner.frame.to_string()
+    fn reference_plane(&self) -> String {
+        self.inner.reference_plane().to_string()
     }
 
     #[getter]
     fn epoch(&self) -> PyTime {
-        PyTime { inner: self.inner.epoch.clone() }
+        PyTime { inner: self.inner.epoch().clone() }
+    }
+
+    // display the observer
+    fn __str__(&self) -> String {
+        format!("Observer at epoch: {}", self.inner.epoch())
+    }
+
+    // display the observer
+    fn __repr__(&self) -> String {
+        format!("Observer at epoch: {}", self.inner.epoch())
     }
     
 }

@@ -15,8 +15,8 @@ use py_time::make_time_submodule;
 mod spacerock;
 use spacerock::PySpaceRock;
 
-// mod py_observing;
-// use py_observing::make_observing_submodule;
+mod py_observing;
+use py_observing::make_observing_submodule;
 
 mod py_nbody;
 use py_nbody::make_nbody_submodule;
@@ -43,7 +43,7 @@ pub fn spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     make_coordinates_submodule(py, m)?;
 
     // Add the `observing` submodule
-    // make_observing_submodule(py, m)?;
+    make_observing_submodule(py, m)?;
 
     // Add the `nbody` submodule
     make_nbody_submodule(py, m)?;

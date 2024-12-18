@@ -65,10 +65,10 @@ impl Observatory {
     /// # Returns
     ///
     /// * `Result<Observer, Box<dyn std::error::Error>>` - The Observer object.
-    pub fn at(&self, epoch: &Time) -> Result<Observer, Box<dyn std::error::Error>> {
+    pub fn at(&self, epoch: &Time, reference_plane: &str, origin: &str) -> Result<Observer, Box<dyn std::error::Error>> {
         match self {
             Observatory::GroundObservatory { obscode: _, lon, lat, rho } => {
-                let mut earth = SpaceRock::from_spice("earth", epoch, "J2000", "ssb")?;
+                let mut earth = SpaceRock::from_spice("earth", epoch, reference_plane, origin)?;
                 let rho_sin_lat = lat.sin() * rho;
                 let rho_cos_lat = lat.cos() * rho;
                 let [d_pos, d_vel] = compute_topocentric_correction(*lon, rho_sin_lat, rho_cos_lat, epoch.jd());
@@ -77,7 +77,7 @@ impl Observatory {
                 Ok(Observer { spacerock: earth, observatory: self.clone() })
             },
             Observatory::SpaceTelecope { name } => {
-                let rock = SpaceRock::from_spice(&name, epoch, "J2000", "ssb")?;
+                let rock = SpaceRock::from_spice(&name, epoch, reference_plane, origin)?;
                 Ok(Observer { spacerock: rock, observatory: self.clone() })
             }
             _ => {
