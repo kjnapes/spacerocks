@@ -6,7 +6,7 @@ The coordinates of any body must be specified with respect to some origin. In or
 
 #### Examples
 ```python
-from spacerocks import Origin
+from spacerocks.coordinates import Origin
 
 # Sun is built-in
 sun = Origin.sun()
