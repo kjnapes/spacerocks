@@ -477,4 +477,9 @@ impl AddAssign<f64> for Time {
 
 
 
-
+// implement Display for Time
+impl std::fmt::Display for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{} {} {}", self.epoch, self.timescale, self.format)
+    }
+}

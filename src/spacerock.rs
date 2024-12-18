@@ -410,10 +410,10 @@ impl SpaceRock {
 
     pub fn observe(&mut self, observer: &Observer) -> Result<Observation, Box<dyn std::error::Error>> {
 
-        self.change_reference_plane("J2000");
+        self.change_reference_plane("J2000")?;
 
         // throw an error if the observer and self have different epochs
-        if self.epoch != observer.spacerock.epoch {
+        if self.epoch != observer.epoch() {
             return Err("Observer and SpaceRock have different epochs".into());
         }
 

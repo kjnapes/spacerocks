@@ -17,9 +17,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let observer = f51.at(&epoch)?;
 
     let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
-    let radec = arrokoth.observe(&observer)?;
+    let observation = arrokoth.observe(&observer)?;
 
-    println!("{:?}", radec);
+    println!("{}", observation);
     
 
 
