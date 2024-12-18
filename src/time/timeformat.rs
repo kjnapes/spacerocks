@@ -10,6 +10,11 @@ pub enum TimeFormat {
 }
 
 impl TimeFormat {
+
+    pub fn variants() -> &'static [&'static str] {
+        &["JD", "MJD"]
+    }
+
     pub fn from_str(s: &str) -> Option<Self> {
         match s {
             "JD" => Some(TimeFormat::JD),

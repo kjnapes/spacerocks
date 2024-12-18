@@ -23,6 +23,7 @@ rayon = "1.9"
 plotters = "*"
 # indicatif = "0.16.2"
 # rand_distr = "0.4.0"
+strsim = "0.11.1"
 
 [target.'x86_64-unknown-linux-gnu'.dependencies]
 rust-spice = {version = "*", default-features = false, features = ["noclang"] }

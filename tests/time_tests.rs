@@ -13,28 +13,6 @@ mod tests {
         assert_eq!(time.format, TimeFormat::JD);
     }
 
-    // Error Handling 
-    #[test]
-    fn test_invalid_inputs() {
-        // Test new() with invalid inputs
-        let result1 = Time::new(2451545.0, "foo", "jd");
-        assert!(result1.is_err());
-        assert_eq!(result1.unwrap_err().to_string(), 
-            "Invalid timescale: foo. Needs to be 'utc', 'tdb', 'tt', or 'tai'.");
-
-        let result2 = Time::new(2451545.0, "utc", "foo");
-        assert!(result2.is_err());
-        assert_eq!(result2.unwrap_err().to_string(), 
-            "Invalid time format: foo. Needs to be 'jd' or 'mjd'.");
-
-        // Test infer_time_format with invalid input
-        let result3 = Time::infer_time_format(2459000.5, Some("invalid"));
-        match result3 {
-            Err(TimeError::InvalidTimeScale(scale)) => assert_eq!(scale, "invalid"),
-            _ => panic!("Expected InvalidTimeScale error"),
-        }
-    }
-
     // Format Conversions
     #[test]
     fn test_format_conversions() {
@@ -132,4 +110,41 @@ mod tests {
         assert_eq!(time4.timescale, TimeScale::TDB);
         assert_eq!(time4.format, TimeFormat::MJD);
     }
+
+    #[test]
+    fn test_suggestion_system() {
+        // Test timescale suggestions
+        let result = Time::new(2451545.0, "utk", "jd");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'utc'?"));
+
+        let result = Time::new(2451545.0, "tbd", "jd");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'tdb'?"));
+
+        // Test format suggestions
+        let result = Time::new(2451545.0, "utc", "jdd");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'jd'?"));
+
+        let result = Time::new(2451545.0, "utc", "mjdd");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'mjd'?"));
+
+        // Test case insensitivity
+        let result = Time::new(2451545.0, "uTK", "JD");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'utc'?"));
+
+        // Test infer_time_format suggestions
+        let result = Time::infer_time_format(2459000.5, Some("utk"));
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'utc'?"));
+
+        // Test from_fuzzy_str suggestions
+        let result = Time::from_fuzzy_str("2451545.0 utk jd");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Did you mean 'utc'?"));
+    }
+
 }

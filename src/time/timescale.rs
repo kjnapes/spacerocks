@@ -11,6 +11,11 @@ pub enum TimeScale {
 }
 
 impl TimeScale {
+
+    pub fn variants() -> &'static [&'static str] {
+        &["UTC", "TDB", "TT", "TAI"] 
+    }
+
     pub fn to_str(&self) -> &str {
         match self {
             TimeScale::UTC => "UTC",

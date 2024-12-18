@@ -1,10 +1,19 @@
 use std::ops::{AddAssign, Add, Sub};
-use chrono::{Utc};
+// use std::collections::HashMap;
+use chrono::{Utc, TimeZone, DateTime};
+// use chrono::TimeZone;
+// use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
 use crate::errors::TimeError;
 use serde::{Serialize, Deserialize};
 use crate::time::conversions::*;
+use strsim::jaro_winkler;
+use strsim::jaro;
+use strsim::levenshtein;
+use strsim::damerau_levenshtein;
+
+
 
 
 
@@ -41,26 +50,71 @@ impl Time {
     ///
     /// let t = Time::new(2451545.0, "UTC", "JD");
     /// ```
+    // pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
+    //     let timescale = match timescale.to_lowercase().as_str() {
+    //         "utc" => TimeScale::UTC,
+    //         "tdb" => TimeScale::TDB,
+    //         "tt" => TimeScale::TT,
+    //         "tai" => TimeScale::TAI,
+    //         _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
+    //     };
+    //     let format = match format.to_lowercase().as_str() {
+    //         "jd" => TimeFormat::JD,
+    //         "mjd" => TimeFormat::MJD,
+    //         _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
+    //     };
+    //     let t = Time {
+    //         epoch,
+    //         timescale,
+    //         format,
+    //     };
+    //     Ok(t)
+    // }
+
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
-        let timescale = match timescale.to_lowercase().as_str() {
-            "utc" => TimeScale::UTC,
-            "tdb" => TimeScale::TDB,
-            "tt" => TimeScale::TT,
-            "tai" => TimeScale::TAI,
-            _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
+     
+        let timescale = match timescale.to_uppercase().as_str() {
+            "UTC" => TimeScale::UTC,
+            "TDB" => TimeScale::TDB,
+            "TT" => TimeScale::TT,
+            "TAI" => TimeScale::TAI,
+            _ => {
+                let suggestion = Self::find_closest_match(
+                    &timescale.to_uppercase(),
+                    TimeScale::variants()
+                ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
+                 .unwrap_or_default();
+                return Err(TimeError::InvalidTimeScale(format!(
+                    "'{}'. {}",
+                    timescale.to_string(),
+                    suggestion
+                )));
+            }
         };
-        let format = match format.to_lowercase().as_str() {
-            "jd" => TimeFormat::JD,
-            "mjd" => TimeFormat::MJD,
-            _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
+     
+        let format = match format.to_uppercase().as_str() {
+            "JD" => TimeFormat::JD,
+            "MJD" => TimeFormat::MJD,
+            _ => {
+                let suggestion = Self::find_closest_match(
+                    &format.to_uppercase(),
+                    TimeFormat::variants()
+                ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
+                 .unwrap_or_default();
+                return Err(TimeError::InvalidTimeFormat(format!(
+                    "'{}'. {}",
+                    format.to_string(),
+                    suggestion
+                )));
+            }
         };
-        let t = Time {
+     
+        Ok(Time {
             epoch,
-            timescale,
-            format,
-        };
-        Ok(t)
-    }
+            timescale: timescale,
+            format: format,
+        })
+     }
 
     
     /// Create a new `Time` object from the current time.
@@ -127,29 +181,36 @@ impl Time {
     /// ```
     /// let t = Time::infer_time_format(2451545.0, None);
     /// ```
+    // pub fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError> {
+    //     let timescale = match timescale {
+    //         Some(ts) => match ts.to_lowercase().as_str() {
+    //             "utc" => TimeScale::UTC,
+    //             "tdb" => TimeScale::TDB,
+    //             "tt" => TimeScale::TT,
+    //             "tai" => TimeScale::TAI,
+    //             _ => return Err(TimeError::InvalidTimeScale(ts.to_string())),
+    //         },
+    //         None => TimeScale::UTC,
+    //     };
+        
+    //     let format = if epoch > 100_000.0 {
+    //         TimeFormat::JD
+    //     } else {
+    //         TimeFormat::MJD
+    //     };
+        
+    //     Ok(Time {
+    //         epoch,
+    //         timescale,
+    //         format,
+    //     })
+    // }
+
     pub fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError> {
-        let timescale = match timescale {
-            Some(ts) => match ts.to_lowercase().as_str() {
-                "utc" => TimeScale::UTC,
-                "tdb" => TimeScale::TDB,
-                "tt" => TimeScale::TT,
-                "tai" => TimeScale::TAI,
-                _ => return Err(TimeError::InvalidTimeScale(ts.to_string())),
-            },
-            None => TimeScale::UTC,
-        };
+        let timescale = timescale.unwrap_or("UTC");
+        let format = if epoch > 100_000.0 { "JD" } else { "MJD" };
         
-        let format = if epoch > 100_000.0 {
-            TimeFormat::JD
-        } else {
-            TimeFormat::MJD
-        };
-        
-        Ok(Time {
-            epoch,
-            timescale,
-            format,
-        })
+        Time::new(epoch, timescale, format)
     }
 
 
@@ -467,19 +528,5 @@ impl AddAssign<f64> for Time {
 }
 
 
-// Need to get this back 
-
-// fn get_isot_now() -> String {
-//     let now = Utc::now();
-//     let x = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
-//     return x;
-// }
 
 
-
-// implement Display for Time
-impl std::fmt::Display for Time {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} {} {}", self.epoch, self.timescale, self.format)
-    }
-}
