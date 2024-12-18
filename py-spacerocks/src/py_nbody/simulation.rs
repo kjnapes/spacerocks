@@ -32,6 +32,20 @@ impl PySimulation {
         Ok(PySimulation { inner: sim.unwrap() })
     }
 
+    #[classmethod]
+    pub fn planets(_cls: Py<PyType>, epoch: &PyTime, reference_plane: &str, origin: &str) -> PyResult<Self> {
+        let ep = &epoch.inner;
+        let sim = Simulation::planets(ep, reference_plane, origin);
+        Ok(PySimulation { inner: sim.unwrap() })
+    }
+
+    #[classmethod]
+    pub fn horizons(_cls: Py<PyType>, epoch: &PyTime, reference_plane: &str, origin: &str) -> PyResult<Self> {
+        let ep = &epoch.inner;
+        let sim = Simulation::horizons(ep, reference_plane, origin);
+        Ok(PySimulation { inner: sim.unwrap() })
+    }
+
     // #[classmethod]
     // pub fn planets(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
     //     let ep = &epoch.inner;

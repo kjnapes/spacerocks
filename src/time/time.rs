@@ -50,71 +50,71 @@ impl Time {
     ///
     /// let t = Time::new(2451545.0, "UTC", "JD");
     /// ```
-    // pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
-    //     let timescale = match timescale.to_lowercase().as_str() {
-    //         "utc" => TimeScale::UTC,
-    //         "tdb" => TimeScale::TDB,
-    //         "tt" => TimeScale::TT,
-    //         "tai" => TimeScale::TAI,
-    //         _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
-    //     };
-    //     let format = match format.to_lowercase().as_str() {
-    //         "jd" => TimeFormat::JD,
-    //         "mjd" => TimeFormat::MJD,
-    //         _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
-    //     };
-    //     let t = Time {
-    //         epoch,
-    //         timescale,
-    //         format,
-    //     };
-    //     Ok(t)
-    // }
-
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
-     
-        let timescale = match timescale.to_uppercase().as_str() {
-            "UTC" => TimeScale::UTC,
-            "TDB" => TimeScale::TDB,
-            "TT" => TimeScale::TT,
-            "TAI" => TimeScale::TAI,
-            _ => {
-                let suggestion = Self::find_closest_match(
-                    &timescale.to_uppercase(),
-                    TimeScale::variants()
-                ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
-                 .unwrap_or_default();
-                return Err(TimeError::InvalidTimeScale(format!(
-                    "'{}'. {}",
-                    timescale.to_string(),
-                    suggestion
-                )));
-            }
+        let timescale = match timescale.to_lowercase().as_str() {
+            "utc" => TimeScale::UTC,
+            "tdb" => TimeScale::TDB,
+            "tt" => TimeScale::TT,
+            "tai" => TimeScale::TAI,
+            _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
         };
-     
-        let format = match format.to_uppercase().as_str() {
-            "JD" => TimeFormat::JD,
-            "MJD" => TimeFormat::MJD,
-            _ => {
-                let suggestion = Self::find_closest_match(
-                    &format.to_uppercase(),
-                    TimeFormat::variants()
-                ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
-                 .unwrap_or_default();
-                return Err(TimeError::InvalidTimeFormat(format!(
-                    "'{}'. {}",
-                    format.to_string(),
-                    suggestion
-                )));
-            }
+        let format = match format.to_lowercase().as_str() {
+            "jd" => TimeFormat::JD,
+            "mjd" => TimeFormat::MJD,
+            _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
         };
-     
-        Ok(Time {
+        let t = Time {
             epoch,
-            timescale: timescale,
-            format: format,
-        })
-     }
+            timescale,
+            format,
+        };
+        Ok(t)
+    }
+
+    // pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
+     
+    //     let timescale = match timescale.to_uppercase().as_str() {
+    //         "UTC" => TimeScale::UTC,
+    //         "TDB" => TimeScale::TDB,
+    //         "TT" => TimeScale::TT,
+    //         "TAI" => TimeScale::TAI,
+    //         _ => {
+    //             let suggestion = Self::find_closest_match(
+    //                 &timescale.to_uppercase(),
+    //                 TimeScale::variants()
+    //             ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
+    //              .unwrap_or_default();
+    //             return Err(TimeError::InvalidTimeScale(format!(
+    //                 "'{}'. {}",
+    //                 timescale.to_string(),
+    //                 suggestion
+    //             )));
+    //         }
+    //     };
+     
+    //     let format = match format.to_uppercase().as_str() {
+    //         "JD" => TimeFormat::JD,
+    //         "MJD" => TimeFormat::MJD,
+    //         _ => {
+    //             let suggestion = Self::find_closest_match(
+    //                 &format.to_uppercase(),
+    //                 TimeFormat::variants()
+    //             ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
+    //              .unwrap_or_default();
+    //             return Err(TimeError::InvalidTimeFormat(format!(
+    //                 "'{}'. {}",
+    //                 format.to_string(),
+    //                 suggestion
+    //             )));
+    //         }
+    //     };
+     
+    //     Ok(Time {
+    //         epoch,
+    //         timescale: timescale,
+    //         format: format,
+    //     })
+    //  }
 
     
     /// Create a new `Time` object from the current time.
@@ -481,6 +481,14 @@ impl Time {
         jd_to_calendar(&self.utc().jd())
     }
 
+}
+
+
+/// Implement the `Display` trait for `Time`.
+impl std::fmt::Display for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{} {} {}", self.epoch, self.timescale, self.format)
+    }
 }
 
 impl Sub<&Time> for &Time {

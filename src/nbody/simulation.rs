@@ -71,6 +71,61 @@ impl Simulation {
         Ok(sim)
     }
 
+    /// Instantiate a simulation with the solar system planets.
+    /// Includes the sun, mercury barycenter, venus barycenter, earth barycenter, mars barycenter, jupiter barycenter, saturn barycenter, uranus barycenter, neptune barycenter.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the simulation.
+    /// * `reference_plane` - The reference plane of the simulation.
+    /// * `origin` - The origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Simulation, Box<dyn std::error::Error>>` - The simulation with the solar system planets.
+    pub fn planets(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
+        let mut sim = Simulation::new();
+        sim.epoch = epoch.clone();
+        sim.integrator = Box::new(IAS15::new(1.0));
+
+        let names = ["sun", "mercury barycenter", "venus barycenter", "earth barycenter", "mars barycenter", "jupiter barycenter", 
+                     "saturn barycenter", "uranus barycenter", "neptune barycenter"];
+        for name in names.iter() {
+            let particle = SpaceRock::from_spice(name, epoch, reference_plane, origin)?;
+            sim.add(particle)?;
+        }
+        Ok(sim)
+    }
+
+    /// Instantiate a simulation with the solar system planets and moons.
+    /// Includes the sun, mercury barycenter, venus barycenter, earth, moon, mars barycenter, jupiter barycenter, saturn barycenter, uranus barycenter, neptune barycenter, pluto barycenter.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the simulation.
+    /// * `reference_plane` - The reference plane of the simulation.
+    /// * `origin` - The origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Simulation, Box<dyn std::error::Error>>` - The simulation with the solar system planets and moons.
+    pub fn horizons(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
+        let mut sim = Simulation::new();
+        sim.epoch = epoch.clone();
+        sim.integrator = Box::new(IAS15::new(1.0));
+
+        let names = ["sun", "mercury barycenter", "venus barycenter", "earth", "moon", "mars barycenter", "jupiter barycenter", 
+                     "saturn barycenter", "uranus barycenter", "neptune barycenter", "pluto barycenter", "2000001", "2000002", 
+                        "2000003", "2000004", "2000007", "2000010", "2000015", "2000016", "2000031", "2000052", "2000065", "2000087",
+                        "2000088", "2000107", "2000511", "2000704"];
+        for name in names.iter() {
+            let particle = SpaceRock::from_spice(name, epoch, reference_plane, origin)?;
+            sim.add(particle)?;
+        }
+        Ok(sim)
+    }
+
+    
     /// Add a particle to the simulation.
     ///
     /// # Arguments
