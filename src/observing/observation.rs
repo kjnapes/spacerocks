@@ -13,6 +13,10 @@ pub struct Observation {
     pub epoch: Time,
     pub observation_type: ObservationType,
     pub observer: Observer,
+    // pub covariance: Option<Matrix<f64>>,
+    // pub magnitude: Option<f64>,
+    // pub filter: Option<String>,
+    // pub obsid: Option<String>,
 }
 
 impl Observation {

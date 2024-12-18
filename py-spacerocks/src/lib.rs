@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
-// mod py_transforms;
-// use py_transforms::make_transforms_submodule;
+mod py_transforms;
+use py_transforms::make_transforms_submodule;
 
 mod py_coordinates;
 use py_coordinates::make_coordinates_submodule;
@@ -28,7 +28,7 @@ use py_nbody::make_nbody_submodule;
 pub fn spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Add the `transforms` submodule
-    // make_transforms_submodule(py, m)?;
+    make_transforms_submodule(py, m)?;
 
     // Add the `spacerock` submodule
     // make_spacerock_submodule(py, m)?;

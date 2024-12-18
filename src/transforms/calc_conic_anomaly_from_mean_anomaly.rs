@@ -1,4 +1,4 @@
-use crate::error::OrbitError;
+use crate::errors::OrbitError;
 use crate::orbit_type::OrbitType;
 
 /// Calculate the mean anomaly from the eccentric anomaly.
@@ -6,11 +6,11 @@ use crate::orbit_type::OrbitType;
 /// # Arguments
 ///
 /// * `e` - Eccentricity of the orbit.
-/// * `eccentric_anomaly` - Mean anomaly of the orbit in radians.
+/// * `mean_anomaly` - Mean anomaly of the orbit in radians.
 ///
 /// # Returns
 ///
-/// * `Result<f64, OrbitError>` - The eccentric anomaly in radians.
+/// * `Result<f64, OrbitError>` - The conic anomaly in radians.
 ///
 /// # Example
 ///
@@ -33,7 +33,7 @@ pub fn calc_conic_anomaly_from_mean_anomaly(e: f64, mean_anomaly: f64) -> Result
 
 }
 
-fn kepler_circular(e: f64, mean_anomaly: f64) -> f64 {
+fn kepler_circular(_e: f64, mean_anomaly: f64) -> f64 {
     mean_anomaly
 }
 
@@ -47,18 +47,18 @@ fn kepler_elliptical(e: f64, mean_anomaly: f64) -> f64 {
     }
 
     // Define initial estimate
-    let sinM = mean_anomaly.sin();
-    let mut eccentric_anomaly = e * sinM + f64::max(mean_anomaly, e * (sinM + 0.591));
+    let sin_mean_anomaly = mean_anomaly.sin();
+    let mut eccentric_anomaly = e * sin_mean_anomaly + f64::max(mean_anomaly, e * (sin_mean_anomaly + 0.591));
     
 
     // Perform Newton-Raphson estimate
     for _ in 0..10 {
 
         // Compute f(E), f'(E), f''(E) and f'''(E), avoiding recomputation of sine and cosine.
-        let esinE = e * eccentric_anomaly.sin();
-        let ecosE = e * eccentric_anomaly.cos();
+        let esin_eccentric_anomaly = e * eccentric_anomaly.sin();
+        let ecos_eccentric_anomaly = e * eccentric_anomaly.cos();
         
-        let f = eccentric_anomaly - esinE - mean_anomaly;
+        let f = eccentric_anomaly - esin_eccentric_anomaly - mean_anomaly;
 
         if f.abs() < 1.0e-15 {
             if flag {
@@ -67,9 +67,9 @@ fn kepler_elliptical(e: f64, mean_anomaly: f64) -> f64 {
             return eccentric_anomaly;
         }
 
-        let first = 1.0 - ecosE;
-        let second = esinE;
-        let third = ecosE;
+        let first = 1.0 - ecos_eccentric_anomaly;
+        let second = esin_eccentric_anomaly;
+        let third = ecos_eccentric_anomaly;
 
         let delta_i1 = -f / first;
         let delta_i2 = -f / (first + 0.5 * delta_i1 * second);
@@ -81,10 +81,14 @@ fn kepler_elliptical(e: f64, mean_anomaly: f64) -> f64 {
     eccentric_anomaly
 }
 
-fn kepler_parabolic(e: f64, mean_anomaly: f64) -> f64 {
-    todo!()
+/// Calculate the parabolic eccentric anomaly from the mean anomaly.
+fn kepler_parabolic(_e: f64, mean_anomaly: f64) -> f64 {
+    let x = (3.0 * mean_anomaly + (4.0 + 9.0 * mean_anomaly * mean_anomaly).sqrt()).cbrt();
+    let y = (2.0_f64).cbrt();
+    x/y - y/x 
 }
 
+/// Calculate the hyperbolic eccentric anomaly from the mean anomaly.
 fn kepler_hyperbolic(e: f64, mean_anomaly: f64) -> f64 {
 
     let mut eccentric_anomaly = mean_anomaly / mean_anomaly.abs() * (2.0 * mean_anomaly.abs() / e + 1.8).ln();

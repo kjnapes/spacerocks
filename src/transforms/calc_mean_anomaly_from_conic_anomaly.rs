@@ -1,4 +1,4 @@
-use crate::error::OrbitError;
+use crate::errors::OrbitError;
 use crate::orbit_type::OrbitType;
 
 /// Calculate the conic anomaly (eccentric, parabolic, or hyperbolic) from the true anomaly.
@@ -6,7 +6,7 @@ use crate::orbit_type::OrbitType;
 /// # Arguments
 ///
 /// * `e` - Eccentricity of the orbit.
-/// * `eccentric_anomaly` - Eccentric anomaly of the orbit in radians.
+/// * `conic_anomaly` - Conic anomaly of the orbit in radians.
 ///
 /// # Returns
 ///

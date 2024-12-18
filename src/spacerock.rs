@@ -438,6 +438,7 @@ impl SpaceRock {
         let rho = cr.position.norm();
         let rho_rate = cr.position.dot(&cr.velocity) / rho;
 
+
         // if self has properties, calculate the magnitude
         // let mut mag = None;
         // if let Some(properties) = &self.properties {

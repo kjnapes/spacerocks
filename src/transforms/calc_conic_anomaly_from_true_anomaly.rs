@@ -9,7 +9,7 @@ use crate::orbit_type::OrbitType;
 ///
 /// # Returns
 ///
-/// * `Result<f64, OrbitError>` - The eccentric anomaly in radians.
+/// * `Result<f64, OrbitError>` - The conic anomaly in radians.
 ///
 /// # Example
 ///
