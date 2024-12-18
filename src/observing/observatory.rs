@@ -31,7 +31,7 @@ impl Observatory {
         match OBSERVATORIES.get(&obscode) {
             Some(obs) => {
                 let lon = obs.0;
-                let lat = obs.1.atan2(obs.2);
+                let lat = obs.2.atan2(obs.1);
                 let rho = (obs.1 * obs.1 + obs.2 * obs.2).sqrt();
                 return Ok(Observatory::GroundObservatory { obscode: obscode, lon, lat, rho })
             },
