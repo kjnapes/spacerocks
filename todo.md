@@ -1,8 +1,75 @@
-[] Docs for python (Time)
-[] Binding to python (Time)
-[] tests (Time)
-[] display (Time)
-[] optimize calc_eccentric_anomaly_from_mean_anomaly 
+
+### final implementations
+[] Analytic propagate
+[] Kepler Orbits
+[] Rock Collection
+[] in transforms: implement new hyp guess. Implement error for non-convergence?
+
+### polishing stage:
+Kev: SpaceRock, nbody, observing
+Thomas: Spice, Time, transforms
+
+SpaceRock:
+    [] Tests
+    [] Docs
+    [] Display
+    [] Benchmarks
+
+Nbody:
+    [] Tests
+    [] Docs
+    [] Display
+    [] Benchmarks
+
+Observing:
+    [] Tests
+    [] Docs
+    [] Display
+    [] Benchmarks
+
+Spice:
+    [] Tests
+    [] Docs
+    [] Display
+    [] Benchmarks
+
+Time:
+    [] Tests
+    [] Docs
+    [] Display
+    [] Benchmarks
+
+Transforms:
+    [] Tests
+    [] Docs
+    [] Display
+    [] Benchmarks
 
 
-[] Benchmarks. First make it work, then make it fast.
+# concurently in polishing, make examples. 
+# things that need to be implemented that we noticed:
+[] planets
+[] horizons
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Build later
+[] Orbit fitting
+[] Detection Catalogue
+
+
+
+
