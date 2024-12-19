@@ -25,47 +25,72 @@ impl PySimulation {
         PySimulation { inner: Simulation::new() }
     }
 
+    /// Create a new simulation with the giant planets.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the simulation.
+    /// * `reference_plane` - The reference plane of the simulation.
+    /// * `origin` - The origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Simulation, &'static str>` - The Simulation object.
     #[classmethod]
     pub fn giants(_cls: Py<PyType>, epoch: &PyTime, reference_plane: &str, origin: &str) -> PyResult<Self> {
-        let ep = &epoch.inner;
-        let sim = Simulation::giants(ep, reference_plane, origin);
-        Ok(PySimulation { inner: sim.unwrap() })
+        match Simulation::giants(&epoch.inner, reference_plane, origin) {
+            Ok(sim) => Ok(PySimulation { inner: sim }),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        }
     }
 
+    /// Create a new simulation with the planets.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the simulation.
+    /// * `reference_plane` - The reference plane of the simulation.
+    /// * `origin` - The origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Simulation, &'static str>` - The Simulation object.
     #[classmethod]
     pub fn planets(_cls: Py<PyType>, epoch: &PyTime, reference_plane: &str, origin: &str) -> PyResult<Self> {
-        let ep = &epoch.inner;
-        let sim = Simulation::planets(ep, reference_plane, origin);
-        Ok(PySimulation { inner: sim.unwrap() })
+        match Simulation::planets(&epoch.inner, reference_plane, origin) {
+            Ok(sim) => Ok(PySimulation { inner: sim }),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        }
     }
 
+    /// Create a new simulation with the JPL horizons perturbers.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch of the simulation.
+    /// * `reference_plane` - The reference plane of the simulation.
+    /// * `origin` - The origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Simulation, &'static str>` - The Simulation object.
     #[classmethod]
     pub fn horizons(_cls: Py<PyType>, epoch: &PyTime, reference_plane: &str, origin: &str) -> PyResult<Self> {
-        let ep = &epoch.inner;
-        let sim = Simulation::horizons(ep, reference_plane, origin);
-        Ok(PySimulation { inner: sim.unwrap() })
+        match Simulation::horizons(&epoch.inner, reference_plane, origin) {
+            Ok(sim) => Ok(PySimulation { inner: sim }),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        }
     }
 
-    // #[classmethod]
-    // pub fn planets(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
-    //     let ep = &epoch.inner;
-    //     let or = &origin.inner;
-
-    //     let frame = CoordinateFrame::from_str(frame).unwrap();
-    //     let sim = Simulation::planets(ep, &frame, or);
-    //     Ok(PySimulation { inner: sim.unwrap() })
-    // }
-
-    // #[classmethod]
-    // pub fn horizons(_cls: &PyType, epoch: &PyTime, frame: &str, origin: &PyOrigin) -> PyResult<Self> {
-    //     let ep = &epoch.inner;
-    //     let or = &origin.inner;
-
-    //     let frame = CoordinateFrame::from_str(frame).unwrap();
-    //     let sim = Simulation::horizons(ep, &frame, or);
-    //     Ok(PySimulation { inner: sim.unwrap() })
-    // }
-
+    /// Add a SpaceRock to the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `rock` - The SpaceRock to add.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<(), &'static str>` - The result of the operation.
     pub fn add(&mut self, rock: &PySpaceRock) -> PyResult<()> {
         match self.inner.add(rock.inner.clone()) {
             Ok(_) => Ok(()),
@@ -73,6 +98,15 @@ impl PySimulation {
         }
     }
 
+    /// Remove a SpaceRock from the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name of the SpaceRock to remove.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<(), &'static str>` - The result of the operation.
     pub fn remove(&mut self, name: &str) -> PyResult<()> {
         match self.inner.remove(name) {
             Ok(_) => Ok(()),
@@ -80,14 +114,21 @@ impl PySimulation {
         }
     }
 
+    /// Integrate the simulation to a specific epoch.
+    ///
+    /// # Arguments
+    ///
+    /// * `epoch` - The epoch to integrate to.
     pub fn integrate(&mut self, epoch: &PyTime) {
         self.inner.integrate(&epoch.inner.clone());
     }
     
+    /// Step the simulation by one timestep.
     pub fn step(&mut self) {
         self.inner.step();
     }
 
+    /// Move the simulation to the center of mass.
     pub fn move_to_center_of_mass(&mut self) -> PyResult<()> {
         match self.inner.move_to_center_of_mass() {
             Ok(_) => Ok(()),
@@ -95,6 +136,15 @@ impl PySimulation {
         }
     }
 
+    /// Change the origin of the simulation. The new origin must be present in the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `origin` - The new origin of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<(), &'static str>` - The result of the operation.
     pub fn change_origin(&mut self, origin: &str) -> PyResult<()> {
         match self.inner.change_origin(origin) {
             Ok(_) => Ok(()),
@@ -102,15 +152,34 @@ impl PySimulation {
         }
     }
 
+    /// Change the reference plane of the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `reference_plane` - The new reference plane of the simulation.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<(), &'static str>` - The result of the operation.
     pub fn set_epoch(&mut self, epoch: &PyTime) {
         self.inner.epoch = epoch.inner.clone();
     }
 
+    /// Set the reference plane of the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `reference_plane` - The new reference plane of the simulation.
     pub fn set_reference_plane(&mut self, reference_plane: &str) {
         let reference_plane = ReferencePlane::from_str(reference_plane).unwrap();
         self.inner.reference_plane = reference_plane;
     }
 
+    /// Set the origin of the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `origin` - The new origin of the simulation.
     pub fn set_origin(&mut self, origin: &str) -> PyResult<()> {
         match Origin::from_str(origin) {
             Ok(o) => {
@@ -121,18 +190,30 @@ impl PySimulation {
         }
     }
 
+    /// Set the integrator.
+    ///
+    /// # Arguments
+    ///
+    /// * `integrator` - The new integrator.
     pub fn set_integrator(&mut self, integrator: PyRef<PyIntegrator>) {
         self.inner.integrator = integrator.inner.clone();
     }
 
+    /// Add a force to the simulation.
+    ///
+    /// # Arguments
+    ///
+    /// * `force` - The force to add.
     pub fn add_force(&mut self, force: PyRef<PyForce>) {
         self.inner.add_force(force.inner.clone());
     }
 
+    /// Calculate the total energy of the simulation.
     pub fn energy(&self) -> f64 {
         self.inner.energy()
     }
 
+    /// Get a single particle from the simulation by name.
     pub fn get_particle(&self, name: &str) -> PyResult<PySpaceRock> {
         let rock = self.inner.get_particle(name);
         match rock {
