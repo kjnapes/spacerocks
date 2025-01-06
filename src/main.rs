@@ -7,19 +7,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // define the epoch
     let epoch = Time::now();
 
-    // // load spice kernels
-    let mut kernel = SpiceKernel::new();
-    kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
-    kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
+    // // // load spice kernels
+    // let mut kernel = SpiceKernel::new();
+    // kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
+    // kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
 
-    let f51 = Observatory::from_obscode("F51")?;
+    // let f51 = Observatory::from_obscode("F51")?;
 
-    let observer = f51.at(&epoch)?;
+    // let observer = f51.at(&epoch)?;
 
-    let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
-    let observation = arrokoth.observe(&observer)?;
+    // let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
+    // let observation = arrokoth.observe(&observer)?;
 
-    println!("{}", observation);
+    // println!("{}", observation);
     
 
 

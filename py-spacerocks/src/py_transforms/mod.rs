@@ -9,6 +9,10 @@ pub use self::calc_conic_anomaly_from_mean_anomaly::calc_conic_anomaly_from_mean
 pub mod calc_conic_anomaly_from_true_anomaly;
 pub use self::calc_conic_anomaly_from_true_anomaly::calc_conic_anomaly_from_true_anomaly_py;
 
+pub mod calc_true_anomaly_from_mean_anomaly;
+pub use self::calc_true_anomaly_from_mean_anomaly::calc_true_anomaly_from_mean_anomaly_py;
+
+
 // pub mod calc_true_anomaly_from_conic_anomaly;
 // pub use self::calc_true_anomaly_from_conic_anomaly::calc_true_anomaly_from_conic_anomaly_py;
 
@@ -20,6 +24,7 @@ pub fn make_transforms_submodule(py: Python, m: &Bound<'_, PyModule>) -> PyResul
     submodule.add_function(wrap_pyfunction!(calc_mean_anomaly_from_conic_anomaly_py, submodule.clone())?)?;
     submodule.add_function(wrap_pyfunction!(calc_conic_anomaly_from_mean_anomaly_py, submodule.clone())?)?;
     submodule.add_function(wrap_pyfunction!(calc_conic_anomaly_from_true_anomaly_py, submodule.clone())?)?;
+    submodule.add_function(wrap_pyfunction!(calc_true_anomaly_from_mean_anomaly_py, submodule.clone())?)?;
     // submodule.add_function(wrap_pyfunction!(calc_true_anomaly_from_conic_anomaly_py, submodule)?)?;
 
     m.add_submodule(&submodule)?;
