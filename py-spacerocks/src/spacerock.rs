@@ -41,6 +41,15 @@ impl PySpaceRock {
     }
 
     #[classmethod]
+    fn from_spherical(_cls: Py<PyType>, name: &str, phi: f64, theta: f64, r: f64, vr: f64, vo: f64, psi: f64, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
+        let rock = SpaceRock::from_spherical(name, phi, theta, r, vr, vo, psi, epoch.inner.clone(), reference_plane, origin);
+        if rock.is_err() {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create SpaceRock from Spherical for name: {}", name)));
+        }
+        Ok(PySpaceRock { inner: rock.unwrap() })
+    }
+
+    #[classmethod]
     fn from_xyz(_cls: Py<PyType>, name: &str, x: f64, y: f64, z: f64, vx: f64, vy: f64, vz: f64, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
         let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch.inner.clone(), reference_plane, origin);
         if rock.is_err() {
