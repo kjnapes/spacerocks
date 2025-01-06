@@ -4,7 +4,7 @@ use crate::{Time};
 
 use nalgebra::Vector3;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Observer {
     pub spacerock: SpaceRock,
     pub observatory: Observatory,

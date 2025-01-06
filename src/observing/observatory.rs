@@ -8,7 +8,7 @@ use crate::time::Time;
 use nalgebra::Vector3;
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Observatory {
     GroundObservatory { obscode: String, lon: f64, lat: f64, rho: f64 },
     SpaceTelecope { name: String },

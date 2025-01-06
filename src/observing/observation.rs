@@ -1,6 +1,6 @@
 use crate::{Time, Observer};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ObservationType {
     Astrometric { ra: f64, dec: f64 },
     Streak { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64 },
@@ -8,7 +8,7 @@ pub enum ObservationType {
     Complete { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, range: f64, range_rate: f64 },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Observation {
     pub epoch: Time,
     pub observation_type: ObservationType,
