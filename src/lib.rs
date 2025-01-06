@@ -40,8 +40,6 @@ pub mod structs;
 pub mod observing;
     pub use observing::{Observatory, Observer, Observation};
 
-
-
 // pub mod orbfit;
 //     pub use orbfit::gauss;
 //     pub use orbfit::fitter;

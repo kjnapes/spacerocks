@@ -17,6 +17,15 @@ pub struct PyObservation {
 #[pymethods]
 impl PyObservation {
 
+    #[classmethod]
+    fn from_astrometric(_cls: Py<PyType>, epoch: PyTime, ra: f64, dec: f64, observer: PyObserver) -> PyResult<PyObservation> {
+        Ok(PyObservation { inner: Observation::from_astrometric(epoch.inner, ra, dec, observer.inner) })
+    }
+
+    #[classmethod]
+    fn from_streak(_cls: Py<PyType>, epoch: PyTime, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, observer: PyObserver) -> PyResult<PyObservation> {
+        Ok(PyObservation { inner: Observation::from_streak(epoch.inner, ra, dec, ra_rate, dec_rate, observer.inner) })
+    }
 
     #[getter]
     fn ra(&self) -> f64 {

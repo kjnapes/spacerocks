@@ -1,4 +1,3 @@
-
 ### final implementations
 [] Analytic propagate
 [] Kepler Orbits
@@ -48,8 +47,8 @@ Transforms:
 
 # concurently in polishing, make examples. 
 # things that need to be implemented that we noticed:
-[] planets
-[] horizons
+[x] planets
+[x] horizons
 
 
 

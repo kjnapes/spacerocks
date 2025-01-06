@@ -63,7 +63,10 @@ impl PySpaceRock {
 
     
     fn __repr__(&self) -> String {
-        format!("SpaceRock: {}", self.inner.name)
+        // build a string representation of the object
+        let s = format!("SpaceRock: {}\nposition: {:?}\nvelocity: {:?}\nepoch: {}\nreference_plane: {}\norigin: {}\n", 
+            self.inner.name, self.inner.position, self.inner.velocity, self.inner.epoch, self.inner.reference_plane, self.inner.origin);
+        s
     }
 
     #[getter]

@@ -3,9 +3,6 @@
 // use crate::KeplerOrbit;
 // use nalgebra::Vector3;
 
-// const EMIN: f64 = 1e-10;
-// const IMIN: f64 = 1e-10;
-
 // pub fn calc_kep_from_xyz(position: Vector3<f64>, velocity: Vector3<f64>, mu: f64) -> KeplerOrbit {
 
 //     // energy
