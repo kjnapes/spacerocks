@@ -8,11 +8,11 @@ use crate::time::timeformat::TimeFormat;
 use crate::errors::TimeError;
 use serde::{Serialize, Deserialize};
 use crate::time::conversions::*;
-use strsim::jaro_winkler;
-use strsim::jaro;
-use strsim::levenshtein;
-use strsim::damerau_levenshtein;
-
+// use strsim::jaro_winkler;
+// use strsim::jaro;
+// use strsim::levenshtein;
+// use strsim::damerau_levenshtein;
+use crate::utils::find_closest_match;
 
 
 
@@ -50,71 +50,71 @@ impl Time {
     ///
     /// let t = Time::new(2451545.0, "UTC", "JD");
     /// ```
-    pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
-        let timescale = match timescale.to_lowercase().as_str() {
-            "utc" => TimeScale::UTC,
-            "tdb" => TimeScale::TDB,
-            "tt" => TimeScale::TT,
-            "tai" => TimeScale::TAI,
-            _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
-        };
-        let format = match format.to_lowercase().as_str() {
-            "jd" => TimeFormat::JD,
-            "mjd" => TimeFormat::MJD,
-            _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
-        };
-        let t = Time {
-            epoch,
-            timescale,
-            format,
-        };
-        Ok(t)
-    }
-
     // pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
-     
-    //     let timescale = match timescale.to_uppercase().as_str() {
-    //         "UTC" => TimeScale::UTC,
-    //         "TDB" => TimeScale::TDB,
-    //         "TT" => TimeScale::TT,
-    //         "TAI" => TimeScale::TAI,
-    //         _ => {
-    //             let suggestion = Self::find_closest_match(
-    //                 &timescale.to_uppercase(),
-    //                 TimeScale::variants()
-    //             ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
-    //              .unwrap_or_default();
-    //             return Err(TimeError::InvalidTimeScale(format!(
-    //                 "'{}'. {}",
-    //                 timescale.to_string(),
-    //                 suggestion
-    //             )));
-    //         }
+    //     let timescale = match timescale.to_lowercase().as_str() {
+    //         "utc" => TimeScale::UTC,
+    //         "tdb" => TimeScale::TDB,
+    //         "tt" => TimeScale::TT,
+    //         "tai" => TimeScale::TAI,
+    //         _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
     //     };
-     
-    //     let format = match format.to_uppercase().as_str() {
-    //         "JD" => TimeFormat::JD,
-    //         "MJD" => TimeFormat::MJD,
-    //         _ => {
-    //             let suggestion = Self::find_closest_match(
-    //                 &format.to_uppercase(),
-    //                 TimeFormat::variants()
-    //             ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
-    //              .unwrap_or_default();
-    //             return Err(TimeError::InvalidTimeFormat(format!(
-    //                 "'{}'. {}",
-    //                 format.to_string(),
-    //                 suggestion
-    //             )));
-    //         }
+    //     let format = match format.to_lowercase().as_str() {
+    //         "jd" => TimeFormat::JD,
+    //         "mjd" => TimeFormat::MJD,
+    //         _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
     //     };
-     
-    //     Ok(Time {
+    //     let t = Time {
     //         epoch,
-    //         timescale: timescale,
-    //         format: format,
-    //     })
-    //  }
+    //         timescale,
+    //         format,
+    //     };
+    //     Ok(t)
+    // }
+
+    pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
+     
+        let timescale = match timescale.to_uppercase().as_str() {
+            "UTC" => TimeScale::UTC,
+            "TDB" => TimeScale::TDB,
+            "TT" => TimeScale::TT,
+            "TAI" => TimeScale::TAI,
+            _ => {
+                let suggestion = find_closest_match(
+                    &timescale.to_uppercase(),
+                    TimeScale::variants()
+                ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
+                 .unwrap_or_default();
+                return Err(TimeError::InvalidTimeScale(format!(
+                    "'{}'. {}",
+                    timescale.to_string(),
+                    suggestion
+                )));
+            }
+        };
+     
+        let format = match format.to_uppercase().as_str() {
+            "JD" => TimeFormat::JD,
+            "MJD" => TimeFormat::MJD,
+            _ => {
+                let suggestion = find_closest_match(
+                    &format.to_uppercase(),
+                    TimeFormat::variants()
+                ).map(|s| format!("Did you mean '{}'?", s.to_lowercase()))
+                 .unwrap_or_default();
+                return Err(TimeError::InvalidTimeFormat(format!(
+                    "'{}'. {}",
+                    format.to_string(),
+                    suggestion
+                )));
+            }
+        };
+     
+        Ok(Time {
+            epoch,
+            timescale: timescale,
+            format: format,
+        })
+     }
 
     
     /// Create a new `Time` object from the current time.
@@ -348,7 +348,7 @@ impl Time {
     /// time.to_utc();  // Converts time to UTC in place
     /// assert_eq!(time.timescale, TimeScale::UTC);
     /// ```
-    pub fn to_utc(&mut self) {
+    pub fn to_utc(&mut self) -> &mut Self {
         match self.timescale {
             TimeScale::UTC => {}, // Already UTC
             TimeScale::TDB => {
@@ -364,12 +364,13 @@ impl Time {
                 self.timescale = TimeScale::UTC;
             },
         }
+        self
     }
 
     /// Convert the time object to UTC timescale in place
     ///
     /// Modifies the time object by converting its epoch and timescale to TDB.
-    pub fn to_tdb(&mut self) {
+    pub fn to_tdb(&mut self) -> &mut Self {
         match self.timescale {
             TimeScale::UTC => {
                 self.epoch = utc_to_tdb(self.epoch);
@@ -387,12 +388,13 @@ impl Time {
                 self.timescale = TimeScale::TDB;
             },
         }
+        self
     }
 
     /// Convert the time object to UTC timescale in place
     ///
     /// Modifies the time object by converting its epoch and timescale to TT.
-    pub fn to_tt(&mut self) {
+    pub fn to_tt(&mut self) -> &mut Self {
         match self.timescale {
             TimeScale::UTC => {
                 self.epoch = utc_to_tt(self.epoch);
@@ -408,12 +410,13 @@ impl Time {
                 self.timescale = TimeScale::TT;
             },
         }
+        self
     }
 
     /// Convert the time object to UTC timescale in place
     ///
     /// Modifies the time object by converting its epoch and timescale to TAI.
-    pub fn to_tai(&mut self) {
+    pub fn to_tai(&mut self) -> &mut Self {
         match self.timescale {
             TimeScale::UTC => {
                 self.epoch = utc_to_tai(self.epoch);
@@ -431,6 +434,7 @@ impl Time {
             },
             TimeScale::TAI => {}, // Already TAI
         }
+        self
     }
 
     // Getters for the time format of the time object
@@ -467,7 +471,6 @@ impl Time {
             TimeScale::TT => self.to_tt(),
             TimeScale::TAI => self.to_tai(),
         }
-        self
     }
 
     /// Convert the time to a human-readable calendar date.
@@ -479,6 +482,22 @@ impl Time {
         // clone the time object and convert to UTC
         // let mut time = self.clone();
         jd_to_calendar(&self.utc().jd())
+    }
+
+    pub fn iso(&self) -> String {
+        // First ensure we're working with UTC time
+        let utc_time = self.clone().utc();
+        
+        // Convert JD to DateTime<Utc>
+        let days_since_epoch = utc_time.jd() - 2440587.5; // JD of Unix epoch (1970-01-01)
+        let seconds_since_epoch = (days_since_epoch * 86400.0) as i64;
+        
+        // Create DateTime from timestamp
+        let dt: DateTime<Utc> = Utc.timestamp_opt(seconds_since_epoch, 0)
+            .unwrap();  // Safe to unwrap as our JD calculations are valid
+            
+        // Format as ISO string
+        dt.to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
     }
 
 }
