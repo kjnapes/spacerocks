@@ -27,15 +27,15 @@ Observing:
     [] Benchmarks
 
 Spice:
-    [] Tests
-    [] Docs
-    [] Display
+    [x] Tests
+    [x] Docs
+    [x] Display
     [] Benchmarks
 
 Time:
-    [] Tests
-    [] Docs
-    [] Display
+    [x] Tests
+    [x] Docs
+    [x] Display
     [] Benchmarks
 
 Transforms:

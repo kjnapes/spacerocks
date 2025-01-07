@@ -1,208 +1,268 @@
-# Orbital Transform Functions
+# Time Module
 
 ### Table of Contents
 1. [Overview](#overview)
-2. [Orbit Types](#orbit-types)
-3. [Anomaly Transforms](#anomaly-transforms)
-4. [State Vector Operations](#state-vector-operations)
-5. [Examples](#examples)
-6. [Notes](#notes)
+2. [Time Structure](#time-structure)
+3. [Constructor Methods](#constructor-methods)
+4. [Time Conversions](#time-conversions)
+5. [Format Methods](#format-methods)
+6. [Arithmetic Operations](#arithmetic-operations)
+7. [Notes](#notes)
 
 ## Overview
 
-The `transforms` module provides functions for orbital mechanics calculations, focusing on conversions between different types of orbital anomalies and state vectors. All angular units are in radians, distances in astronomical units (AU), and time in days.
+The Time module provides a comprehensive interface for handling astronomical time calculations. It supports multiple time scales (UTC, TDB, TT, TAI) and formats (JD, MJD), with conversion utilities and arithmetic operations.
 
-## Orbit Types
+## Time Structure
 
+### Time Struct
 ```rust
-pub enum OrbitType {
-    Hyperbolic,   // e > 1
-    Parabolic,    // e ≈ 1
-    Elliptical,   // 0 < e < 1
-    Circular,     // e ≈ 0
-    Radial        // Special case
+pub struct Time {
+    pub epoch: f64,
+    pub timescale: TimeScale,
+    pub format: TimeFormat,
 }
 ```
 
-The module also defines an error type for handling invalid inputs:
+The `Time` struct represents a moment in time with an epoch value in a specific timescale and format.
 
+## Constructor Methods
+
+#### new()
 ```rust
-pub enum OrbitError {
-    NegativeEccentricity(f64),
-}
+fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError>
 ```
 
-#### from_eccentricity()
-```rust
-fn from_eccentricity(e: f64, threshold: f64) -> Result<OrbitType, OrbitError>
-```
-
-Determines orbit type based on eccentricity value. Uses a threshold parameter to classify near-circular and near-parabolic orbits.
+Creates a new Time instance with specified epoch, timescale, and format.
 
 **Arguments:**
-- `e`: Orbital eccentricity
-- `threshold`: Tolerance for determining near-circular or near-parabolic orbits (typically 1e-10)
+- `epoch`: The epoch value (JD or MJD)
+- `timescale`: The timescale ("UTC", "TDB", "TT", "TAI")
+- `format`: The time format ("JD", "MJD")
 
 **Returns:**
-- `Ok(OrbitType)` with the appropriate orbit classification
-- `Err(OrbitError::NegativeEccentricity)` if e < 0
+- `Ok(Time)` if parameters are valid
+- `Err(TimeError)` with suggestion if parameters are invalid
 
 **Example:**
 ```rust
-let orbit_type = OrbitType::from_eccentricity(0.5, 1e-10)?;
+// Create a time in UTC using Julian Date
+let t1 = Time::new(2451545.0, "UTC", "JD")?;
+
+// Create a time in TDB using Modified Julian Date
+let t2 = Time::new(51544.5, "TDB", "MJD")?;
+
+// Invalid timescale gets helpful error
+let t3 = Time::new(2451545.0, "tax", "jd");
+// Error: Invalid timescale: 'tax'. Did you mean 'tai'?
 ```
 
-## Anomaly Transforms
-
-#### calc_conic_anomaly_from_mean_anomaly()
+#### now()
 ```rust
-fn calc_conic_anomaly_from_mean_anomaly(
-    e: f64,
-    mean_anomaly: f64
-) -> Result<f64, OrbitError>
+fn now() -> Self
 ```
 
-Converts mean anomaly to conic anomaly using orbit-type-specific methods:
-- Circular orbits: Returns mean anomaly directly
-- Elliptical orbits: Uses Newton-Raphson iteration with third-order corrections
-- Parabolic orbits: Uses analytical solution
-- Hyperbolic orbits: Uses iterative solution with convergence check
+Creates a new Time instance representing the current time.
 
-The elliptical case includes special handling for mean anomalies greater than π.
+**Returns:**
+- A new `Time` instance in UTC and JD format
+
+**Example:**
+```rust
+let current_time = Time::now();
+println!("Current JD: {}", current_time.jd());
+```
+
+#### from_fuzzy_str()
+```rust
+fn from_fuzzy_str(s: &str) -> Result<Self, TimeError>
+```
+
+Creates a Time instance from a string specification.
 
 **Arguments:**
-- `e`: Orbital eccentricity
-- `mean_anomaly`: Mean anomaly in radians
+- `s`: String in format "epoch timescale format" or "now"
+
+**Returns:**
+- `Ok(Time)` if string is valid
+- `Err(TimeError)` if parsing fails
 
 **Example:**
 ```rust
-let eccentric_anomaly = calc_conic_anomaly_from_mean_anomaly(0.5, 0.5)?;
+// Create from explicit string
+let t1 = Time::from_fuzzy_str("2451545.0 UTC JD")?;
+
+// Create using current time
+let t2 = Time::from_fuzzy_str("now")?;
+
+// Create using MJD
+let t3 = Time::from_fuzzy_str("51544.5 TDB MJD")?;
 ```
 
-#### calc_conic_anomaly_from_true_anomaly()
+#### infer_time_format()
 ```rust
-fn calc_conic_anomaly_from_true_anomaly(
-    e: f64,
-    true_anomaly: f64
-) -> Result<f64, Box<dyn std::error::Error>>
+fn infer_time_format(epoch: f64, timescale: Option<&str>) -> Result<Self, TimeError>
 ```
 
-Converts true anomaly to conic anomaly using specific formulas for each orbit type:
-- Circular orbits: Returns true anomaly directly
-- Elliptical orbits: Uses arctan formula with eccentricity corrections
-- Parabolic orbits: Uses tangent half-angle formula
-- Hyperbolic orbits: Uses hyperbolic arctangent formula
+Creates a Time instance by inferring the format from the epoch value.
 
 **Arguments:**
-- `e`: Orbital eccentricity
-- `true_anomaly`: True anomaly in radians
+- `epoch`: The epoch value
+- `timescale`: Optional timescale (defaults to "UTC")
+
+**Returns:**
+- `Ok(Time)` with inferred format
+- `Err(TimeError)` if parameters are invalid
 
 **Example:**
 ```rust
-let eccentric_anomaly = calc_conic_anomaly_from_true_anomaly(0.3, 1.2)?;
+// Large epoch infers JD format
+let t1 = Time::infer_time_format(2451545.0, Some("UTC"))?;
+assert_eq!(t1.format, TimeFormat::JD);
+
+// Small epoch infers MJD format
+let t2 = Time::infer_time_format(51544.5, None)?;
+assert_eq!(t2.format, TimeFormat::MJD);
 ```
 
-#### calc_mean_anomaly_from_conic_anomaly()
+## Time Conversions
+
+### Creating New Time Objects
+
+#### utc()
 ```rust
-fn calc_mean_anomaly_from_conic_anomaly(
-    e: f64,
-    conic_anomaly: f64
-) -> Result<f64, OrbitError>
+fn utc(&self) -> Time
 ```
 
-Converts conic anomaly to mean anomaly using Kepler's equations:
-- Circular orbits: M = E
-- Elliptical orbits: M = E - e sin(E)
-- Parabolic orbits: M = B - B³/3
-- Hyperbolic orbits: M = e sinh(H) - H
-
-Where E is eccentric anomaly, B is parabolic eccentric anomaly, and H is hyperbolic eccentric anomaly.
-
-**Arguments:**
-- `e`: Orbital eccentricity
-- `conic_anomaly`: Conic anomaly in radians
+Creates a new Time object converted to UTC timescale.
 
 **Example:**
 ```rust
-let mean_anomaly = calc_mean_anomaly_from_conic_anomaly(0.5, 0.5)?;
+let tdb_time = Time::new(2456205.5, "tdb", "jd")?;
+let utc_time = tdb_time.utc();
+assert!(tdb_time.epoch != utc_time.epoch);  // Epochs differ due to timescale conversion
 ```
 
-## State Vector Operations
+Similar methods exist for other timescales: `tdb()`, `tt()`, and `tai()`.
 
-#### calc_kep_from_state()
+### In-Place Conversions
+
+#### to_utc()
 ```rust
-fn calc_kep_from_state(
-    position: Vector3,
-    velocity: Vector3,
-    mu: f64
-) -> Result<KeplerOrbit, OrbitError>
+fn to_utc(&mut self) -> &mut Self
 ```
 
-Calculates Keplerian orbital elements from state vectors. Computes:
-- Specific orbital energy
-- Angular momentum
-- Eccentricity vector
-- True anomaly
-- Additional orbital parameters
-
-**Arguments:**
-- `position`: Position vector in AU
-- `velocity`: Velocity vector in AU/day
-- `mu`: Gravitational parameter in AU³/day²
+Converts the time object to UTC timescale in place.
 
 **Example:**
 ```rust
-let position = Vector3::new(0.000047, 0.0, 0.0);  // AU
-let velocity = Vector3::new(0.0, 0.000213, 0.0);  // AU/day
-let mu = 2.959122082855911e-4;  // AU³/day²
-let elements = calc_kep_from_state(position, velocity, mu)?;
+let mut time = Time::new(2456205.5, "tdb", "jd")?;
+time.to_utc();
+assert_eq!(time.timescale, TimeScale::UTC);
+
+// Chain operations
+time.to_utc().to_tdb().to_tt();
 ```
 
-## Examples
+Similar methods exist for other timescales: `to_tdb()`, `to_tt()`, and `to_tai()`.
 
-### Complete Anomaly Conversion
+## Format Methods
+
+#### jd()
 ```rust
-use spacerocks::transforms;
-
-// Convert from mean anomaly to true anomaly for an elliptical orbit
-let e = 0.7;
-let mean_anomaly = 0.8;
-
-// First get eccentric anomaly
-let eccentric_anomaly = transforms::calc_conic_anomaly_from_mean_anomaly(e, mean_anomaly)?;
-
-// Then convert to true anomaly
-let true_anomaly = transforms::calc_conic_anomaly_from_true_anomaly(e, eccentric_anomaly)?;
+fn jd(&self) -> f64
 ```
 
-### Error Handling
-```rust
-use spacerocks::transforms;
+Returns the epoch as a Julian Date.
 
-// Handle invalid eccentricity
-let e = -0.1;
-match transforms::calc_conic_anomaly_from_mean_anomaly(e, 0.0) {
-    Ok(_) => println!("Valid calculation"),
-    Err(e) => println!("Error: {}", e),
-}
+**Example:**
+```rust
+let time = Time::new(51544.5, "UTC", "MJD")?;
+let jd = time.jd();  // Returns 2451545.0
+```
+
+#### mjd()
+```rust
+fn mjd(&self) -> f64
+```
+
+Returns the epoch as a Modified Julian Date.
+
+**Example:**
+```rust
+let time = Time::new(2451545.0, "UTC", "JD")?;
+let mjd = time.mjd();  // Returns 51544.5
+```
+
+#### calendar()
+```rust
+fn calendar(&self) -> String
+```
+
+Returns a human-readable calendar date.
+
+**Example:**
+```rust
+let time = Time::new(2451545.0, "UTC", "JD")?;
+let date = time.calendar();  // Returns "01 Jan 2000"
+```
+
+#### iso()
+```rust
+fn iso(&self) -> String
+```
+
+Returns the time in ISO 8601 format.
+
+**Example:**
+```rust
+let time = Time::new(2451545.0, "UTC", "JD")?;
+let iso = time.iso();  // Returns "2000-01-01T12:00:00.000Z"
+```
+
+## Arithmetic Operations
+
+### Addition and Subtraction
+
+```rust
+// Add days to time
+let time = Time::new(2451545.0, "UTC", "JD")?;
+let tomorrow = time + 1.0;  // Adds one day
+assert_eq!(tomorrow.epoch, 2451546.0);
+
+// Subtract days from time
+let yesterday = time - 1.0;  // Subtracts one day
+assert_eq!(yesterday.epoch, 2451544.0);
+
+// Add days in place
+let mut time = Time::new(2451545.0, "UTC", "JD")?;
+time += 1.0;
+assert_eq!(time.epoch, 2451546.0);
+
+// Find difference between times
+let time1 = Time::new(2451545.0, "UTC", "JD")?;
+let time2 = Time::new(2451546.0, "UTC", "JD")?;
+let diff: f64 = &time2 - &time1;  // Returns 1.0 (days)
 ```
 
 ## Notes
 
-1. **Orbit Classification**
-   - Eccentricity determines orbit type (circular, elliptical, parabolic, hyperbolic)
-   - Small threshold value (typically 1e-10) used for circular/parabolic classification
-   - Negative eccentricities are invalid and return errors
+1. **Timescale Handling**
+   - All timescale conversions maintain precision
+   - Conversions chain appropriately (e.g., TAI → TT → TDB)
+   - Invalid timescale strings receive helpful suggestions
 
-2. **Numerical Methods**
-   - Newton-Raphson iteration used for elliptical orbits with third-order corrections
-   - Convergence tolerance of 1e-15 for iterative solutions
-   - Special analytical solutions for circular and parabolic cases
-   - Hyperbolic orbits use specialized iteration methods
+2. **Format Conversions**
+   - JD/MJD conversions handle offset automatically
+   - Calendar format returns human-readable dates
+   - ISO format provides standard timestamp strings
 
-3. **Units and Conventions**
-   - All angles in radians
-   - Distances in astronomical units (AU)
-   - Times in days
-   - Velocities in AU/day
-   - State vectors use nalgebra Vector3 type
+3. **Error Handling**
+   - Invalid inputs receive helpful error messages
+   - Suggestions provided for close matches
+   - Time arithmetic checks for compatible timescales
+
+4. **Time Arithmetic**
+   - Addition and subtraction preserve timescale and format
+   - Time differences require matching timescales
+   - Panic on timescale mismatch for differences

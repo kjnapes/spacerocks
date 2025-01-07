@@ -1,23 +1,18 @@
 # Orbital Transform Functions
 
 ### Table of Contents
-
 1. [Overview](#overview)
-2. [Constants and Types](#constants-and-types)
-3. [Transform Methods](#transform-methods)
-4. [Examples](#examples)
+2. [Orbit Types](#orbit-types)
+3. [Anomaly Transforms](#anomaly-transforms)
+4. [State Vector Operations](#state-vector-operations)
+5. [Examples](#examples)
+6. [Notes](#notes)
 
 ## Overview
 
-The `transforms` module provides a collection of functions for orbital mechanics calculations, specifically focusing on conversions between different types of orbital anomalies and state vectors. These transformations are essential for accurate orbital predictions and calculations. Unless otherwise stated, all angular units are in radians, distances are in astronomical units (AU), and time is in days.
+The `transforms` module provides functions for orbital mechanics calculations, focusing on conversions between different types of orbital anomalies and state vectors. All angular units are in radians, distances in astronomical units (AU), and time in days.
 
----
-
-## Constants and Types
-
-### Orbit Types
-
-The module uses an `OrbitType` enum to classify different orbits based on their eccentricity:
+## Orbit Types
 
 ```rust
 pub enum OrbitType {
@@ -29,213 +24,185 @@ pub enum OrbitType {
 }
 ```
 
-The orbit type is determined using eccentricity thresholds:
+The module also defines an error type for handling invalid inputs:
 
 ```rust
-OrbitType::from_eccentricity(e: f64, threshold: f64) -> Result<OrbitType, OrbitError>
-```
-
-### Orbit Errors
-
-The module defines an error type for handling invalid inputs or computational issues:
-
-```rust
-#[derive(Debug)]
 pub enum OrbitError {
     NegativeEccentricity(f64),
 }
-
-impl std::fmt::Display for OrbitError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            OrbitError::NegativeEccentricity(e) => write!(f, "Eccentricity cannot be negative: {}", e),
-        }
-    }
-}
-
-impl std::error::Error for OrbitError {}
 ```
 
----
-
-## Transform Methods
-
-### Anomaly Conversions
-
-#### Mean Anomaly to Conic Anomaly
-
+#### from_eccentricity()
 ```rust
-pub fn calc_conic_anomaly_from_mean_anomaly(
+fn from_eccentricity(e: f64, threshold: f64) -> Result<OrbitType, OrbitError>
+```
+
+Determines orbit type based on eccentricity value. Uses a threshold parameter to classify near-circular and near-parabolic orbits.
+
+**Arguments:**
+- `e`: Orbital eccentricity
+- `threshold`: Tolerance for determining near-circular or near-parabolic orbits (typically 1e-10)
+
+**Returns:**
+- `Ok(OrbitType)` with the appropriate orbit classification
+- `Err(OrbitError::NegativeEccentricity)` if e < 0
+
+**Example:**
+```rust
+let orbit_type = OrbitType::from_eccentricity(0.5, 1e-10)?;
+```
+
+## Anomaly Transforms
+
+#### calc_conic_anomaly_from_mean_anomaly()
+```rust
+fn calc_conic_anomaly_from_mean_anomaly(
     e: f64,
     mean_anomaly: f64
 ) -> Result<f64, OrbitError>
 ```
 
-Converts mean anomaly to the appropriate conic anomaly based on orbit type.
+Converts mean anomaly to conic anomaly using orbit-type-specific methods:
+- Circular orbits: Returns mean anomaly directly
+- Elliptical orbits: Uses Newton-Raphson iteration with third-order corrections
+- Parabolic orbits: Uses analytical solution
+- Hyperbolic orbits: Uses iterative solution with convergence check
 
-##### Input/Output Specification
+The elliptical case includes special handling for mean anomalies greater than π.
 
-| Input          | Type                      | Description                         |
-| -------------- | ------------------------- | ----------------------------------- |
-| `e`            | `f64`                     | Orbital eccentricity                |
-| `mean_anomaly` | `f64`                     | Mean anomaly in radians             |
-| **Returns**    | `Result<f64, OrbitError>` | Conic anomaly in radians (if valid) |
+**Arguments:**
+- `e`: Orbital eccentricity
+- `mean_anomaly`: Mean anomaly in radians
 
-##### Errors
-
-- `OrbitError::NegativeEccentricity`: Returned if the eccentricity `e` is negative.
-
-##### Implementation Details
-
-1. **Circular Orbits (****`e ≈ 0`****)**: Returns `mean_anomaly` directly.
-2. **Elliptical Orbits (****`0 < e < 1`****)**: Uses Newton-Raphson iteration with third-order corrections for fast convergence.
-3. **Parabolic Orbits (****`e ≈ 1`****)**: Applies an analytical formula.
-4. **Hyperbolic Orbits (****`e > 1`****)**: Uses an iterative method to solve Kepler's equation.
-
-##### Thresholds and Tolerances
-
-- **Threshold for circularity (****`e < threshold`****)**: A small value, typically `1e-10`, determines if the orbit is effectively circular.
-- **Convergence tolerance**: For iterative solutions, a tolerance of `1e-15` ensures accurate results without excessive computation.
-
-##### Example
-
+**Example:**
 ```rust
-use spacerocks::transforms;
-
-let e = 0.5;  // Elliptical orbit
-let mean_anomaly = 0.5;  // radians
-match transforms::calc_conic_anomaly_from_mean_anomaly(e, mean_anomaly) {
-    Ok(eccentric_anomaly) => println!("Eccentric Anomaly: {:.6}", eccentric_anomaly),
-    Err(e) => println!("Error: {}", e),
-}
+let eccentric_anomaly = calc_conic_anomaly_from_mean_anomaly(0.5, 0.5)?;
 ```
 
-#### True Anomaly to Conic Anomaly
-
+#### calc_conic_anomaly_from_true_anomaly()
 ```rust
-pub fn calc_conic_anomaly_from_true_anomaly(
+fn calc_conic_anomaly_from_true_anomaly(
     e: f64,
     true_anomaly: f64
 ) -> Result<f64, Box<dyn std::error::Error>>
 ```
 
-Converts true anomaly to conic anomaly using orbit-specific formulas.
+Converts true anomaly to conic anomaly using specific formulas for each orbit type:
+- Circular orbits: Returns true anomaly directly
+- Elliptical orbits: Uses arctan formula with eccentricity corrections
+- Parabolic orbits: Uses tangent half-angle formula
+- Hyperbolic orbits: Uses hyperbolic arctangent formula
 
-##### Input/Output Specification
+**Arguments:**
+- `e`: Orbital eccentricity
+- `true_anomaly`: True anomaly in radians
 
-| Input          | Type                                      | Description                         |
-| -------------- | ----------------------------------------- | ----------------------------------- |
-| `e`            | `f64`                                     | Orbital eccentricity                |
-| `true_anomaly` | `f64`                                     | True anomaly in radians             |
-| **Returns**    | `Result<f64, Box<dyn std::error::Error>>` | Conic anomaly in radians (if valid) |
-
-##### Errors
-
-- `OrbitError::NegativeEccentricity`: Returned if the eccentricity `e` is negative.
-
-##### Implementation Details
-
-1. **Circular Orbits (****`e ≈ 0`****)**: Returns `true_anomaly` directly.
-2. **Elliptical Orbits (****`0 < e < 1`****)**: Uses trigonometric transformations.
-3. **Parabolic Orbits (****`e ≈ 1`****)**: Applies the tangent half-angle formula.
-4. **Hyperbolic Orbits (****`e > 1`****)**: Uses hyperbolic tangent transformations.
-
-##### Example
-
+**Example:**
 ```rust
-use spacerocks::transforms;
-
-let e = 0.3;  // Elliptical orbit
-let true_anomaly = 1.2;  // radians
-match transforms::calc_conic_anomaly_from_true_anomaly(e, true_anomaly) {
-    Ok(eccentric_anomaly) => println!("Eccentric Anomaly: {:.6}", eccentric_anomaly),
-    Err(e) => println!("Error: {}", e),
-}
+let eccentric_anomaly = calc_conic_anomaly_from_true_anomaly(0.3, 1.2)?;
 ```
 
-#### Conic Anomaly to Mean Anomaly
-
+#### calc_mean_anomaly_from_conic_anomaly()
 ```rust
-pub fn calc_mean_anomaly_from_conic_anomaly(
+fn calc_mean_anomaly_from_conic_anomaly(
     e: f64,
     conic_anomaly: f64
 ) -> Result<f64, OrbitError>
 ```
 
-Converts conic anomaly to mean anomaly using Kepler's equations.
+Converts conic anomaly to mean anomaly using Kepler's equations:
+- Circular orbits: M = E
+- Elliptical orbits: M = E - e sin(E)
+- Parabolic orbits: M = B - B³/3
+- Hyperbolic orbits: M = e sinh(H) - H
 
-##### Input/Output Specification
+Where E is eccentric anomaly, B is parabolic eccentric anomaly, and H is hyperbolic eccentric anomaly.
 
-| Input           | Type                      | Description                        |
-| --------------- | ------------------------- | ---------------------------------- |
-| `e`             | `f64`                     | Orbital eccentricity               |
-| `conic_anomaly` | `f64`                     | Conic anomaly in radians           |
-| **Returns**     | `Result<f64, OrbitError>` | Mean anomaly in radians (if valid) |
+**Arguments:**
+- `e`: Orbital eccentricity
+- `conic_anomaly`: Conic anomaly in radians
 
-##### Errors
-
-- `OrbitError::NegativeEccentricity`: Returned if the eccentricity `e` is negative.
-
-##### Implementation Details
-
-- For circular orbits: `M = E`
-- For elliptical orbits: `M = E - e sin(E)`
-- For parabolic orbits: `M = B - B^3/3`
-- For hyperbolic orbits: `M = e sinh(H) - H`
-
-##### Example
-
+**Example:**
 ```rust
-use spacerocks::transforms;
-
-let e = 0.5;  // Elliptical orbit
-let conic_anomaly = 0.5;  // radians
-match transforms::calc_mean_anomaly_from_conic_anomaly(e, conic_anomaly) {
-    Ok(mean_anomaly) => println!("Mean Anomaly: {:.6}", mean_anomaly),
-    Err(e) => println!("Error: {}", e),
-}
+let mean_anomaly = calc_mean_anomaly_from_conic_anomaly(0.5, 0.5)?;
 ```
 
----
+## State Vector Operations
+
+#### calc_kep_from_state()
+```rust
+fn calc_kep_from_state(
+    position: Vector3,
+    velocity: Vector3,
+    mu: f64
+) -> Result<KeplerOrbit, OrbitError>
+```
+
+Calculates Keplerian orbital elements from state vectors. Computes:
+- Specific orbital energy
+- Angular momentum
+- Eccentricity vector
+- True anomaly
+- Additional orbital parameters
+
+**Arguments:**
+- `position`: Position vector in AU
+- `velocity`: Velocity vector in AU/day
+- `mu`: Gravitational parameter in AU³/day²
+
+**Example:**
+```rust
+let position = Vector3::new(0.000047, 0.0, 0.0);  // AU
+let velocity = Vector3::new(0.0, 0.000213, 0.0);  // AU/day
+let mu = 2.959122082855911e-4;  // AU³/day²
+let elements = calc_kep_from_state(position, velocity, mu)?;
+```
 
 ## Examples
 
-### Error Handling with Invalid Eccentricity
-
+### Complete Anomaly Conversion
 ```rust
 use spacerocks::transforms;
 
-let e = -0.1;  // Invalid negative eccentricity
+// Convert from mean anomaly to true anomaly for an elliptical orbit
+let e = 0.7;
+let mean_anomaly = 0.8;
+
+// First get eccentric anomaly
+let eccentric_anomaly = transforms::calc_conic_anomaly_from_mean_anomaly(e, mean_anomaly)?;
+
+// Then convert to true anomaly
+let true_anomaly = transforms::calc_conic_anomaly_from_true_anomaly(e, eccentric_anomaly)?;
+```
+
+### Error Handling
+```rust
+use spacerocks::transforms;
+
+// Handle invalid eccentricity
+let e = -0.1;
 match transforms::calc_conic_anomaly_from_mean_anomaly(e, 0.0) {
     Ok(_) => println!("Valid calculation"),
     Err(e) => println!("Error: {}", e),
 }
 ```
 
-### Converting Mean Anomaly to True Anomaly
+## Notes
 
-```rust
-use spacerocks::transforms;
+1. **Orbit Classification**
+   - Eccentricity determines orbit type (circular, elliptical, parabolic, hyperbolic)
+   - Small threshold value (typically 1e-10) used for circular/parabolic classification
+   - Negative eccentricities are invalid and return errors
 
-let e = 0.7;  // Elliptical orbit
-let mean_anomaly = 0.8;  // radians
-match transforms::calc_conic_anomaly_from_mean_anomaly(e, mean_anomaly) {
-    Ok(eccentric_anomaly) => {
-        let true_anomaly = transforms::calc_conic_anomaly_from_true_anomaly(e, eccentric_anomaly).unwrap();
-        println!("True Anomaly: {:.6}", true_anomaly);
-    }
-    Err(e) => println!("Error: {}", e),
-}
-```
+2. **Numerical Methods**
+   - Newton-Raphson iteration used for elliptical orbits with third-order corrections
+   - Convergence tolerance of 1e-15 for iterative solutions
+   - Special analytical solutions for circular and parabolic cases
+   - Hyperbolic orbits use specialized iteration methods
 
-### State Vector to Keplerian Elements
-
-```rust
-use spacerocks::transforms;
-use nalgebra::Vector3;
-
-let position = Vector3::new(0.000047, 0.0, 0.0);  // AU
-let velocity = Vector3::new(0.0, 0.000213, 0.0);  // AU/day
-let mu = 2.959122082855911e-4;  // Gravitational parameter for the Sun in AU^3/day^2
-
-```
+3. **Units and Conventions**
+   - All angles in radians
+   - Distances in astronomical units (AU)
+   - Times in days
+   - Velocities in AU/day
+   - State vectors use nalgebra Vector3 type

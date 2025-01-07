@@ -1,26 +1,13 @@
 use std::ops::{AddAssign, Add, Sub};
-// use std::collections::HashMap;
 use chrono::{Utc, TimeZone, DateTime};
-// use chrono::TimeZone;
-// use crate::time::leapseconds::LEAP_SECONDS;
 use crate::time::timescale::TimeScale;
 use crate::time::timeformat::TimeFormat;
 use crate::errors::TimeError;
 use serde::{Serialize, Deserialize};
 use crate::time::conversions::*;
-// use strsim::jaro_winkler;
-// use strsim::jaro;
-// use strsim::levenshtein;
-// use strsim::damerau_levenshtein;
 use crate::utils::find_closest_match;
 
 
-
-
-// finish docs
-// bind to python
-// benchmarks?
-// levenshtein distance -> did you mean this?
 
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct Time {
@@ -50,26 +37,6 @@ impl Time {
     ///
     /// let t = Time::new(2451545.0, "UTC", "JD");
     /// ```
-    // pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
-    //     let timescale = match timescale.to_lowercase().as_str() {
-    //         "utc" => TimeScale::UTC,
-    //         "tdb" => TimeScale::TDB,
-    //         "tt" => TimeScale::TT,
-    //         "tai" => TimeScale::TAI,
-    //         _ => return Err(TimeError::InvalidTimeScale(timescale.to_string())),
-    //     };
-    //     let format = match format.to_lowercase().as_str() {
-    //         "jd" => TimeFormat::JD,
-    //         "mjd" => TimeFormat::MJD,
-    //         _ => return Err(TimeError::InvalidTimeFormat(format.to_string())),
-    //     };
-    //     let t = Time {
-    //         epoch,
-    //         timescale,
-    //         format,
-    //     };
-    //     Ok(t)
-    // }
 
     pub fn new(epoch: f64, timescale: &str, format: &str) -> Result<Self, TimeError> {
      
@@ -138,7 +105,7 @@ impl Time {
         }
     }
 
-    /// Create a new `Time` object from a fuzzy string.
+    /// Create a new `Time` object from a 'fuzzy string'.
     ///
     /// # Arguments
     ///
@@ -367,7 +334,7 @@ impl Time {
         self
     }
 
-    /// Convert the time object to UTC timescale in place
+    /// Convert the time object to TDB timescale in place
     ///
     /// Modifies the time object by converting its epoch and timescale to TDB.
     pub fn to_tdb(&mut self) -> &mut Self {
@@ -391,7 +358,7 @@ impl Time {
         self
     }
 
-    /// Convert the time object to UTC timescale in place
+    /// Convert the time object to TT timescale in place
     ///
     /// Modifies the time object by converting its epoch and timescale to TT.
     pub fn to_tt(&mut self) -> &mut Self {
@@ -413,7 +380,7 @@ impl Time {
         self
     }
 
-    /// Convert the time object to UTC timescale in place
+    /// Convert the time object to TAI timescale in place
     ///
     /// Modifies the time object by converting its epoch and timescale to TAI.
     pub fn to_tai(&mut self) -> &mut Self {
@@ -464,6 +431,15 @@ impl Time {
     }
 
 
+    /// Change the timescale of the time object.
+    ///
+    /// # Arguments
+    ///
+    /// * `timescale` - The timescale to convert the time to.
+    ///
+    /// # Returns
+    ///
+    /// * `&mut Self` - A mutable reference to the time object, with the timescale changed.
     pub fn change_timescale(&mut self, timescale: TimeScale) -> &mut Self {
         match timescale {
             TimeScale::UTC => self.to_utc(),
@@ -479,11 +455,14 @@ impl Time {
     ///
     /// * `String` - A string representing the date in the format "DD Mon YYYY"
     pub fn calendar(&self) -> String {
-        // clone the time object and convert to UTC
-        // let mut time = self.clone();
         jd_to_calendar(&self.utc().jd())
     }
 
+    /// Convert the time to an ISO 8601 string.
+    ///
+    /// # Returns
+    ///
+    /// * `String` - A string representing the time in ISO 8601 format.
     pub fn iso(&self) -> String {
         // First ensure we're working with UTC time
         let utc_time = self.clone().utc();
@@ -510,6 +489,7 @@ impl std::fmt::Display for Time {
     }
 }
 
+/// Add and subtract times from a `Time` object.
 impl Sub<&Time> for &Time {
     type Output = f64;
 

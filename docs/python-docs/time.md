@@ -1,248 +1,275 @@
-# Using the `Time` Class in Python
+# Time Module (Python)
 
-This document provides a guide to using the Python wrapper for the `Time` struct, exposing its functionality via a Python class. This class allows manipulation of astronomical and time-based calculations using Python, leveraging the underlying Rust implementation.
+### Table of Contents
+1. [Overview](#overview)
+2. [Time Class](#time-class)
+3. [Constructor Methods](#constructor-methods)
+4. [Time Conversions](#time-conversions)
+5. [Format Methods](#format-methods)
+6. [Arithmetic Operations](#arithmetic-operations)
+7. [Display](#display)
+8. [Notes](#notes)
 
 ## Overview
 
-The Python `Time` class supports:
-- Creating time objects with specific epochs, timescales, and formats.
-- Converting between different timescales.
-- Parsing time from strings.
-- Adding and subtracting days from time objects.
-- Accessing various representations of time.
+The Time module provides a Python interface for handling astronomical time calculations. It serves as a wrapper around the Rust implementation, supporting multiple time scales (UTC, TDB, TT, TAI) and formats (JD, MJD), with conversion utilities and arithmetic operations.
 
-## Creating a `Time` Object
+## Time Class
 
-### Constructor
+### Time Definition
+```python
+class Time:
+    def __init__(self, epoch: float, timescale: str, format: str):
+        self.epoch = epoch
+        self.timescale = timescale
+        self.format = format
+```
 
-The `Time` class can be instantiated with an epoch, timescale, and format.
+The `Time` class represents a moment in time with an epoch value in a specific timescale and format.
+
+## Constructor Methods
+
+#### __init__()
+```python
+def __init__(self, epoch: float, timescale: str, format: str)
+```
+
+Creates a new Time instance with specified epoch, timescale, and format.
 
 **Arguments:**
-- `epoch`: A float representing the epoch (e.g., Julian Date).
-- `timescale`: A string representing the timescale (e.g., "UTC", "TDB", "TT", "TAI").
-- `format`: A string representing the format (e.g., "JD", "MJD").
-
-All arguments are case-insensitive.
+- `epoch`: The epoch value (JD or MJD)
+- `timescale`: The timescale ("UTC", "TDB", "TT", "TAI")
+- `format`: The time format ("JD", "MJD")
 
 **Example:**
 ```python
-from spacerocks import Time
+# Create a time in UTC using Julian Date
+t1 = Time(2451545.0, "UTC", "JD")
 
-# Create a Time object
- t = Time(2451545.0, "UTC", "jd")
+# Create a time in TDB using Modified Julian Date
+t2 = Time(51544.5, "TDB", "MJD")
+
+# Invalid timescale raises error with suggestion
+try:
+    t3 = Time(2451545.0, "GPS", "JD")
+except ValueError as e:
+    print(e)  # Invalid timescale: 'GPS'. Did you mean 'tai'?
 ```
 
-### Using `now`
-
-You can create a `Time` object representing the current time in UTC.
+#### now()
 ```python
- t = Time.now()
+@classmethod
+def now(cls) -> 'Time'
 ```
 
-### Parsing from a Fuzzy String
+Creates a new Time instance representing the current time.
 
-Use the `from_fuzzy_str` method to parse a time string like "2451545.0 UTC JD" or "now".
+**Returns:**
+- A new `Time` instance in UTC and JD format
 
 **Example:**
 ```python
- t = Time.from_fuzzy_str("2451545.0 UTC JD")
+current_time = Time.now()
+print(f"Current JD: {current_time.jd()}")
 ```
 
----
-## Inferring Time Format
+#### from_fuzzy_str()
+```python
+@classmethod
+def from_fuzzy_str(cls, s: str) -> 'Time'
+```
 
-### `infer_time_format`
-
-You can create a `Time` object by inferring the format ("JD" or "MJD") based on the provided epoch.
+Creates a Time instance from a string specification.
 
 **Arguments:**
-- `epoch`: A float representing the epoch.
-- `timescale`: An optional string representing the timescale (default is "UTC").
+- `s`: String in format "epoch timescale format" or "now"
 
 **Example:**
 ```python
-# Infer format from epoch
- t = Time.infer_time_format(2451545.0, "UTC")
-print(t.format)  # "JD"
+# Create from explicit string
+t1 = Time.from_fuzzy_str("2451545.0 UTC JD")
 
-# Infer format with no timescale provided
- t = Time.infer_time_format(50000.0, None)
-print(t.format)  # "MJD"
+# Create using current time
+t2 = Time.from_fuzzy_str("now")
+
+# Create using MJD
+t3 = Time.from_fuzzy_str("51544.5 TDB MJD")
 ```
 
-
-## Timescale Conversions
-
-### Immutable Conversions
-
-The `Time` class supports creating new time objects with a converted timescale.
-
-#### Convert to UTC
+#### infer_time_format()
 ```python
-utc_time = t.utc()
+@classmethod
+def infer_time_format(cls, epoch: float, timescale: Optional[str] = None) -> 'Time'
 ```
 
-#### Convert to TDB
+Creates a Time instance by inferring the format from the epoch value.
+
+**Arguments:**
+- `epoch`: The epoch value
+- `timescale`: Optional timescale (defaults to "UTC")
+
+**Example:**
 ```python
-tdb_time = t.tdb()
+# Large epoch infers JD format
+t1 = Time.infer_time_format(2451545.0, "UTC")
+assert t1.format == "JD"
+
+# Small epoch infers MJD format
+t2 = Time.infer_time_format(51544.5)
+assert t2.format == "MJD"
 ```
 
-#### Convert to TT
+## Time Conversions
+
+### Creating New Time Objects
+
+#### utc()
 ```python
-tt_time = t.tt()
+def utc(self) -> 'Time'
 ```
 
-#### Convert to TAI
+Creates a new Time object converted to UTC timescale.
+
+**Example:**
 ```python
-tai_time = t.tai()
+tdb_time = Time(2456205.5, "TDB", "JD")
+utc_time = tdb_time.utc()
+assert tdb_time.epoch != utc_time.epoch  # Epochs differ due to timescale conversion
 ```
+
+Similar methods exist for other timescales: `tdb()`, `tt()`, and `tai()`.
 
 ### In-Place Conversions
 
-Convert the timescale of a `Time` object in place:
-
-#### Convert to UTC
+#### to_utc()
 ```python
-t.to_utc()
+def to_utc(self) -> 'Time'
 ```
 
-#### Convert to TDB
-```python
-t.to_tdb()
-```
-
-#### Convert to TT
-```python
-t.to_tt()
-```
-
-#### Convert to TAI
-```python
-t.to_tai()
-```
-
-#### Change Timescale Dynamically
-You can change the timescale dynamically using the `change_timescale` method.
+Converts the time object to UTC timescale in place.
 
 **Example:**
 ```python
-t.change_timescale("UTC")
+time = Time(2456205.5, "TDB", "JD")
+time.to_utc()
+assert time.timescale == "UTC"
+
+# Chain operations
+time.to_utc().to_tdb().to_tt()
 ```
 
----
+Similar methods exist for other timescales: `to_tdb()`, `to_tt()`, and `to_tai()`.
 
-## Time Representations
+## Format Methods
 
-### Julian Date (JD)
-Retrieve the epoch as a Julian Date.
+#### jd()
+```python
+def jd(self) -> float
+```
+
+Returns the epoch as a Julian Date.
 
 **Example:**
 ```python
-jd = t.jd()
+time = Time(51544.5, "UTC", "MJD")
+jd = time.jd()  # Returns 2451545.0
 ```
 
-### Modified Julian Date (MJD)
-Retrieve the epoch as a Modified Julian Date.
+#### mjd()
+```python
+def mjd(self) -> float
+```
+
+Returns the epoch as a Modified Julian Date.
 
 **Example:**
 ```python
-mjd = t.mjd()
+time = Time(2451545.0, "UTC", "JD")
+mjd = time.mjd()  # Returns 51544.5
 ```
 
-### ISO 8601 Format
-Retrieve the time as an ISO 8601 formatted string.
+#### calendar()
+```python
+def calendar(self) -> str
+```
+
+Returns a human-readable calendar date.
 
 **Example:**
 ```python
-iso = t.iso()
+time = Time(2451545.0, "UTC", "JD")
+date = time.calendar()  # Returns "01 Jan 2000"
 ```
 
-### Calendar Date
-Retrieve a human-readable calendar date.
+#### iso()
+```python
+def iso(self) -> str
+```
+
+Returns the time in ISO 8601 format.
 
 **Example:**
 ```python
-calendar_date = t.calendar()
+time = Time(2451545.0, "UTC", "JD")
+iso = time.iso()  # Returns "2000-01-01T12:00:00.000Z"
 ```
-
----
 
 ## Arithmetic Operations
 
-### Adding Days
-Add a specified number of days to a `Time` object.
+```python
+# Add days to time
+time = Time(2451545.0, "UTC", "JD")
+tomorrow = time + 1.0  # Adds one day
+assert tomorrow.epoch == 2451546.0
+
+# Subtract days from time
+yesterday = time - 1.0  # Subtracts one day
+assert yesterday.epoch == 2451544.0
+
+# Time differences not supported in Python implementation
+```
+
+## Display
+
+### String Representation (__repr__)
+```python
+def __repr__(self) -> str
+```
+
+Provides a string representation of the Time object when displayed in the Python interpreter.
 
 **Example:**
 ```python
-new_time = t + 10.0
+>>> time = Time(2451545.0, "UTC", "JD")
+>>> time
+Time: 2451545.0 UTC JD
+
+>>> t2 = Time.now()
+>>> t2
+Time: 2460252.5 UTC JD
+
+>>> print(time)  # Same representation when printing
+Time: 2451545.0 UTC JD
 ```
 
-### Subtracting Days
-Subtract a specified number of days from a `Time` object.
+## Notes
 
-**Example:**
-```python
-new_time = t - 5.0
-```
+1. **Timescale Handling**
+   - All timescale conversions maintain precision
+   - Case-insensitive timescale strings
+   - Invalid timescale strings receive helpful suggestions
 
----
+2. **Format Conversions**
+   - JD/MJD conversions handle offset automatically
+   - Calendar format provides human-readable dates
+   - ISO format follows the 8601 standard
 
-## Attributes
+3. **Error Handling**
+   - Invalid inputs raise ValueError with suggestions
+   - Helpful error messages for common mistakes
+   - Type checking for numeric inputs
 
-### Epoch
-Retrieve the epoch value of the `Time` object.
-
-**Example:**
-```python
-print(t.epoch)  # 2451545.0
-```
-
-### Timescale
-Retrieve the timescale of the `Time` object.
-
-**Example:**
-```python
-print(t.timescale)  # "UTC"
-```
-
-### Format
-Retrieve the format of the `Time` object.
-
-**Example:**
-```python
-print(t.format)  # "JD"
-```
-
----
-
-## Error Handling
-
-### Invalid Timescale or Format
-If an invalid `timescale` or `format` is provided, an error is raised with a suggestion for correction.
-
-**Example:**
-```python
-try:
-    t = Time(2451545.0, "utcx", "JD")
-except ValueError as e:
-    print(e)  # ValueError: Invalid timescale: 'utcx'. Did you mean 'utc'?. Needs to be 'utc', 'tdb', 'tt', or 'tai'.
-```
-
----
-
-## Special Methods
-
-### String Representation
-The `__repr__` method provides a string representation of the `Time` object.
-
-**Example:**
-```python
-print(t)  # Time: 2451545.0 UTC JD
-```
-
----
-
-## Conclusion
-
-The Python `Time` class simplifies time-based calculations and conversions, providing a seamless interface for astronomical and time-based operations.
-
+4. **Python-Specific Features**
+   - Properties for easy attribute access
+   - Method chaining supported for conversions
+   - Full string representation via `__repr__`
