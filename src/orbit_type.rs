@@ -1,7 +1,7 @@
 use crate::errors::OrbitError;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum OrbitType {
     Hyperbolic,
     Parabolic,

@@ -1,6 +1,7 @@
 use crate::{Origin, ReferencePlane, Time, Properties, Observer, Observation};
 use crate::constants::*;
 use crate::correct_for_ltt;
+use crate::OrbitType;
 
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
@@ -245,6 +246,57 @@ impl SpaceRock {
         Ok(rock)
     }
 
+
+    /// Instantiate a SpaceRock from keplerian elements
+    ///
+    /// # Arguments
+    /// * `name` - The name of the object
+    /// * `q` - Perihelion distance (au)
+    /// * `e` - Eccentricity
+    /// * `inc` - Inclination (radians)
+    /// * `arg` - Argument of perihelion (radians)
+    /// * `node` - Longitude of the ascending node (radians)
+    /// * `true_anomaly` - True anomaly (radians)
+    /// * `epoch` - The epoch of the ephemeris
+    /// * `reference_plane` - The coordinate reference_plane of the ephemeris
+    /// * `origin` - The origin of the orbit
+    ///
+    /// # Returns
+    /// * A SpaceRock object
+    pub fn from_kepler(name: &str, q: f64, e: f64, inc: f64, arg: f64, node: f64, true_anomaly: f64, epoch: Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
+
+        let o = Origin::from_str(origin)?;
+        let mu = o.mu();
+
+        let p = q * (1.0 + e);
+        let h = (p * mu).sqrt();
+        let r = p / (1.0 + e * true_anomaly.cos());
+        // let vo = h / r;
+        let vr = mu * true_anomaly.sin() * e / h;
+        // let v = (vo.powi(2) + vr.powi(2)).sqrt();
+
+        let rot_x = node.cos() * (arg + true_anomaly).cos() - node.sin() * (arg + true_anomaly).sin() * inc.cos();
+        let rot_y = node.sin() * (arg + true_anomaly).cos() + node.cos() * (arg + true_anomaly).sin() * inc.cos();
+        let rot_z = (arg + true_anomaly).sin() * inc.sin();
+
+        let x = r * rot_x;
+        let y = r * rot_y;
+        let z = r * rot_z;
+
+
+        let rot_x2 = node.cos() * (arg + true_anomaly).sin() + node.sin() * (arg + true_anomaly).cos() * inc.cos();
+        let rot_y2 = node.sin() * (arg + true_anomaly).sin() - node.cos() * (arg + true_anomaly).cos() * inc.cos();
+        let rot_z2 = (arg + true_anomaly).cos() * inc.sin();
+
+        let nudot = h / r.powi(2);
+        let vx = vr * rot_x - r * nudot * rot_x2;
+        let vy = vr * rot_y - r * nudot * rot_y2;
+        let vz = vr * rot_z + r * nudot * rot_z2;
+
+        let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch, reference_plane, origin)?;
+        Ok(rock)
+    }
+
     /// Change the reference plane of the SpaceRock
     ///
     /// # Arguments
@@ -381,6 +433,12 @@ impl SpaceRock {
         self.position.cross(&self.velocity)
     }
 
+    pub fn nvec(&self) -> Vector3<f64> {
+        let hvec = self.hvec();
+        // Vector3::new(0.0, 0.0, 1.0).cross(&self.hvec())
+        Vector3::new(-hvec.y, hvec.x, 0.0)
+    }
+
     pub fn h(&self) -> f64 {
         self.hvec().norm()
     }    
@@ -402,11 +460,78 @@ impl SpaceRock {
         -self.origin.mu() / (2.0 * self.specific_energy())
     }
 
-    pub fn inc (&self) -> f64 {
+    pub fn q(&self) -> f64 {
+        let h = self.h();
+        let e = self.e();
+        let mu = self.origin.mu();
+        h.powi(2) / (mu * (1.0 + e))
+    }
+
+    pub fn p(&self) -> f64 {
+        self.q() * (1.0 + self.e())
+    }
+
+    pub fn inc(&self) -> f64 {
         let hvec = self.hvec();
         (self.hvec().z / hvec.norm()).acos()
     }
 
+    pub fn arg(&self) -> f64 {
+        let orbit_type = OrbitType::from_eccentricity(self.e(), 1e-10).expect("Invalid eccentricity");
+
+        if orbit_type == OrbitType::Circular {
+            return 0.0;
+        }
+
+        let nvec = self.nvec();
+        let evec = self.evec();
+        let arg = (nvec.dot(&evec) / (nvec.norm() * evec.norm())).acos();
+        if evec.z < 0.0 {
+            2.0 * std::f64::consts::PI - arg
+        } else {
+            arg
+        }
+    }
+
+    pub fn node(&self) -> f64 {
+
+        let inc = self.inc();
+        let tol = 1e-10;
+        if inc < tol || inc > std::f64::consts::PI - tol {
+            return 0.0;
+        }
+
+        let nvec = self.nvec();
+        let n = nvec.norm();
+        
+        if nvec.y < 0.0 {
+            2.0 * std::f64::consts::PI - (nvec.x / n).acos()
+        } else {
+            (nvec.x / n).acos()
+        }
+    }
+
+    pub fn true_anomaly(&self) -> f64 {
+        let orbit_type = OrbitType::from_eccentricity(self.e(), 1e-10).expect("Invalid eccentricity");
+        let nvec = self.nvec();
+        if orbit_type == OrbitType::Circular {
+            return (nvec.dot(&self.position) / (nvec.norm() * self.r())).acos();
+        }
+
+        let nu = (self.evec().dot(&self.position) / (self.e() * self.r())).acos();
+        if self.position.dot(&self.velocity) < 0.0 {
+            2.0 * std::f64::consts::PI - nu
+        } else {
+            nu
+        }
+
+    }
+
+    // calculate the osculating elements and return a KeplerOrbit object. This is more expensive than the other 
+    // individual methods, but cheaper if you need multiple elements
+    // pub fn calculate_orbit(&self) -> KeplerOrbit {
+    //     OrbitType::from_eccentricity(e, 1e-10).expect("Invalid eccentricity");
+    // }
 
     pub fn observe(&mut self, observer: &Observer) -> Result<Observation, Box<dyn std::error::Error>> {
 

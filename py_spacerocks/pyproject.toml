@@ -1,0 +1,22 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "spacerocks"
+version = "3.0.0-alpha.0"
+
+authors = [{name = "Kevin J Napier", email = "kjnapier@umich.edu"},]
+maintainers = [{name = "Kevin J Napier", email = "kjnapier@umich.edu"},]
+
+description = "A Python Package for Solar System Ephemerides and Dynamics."
+license = "GPL-3.0"
+readme = "README.md"
+keywords = ["rust", "python", "binding"]
+
+requires-python = ">= 3.10"
+
+
+[project.urls]
+# Documentation = "https://readthedocs.org"
+Repository = "https://github.com/kjnapier/spacerocks/tree/v3"

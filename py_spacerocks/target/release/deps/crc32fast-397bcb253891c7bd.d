@@ -1,0 +1,11 @@
+/Users/kjnapier/spacerocks/py_spacerocks/target/release/deps/libcrc32fast-397bcb253891c7bd.rmeta: /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/lib.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/baseline.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/combine.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/specialized/mod.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/table.rs
+
+/Users/kjnapier/spacerocks/py_spacerocks/target/release/deps/libcrc32fast-397bcb253891c7bd.rlib: /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/lib.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/baseline.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/combine.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/specialized/mod.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/table.rs
+
+/Users/kjnapier/spacerocks/py_spacerocks/target/release/deps/crc32fast-397bcb253891c7bd.d: /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/lib.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/baseline.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/combine.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/specialized/mod.rs /Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/table.rs
+
+/Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/lib.rs:
+/Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/baseline.rs:
+/Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/combine.rs:
+/Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/specialized/mod.rs:
+/Users/kjnapier/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.2/src/table.rs:
