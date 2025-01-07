@@ -106,7 +106,7 @@ Creates a new SpaceRock object using SPICE ephemerides data.
 **Example:**
 ```rust
 let epoch = Time::new(2750923.093, "utc", "jd")?;
-let mars = SpaceRock::from_spice("MARS", &epoch, "ECLIPJ2000", "SUN")?;
+let mars = SpaceRock::from_spice("MARS BARYCENTER", &epoch, "ECLIPJ2000", "SSB")?;
 ```
 
 Creates a new SpaceRock object using SPICE ephemerides data.
@@ -135,6 +135,9 @@ Key features:
    - Times are passed to SPICE as UTC JD values
    - SPICE conversion to ET (Ephemeris Time) is handled in the `from_spice()` function
 
-3. **Unit Conversions `from_spice()`**
+3. **Unit Conversions `from_spice()` SpaceRock Method**
    - Position values are converted from km to AU
    - Velocities are converted from km/s to AU/day
+
+4. **Planet ID's within SPICE**
+   - When attempting to generate a SpaceRock with the from_spice method for a planet within the Solar System, we must specify that we are using the barycenter of that planetary system (i.e: 'mars barycenter', 'jupiter barycenter', etc)

@@ -6,6 +6,17 @@ use spacerocks::SpaceRock;
 static path_to_de440s: &str = "/Users/thomasruch/Gerdes/de440s.bsp";
 static path_to_leap: &str = "/Users/thomasruch/Gerdes/leap_seconds.tls";
 
+
+// Note on these tests: When running cargo test --test spice_tests, the tests will run by default in parallel. This casues a SPICE error because the kernels are loaded in parallel. 
+// To run the tests sequentially, use cargo test --test spice_tests -- --test-threads=1. 
+// SpaceRock::from_spice() is commented out as of now because they are more relevant to the SpaceRock struct tests, and because there are a few possible SPICE errors that we will want to
+// handle in the future (in progress): 
+// 1 - Epoch for a given object is out of bounds of the loaded kernels (SPICE(SPKINSUFFDATA) )
+// 2 - The body name is not recognized (SPICE(IDCODENOTFOUND) )
+// 3 - The spice file is not loaded (SPICE(NOTRANSLATION) )
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
