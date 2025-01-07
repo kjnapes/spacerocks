@@ -260,6 +260,14 @@ impl PySpaceRock {
         self.inner.true_anomaly()
     }
 
+    pub fn mean_anomaly(&self) -> f64 {
+        self.inner.mean_anomaly()
+    }
+
+    pub fn conic_anomaly(&self) -> f64 {
+        self.inner.conic_anomaly()
+    }
+
 
 
 }

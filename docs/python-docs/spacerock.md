@@ -85,6 +85,13 @@ where `property` is the name of the property you want to calculate. A list of th
 | `a` | `float` | Calculate the semi-major axis of the SpaceRock in au. |
 | `e` | `float` | Calculate the eccentricity of the SpaceRock. |
 | `inc` | `float` | Calculate the inclination of the SpaceRock in radians. |
+| `node` | `float` | Calculate the longitude of the ascending node of the SpaceRock in radians. |
+| `arg` | `float` | Calculate the argument of periapsis of the SpaceRock in radians. |
+| `true_anomaly` | `float` | Calculate the true anomaly of the SpaceRock in radians. |
+| `mean_anomaly` | `float` | Calculate the mean anomaly of the SpaceRock in radians. |
+| `conic_anomaly` | `float` | Calculate the conic (eccentric, parabolic, or hyperbolic) anomaly of the SpaceRock in radians. |
+| `q` | `float` | Calculate the perihelion distance of the SpaceRock in au. |
+| `p` | `float` | Calculate the semi-latus rectum of the SpaceRock in au. |
 | `h` | `float` | Calculate the specific angular momentum of the SpaceRock in au^2/day. |
 | `evec` | `np.ndarray` | Calculate the eccentricity vector of the SpaceRock. |
 | `hvec` | `np.ndarray` | Calculate the specific angular momentum vector of the SpaceRock. |

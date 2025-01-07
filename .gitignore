@@ -9,8 +9,8 @@
 spacerocks/.DS_Store
 
 Cargo.lock
-py-spacerocks/target/
-py-spacerocks/Cargo.lock
+py_spacerocks/target/
+py_spacerocks/Cargo.lock
 
 /spacerocks/data/spice/
 /spacerocks/data/mpc/
@@ -24,7 +24,7 @@ py-spacerocks/Cargo.lock
 /spacerocks/test/__pycache__/
 
 /spacerocks/target/
-/py-spacerocks/target/
+/py_spacerocks/target/
 dates.py
 prototypes.py
 

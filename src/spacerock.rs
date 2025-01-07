@@ -3,6 +3,8 @@ use crate::constants::*;
 use crate::correct_for_ltt;
 use crate::OrbitType;
 
+use crate::transforms::{calc_conic_anomaly_from_true_anomaly, calc_mean_anomaly_from_conic_anomaly};
+
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
 
@@ -271,9 +273,7 @@ impl SpaceRock {
         let p = q * (1.0 + e);
         let h = (p * mu).sqrt();
         let r = p / (1.0 + e * true_anomaly.cos());
-        // let vo = h / r;
         let vr = mu * true_anomaly.sin() * e / h;
-        // let v = (vo.powi(2) + vr.powi(2)).sqrt();
 
         let rot_x = node.cos() * (arg + true_anomaly).cos() - node.sin() * (arg + true_anomaly).sin() * inc.cos();
         let rot_y = node.sin() * (arg + true_anomaly).cos() + node.cos() * (arg + true_anomaly).sin() * inc.cos();
@@ -478,11 +478,9 @@ impl SpaceRock {
 
     pub fn arg(&self) -> f64 {
         let orbit_type = OrbitType::from_eccentricity(self.e(), 1e-10).expect("Invalid eccentricity");
-
         if orbit_type == OrbitType::Circular {
             return 0.0;
         }
-
         let nvec = self.nvec();
         let evec = self.evec();
         let arg = (nvec.dot(&evec) / (nvec.norm() * evec.norm())).acos();
@@ -494,16 +492,13 @@ impl SpaceRock {
     }
 
     pub fn node(&self) -> f64 {
-
         let inc = self.inc();
         let tol = 1e-10;
         if inc < tol || inc > std::f64::consts::PI - tol {
             return 0.0;
         }
-
         let nvec = self.nvec();
         let n = nvec.norm();
-        
         if nvec.y < 0.0 {
             2.0 * std::f64::consts::PI - (nvec.x / n).acos()
         } else {
@@ -517,14 +512,21 @@ impl SpaceRock {
         if orbit_type == OrbitType::Circular {
             return (nvec.dot(&self.position) / (nvec.norm() * self.r())).acos();
         }
-
         let nu = (self.evec().dot(&self.position) / (self.e() * self.r())).acos();
         if self.position.dot(&self.velocity) < 0.0 {
             2.0 * std::f64::consts::PI - nu
         } else {
             nu
         }
+    }
 
+    pub fn mean_anomaly(&self) -> f64 {
+        let conic_anomaly = calc_conic_anomaly_from_true_anomaly(self.e(), self.true_anomaly()).expect("Invalid eccentricity");
+        calc_mean_anomaly_from_conic_anomaly(self.e(), conic_anomaly).expect("Invalid eccentricity")
+    }
+
+    pub fn conic_anomaly(&self) -> f64 {
+        calc_conic_anomaly_from_true_anomaly(self.e(), self.true_anomaly()).expect("Invalid eccentricity")
     }
 
     // calculate the osculating elements and return a KeplerOrbit object. This is more expensive than the other 
