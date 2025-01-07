@@ -147,4 +147,17 @@ mod tests {
         assert!(result.unwrap_err().to_string().contains("Did you mean 'utc'?"));
     }
 
+    #[test]
+    fn test_iso_format() {
+        // Test a known date
+        let time = Time::new(2451545.0, "UTC", "JD").unwrap();  // J2000.0 epoch
+        assert_eq!(time.iso(), "2000-01-01T12:00:00.000Z");
+        
+        // Test current time
+        let now = Time::now();
+        let iso = now.iso();
+        assert!(iso.ends_with("Z"));  // Should be UTC
+        assert!(iso.contains("T"));   // Should have time separator
+    }
+
 }

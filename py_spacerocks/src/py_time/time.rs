@@ -64,24 +64,34 @@ impl PyTime {
 
     // Timescale conversion methods
 
-    fn to_utc(&mut self) -> PyResult<()> {
+    // fn to_utc(&mut self) -> PyResult<()> {
+    //     self.inner.to_utc();
+    //     Ok(())
+    // }
+
+    // fn to_utc(&mut self) -> &mut Self {
+    //     self.inner.to_utc(); // Mutates the underlying Rust Time object
+    //     self // Return a mutable reference to the Python wrapper
+    // }
+
+    fn to_utc(&mut self) -> PyResult<Self> {
         self.inner.to_utc();
-        Ok(())
+        Ok(self.clone()) // Return a cloned instance of the wrapper
     }
 
-    fn to_tdb(&mut self) -> PyResult<()> {
+    fn to_tdb(&mut self) -> PyResult<Self> {
         self.inner.to_tdb();
-        Ok(())
+        Ok(self.clone())
     }
     
-    fn to_tt(&mut self) -> PyResult<()> {
+    fn to_tt(&mut self) -> PyResult<(Self)> {
         self.inner.to_tt();
-        Ok(())
+        Ok(self.clone())
     }
     
-    fn to_tai(&mut self) -> PyResult<()> {
+    fn to_tai(&mut self) -> PyResult<(Self)> {
         self.inner.to_tai();
-        Ok(())
+        Ok(self.clone())
     }
 
 
@@ -116,6 +126,10 @@ impl PyTime {
 
     fn calendar(&self) -> String {
         self.inner.calendar()
+    }
+
+    fn iso(&self) -> String {
+        self.inner.iso()
     }
 
     // Attribute getters
