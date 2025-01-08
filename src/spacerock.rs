@@ -13,6 +13,8 @@ use rand::Rng;
 
 use std::collections::HashMap;
 
+use uuid;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpaceRock {
 
@@ -81,7 +83,6 @@ impl SpaceRock {
     /// Instantiate a SpaceRock with random keplerian elements
     ///
     /// # Arguments
-    /// * `name` - The name of the object
     /// * `epoch` - The epoch of the ephemeris
     /// * `reference_plane` - The coordinate reference_plane of the ephemeris
     /// * `origin` - The origin of the orbit
@@ -95,19 +96,30 @@ impl SpaceRock {
     /// use spacerocks::Time;
     ///
     /// let epoch = Time::now();
-    /// let rock = SpaceRock::random("rock", &epoch, "J2000", "SSB");
+    /// let rock = SpaceRock::random(&epoch, "J2000", "SSB");
     /// ```
-    pub fn random(name: &str, epoch: &Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn random(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
 
         let mut rng = rand::thread_rng();
         let q = rng.gen_range(2.0..50.0);
-        let e = rng.gen_range(0.0..0.9);
+        let e = rng.gen_range(0.0..1.5);
         let inc = rng.gen_range(0.0..std::f64::consts::PI);
         let arg = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
         let node = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
-        let true_anomaly = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
 
-        let rock = SpaceRock::from_kepler(name, q, e, inc, arg, node, true_anomaly, epoch.clone(), reference_plane, origin)?;
+        // let max_true_anomaly = ((-1.0 / e) as f64).acos();
+        let mut max_true_anomaly = 2.0 * std::f64::consts::PI;
+        if e > 1.0 {
+            max_true_anomaly = ((-1.0 / e) as f64).acos();
+        }
+
+        let true_anomaly = rng.gen_range(-max_true_anomaly..max_true_anomaly);
+
+        // let name = format!("{}", uuid::Uuid::new_v4().simple());
+        let name = format!("{}", generate_name(2, 4));
+
+
+        let rock = SpaceRock::from_kepler(&name, q, e, inc, arg, node, true_anomaly, epoch.clone(), reference_plane, origin)?;
         Ok(rock)
     }
 
@@ -299,6 +311,15 @@ impl SpaceRock {
     /// # Returns
     /// * A SpaceRock object
     pub fn from_kepler(name: &str, q: f64, e: f64, inc: f64, arg: f64, node: f64, true_anomaly: f64, epoch: Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
+
+        // first check that the eccentricity and true anomaly are commensurate
+        if e >= 1.0 {
+            let max_true_anomaly = (-1.0 / e).acos();
+            if true_anomaly.abs() > max_true_anomaly {
+                return Err("True anomaly is not commensurate with eccentricity".into());
+            }
+        }
+        
 
         let o = Origin::from_str(origin)?;
         let mu = o.mu();
@@ -719,4 +740,56 @@ impl std::fmt::Display for SpaceRock {
         write!(f, "SpaceRock: {}\nEpoch: {:?}\nReference Plane: {}\nOrigin: {}\nPosition: {:?}\nVelocity: {:?}\nProperties: {:?}", 
         self.name, self.epoch, self.reference_plane, self.origin, self.position, self.velocity, self.properties)
     }
+}
+
+
+
+
+
+/// Generate a "name" made up of random syllables.
+/// `min_syllables` - minimum number of syllables
+/// `max_syllables` - maximum number of syllables
+fn generate_name(min_syllables: usize, max_syllables: usize) -> String {
+    // Choose how many syllables this name will have
+    let syllables_count = rand::thread_rng().gen_range(min_syllables..=max_syllables);
+
+    // Build the name
+    let mut name = String::new();
+    for i in 0..syllables_count {
+        let s = generate_syllable();
+        name.push_str(&s);
+    }
+
+    name
+}
+
+/// Generate a single syllable in the form:
+/// (optional consonant) + vowel + (optional consonant)
+fn generate_syllable() -> String {
+    let vowels = ['a', 'e', 'i', 'o', 'u'];
+    // You can include more consonants if you like.
+    // Some letters (like 'q', 'x', 'z') might produce more unusual results.
+    let consonants = [
+        'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+        'n', 'p', 'r', 's', 't', 'v', 'w', 'y', 'z', 'x', 'q',
+    ];
+    
+    let mut rng = rand::thread_rng();
+    
+    let mut syllable = String::new();
+    
+    // 50% chance to start with a consonant
+    if rng.gen_bool(0.5) {
+        syllable.push(consonants[rng.gen_range(0..consonants.len())]);
+    }
+    
+    // Always include a vowel
+    syllable.push(vowels[rng.gen_range(0..vowels.len())]);
+    
+    // 40% chance to add a trailing consonant
+    if rng.gen_bool(0.4) {
+        syllable.push(consonants[rng.gen_range(0..consonants.len())]);
+    }
+    
+    syllable
 }

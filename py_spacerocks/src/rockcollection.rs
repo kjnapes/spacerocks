@@ -29,23 +29,18 @@ pub fn create_mixed_array<T: pyo3::ToPyObject>(data: Vec<Option<T>>, py: Python)
     numpy_array.into_pyarray(py).to_owned()
 }
 
-
-
 #[pyclass]
 pub struct RockCollection {
     pub rocks: Vec<SpaceRock>,
-    // pub name_hash_map: HashMap<String, usize>,
 }
 
 #[pymethods]
 impl RockCollection {
+    
     #[new]
     pub fn new() -> Self {
         RockCollection { rocks: Vec::new() }
     }
-    // pub fn new() -> Self {
-    //     RockCollection { rocks: Vec::new(), name_hash_map: HashMap::new() }
-    // }
 
     // #[classmethod]
     // pub fn random(_cls: &PyType, n: usize) -> Self {
@@ -57,30 +52,10 @@ impl RockCollection {
     //     RockCollection { rocks: rocks, name_hash_map: name_hash_map }
     // }
 
-    // pub fn add(&mut self, rock: PyRef<PySpaceRock>) -> Result<(), PyErr> {
-    //     // if the name is already in the hashmap, return an error
-    //     if self.name_hash_map.contains_key(&rock.inner.name.to_string()) {
-    //         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("There is already a rock with name {} in the RockCollection", rock.inner.name)));
-    //     }
-    //     // self.name_hash_map.insert((*rock.inner.name).clone(), self.rocks.len());
-    //     self.name_hash_map.insert(rock.inner.name.to_string(), self.rocks.len());
-    //     self.rocks.push(rock.inner.clone());
-    //     Ok(())
-    // }
 
     pub fn add(&mut self, rock: PyRef<PySpaceRock>) {
         self.rocks.push(rock.inner.clone());
     }
-
-
-    // pub fn get_by_name(&self, name: &str) -> PyResult<PySpaceRock> {
-    //     let index = self.name_hash_map.get(name);
-    //     if index.is_none() {
-    //         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Rock with name {} not found", name)));
-    //     }
-    //     let index = index.unwrap();
-    //     Ok(PySpaceRock { inner: self.rocks[*index].clone() })
-    // }
 
     fn __getitem__(&self, index: usize) -> PyResult<PySpaceRock> {
         if index < self.rocks.len() {

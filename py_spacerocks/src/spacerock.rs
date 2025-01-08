@@ -41,11 +41,11 @@ impl PySpaceRock {
     }
 
     #[classmethod]
-    #[pyo3(signature = (name, epoch, reference_plane="ECLIPJ2000", origin="SSB"))]
-    fn random(_cls: Py<PyType>, name: &str, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
-        let rock = SpaceRock::random(name, &epoch.inner, reference_plane, origin);
+    #[pyo3(signature = (epoch, reference_plane="ECLIPJ2000", origin="SSB"))]
+    fn random(_cls: Py<PyType>, epoch: PyRef<PyTime>, reference_plane: &str, origin: &str) -> PyResult<Self> {
+        let rock = SpaceRock::random(&epoch.inner, reference_plane, origin);
         if rock.is_err() {
-            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create random SpaceRock for name: {}", name)));
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Failed to create random SpaceRock"));
         }
         Ok(PySpaceRock { inner: rock.unwrap() })
     }
