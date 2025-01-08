@@ -15,6 +15,9 @@ use py_time::make_time_submodule;
 mod spacerock;
 use spacerock::PySpaceRock;
 
+mod rockcollection;
+use rockcollection::RockCollection;
+
 mod py_observing;
 use py_observing::make_observing_submodule;
 
@@ -51,6 +54,7 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 
     m.add_class::<PySpaceRock>()?;
+    m.add_class::<RockCollection>()?;
 
     Ok(())
 }
