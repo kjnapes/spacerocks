@@ -42,9 +42,7 @@ pub mod observing;
 
 pub mod utils; // Putting the 'find_closest_match' function in a separate module
 
-
-
-// pub mod orbfit;
-//     pub use orbfit::gauss;
+pub mod orbfit;
+    pub use orbfit::gauss;
 //     pub use orbfit::fitter;
 

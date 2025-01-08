@@ -21,8 +21,8 @@ use py_observing::make_observing_submodule;
 mod py_nbody;
 use py_nbody::make_nbody_submodule;
 
-// mod orbfit;
-// use orbfit::make_orbfit_submodule;
+mod py_orbfit;
+use py_orbfit::make_orbfit_submodule;
 
 #[pymodule]
 #[pyo3(name = "spacerocks")]
@@ -30,9 +30,6 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Add the `transforms` submodule
     make_transforms_submodule(py, m)?;
-
-    // Add the `spacerock` submodule
-    // make_spacerock_submodule(py, m)?;
 
     // Add the `spice` submodule
     make_spice_submodule(py, m)?;
@@ -49,8 +46,8 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Add the `nbody` submodule
     make_nbody_submodule(py, m)?;
 
-    // // Add the `orbfit` submodule
-    // make_orbfit_submodule(py, m)?;
+    // Add the `orbfit` submodule
+    make_orbfit_submodule(py, m)?;
 
 
     m.add_class::<PySpaceRock>()?;

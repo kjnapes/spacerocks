@@ -1,5 +1,7 @@
 use crate::{Time, Observer};
 
+use nalgebra::Vector3;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ObservationType {
     Astrometric { ra: f64, dec: f64 },
@@ -94,6 +96,12 @@ impl Observation {
         let ra_rate = self.ra_rate()?;
         let dec_rate = self.dec_rate()?;
         Some((ra_rate.powi(2) * (self.dec().cos()).powi(2) + dec_rate.powi(2)).sqrt())
+    }
+
+    pub fn pointing(&self) -> Vector3<f64> {
+        let ra = self.ra();
+        let dec = self.dec();
+        Vector3::new(dec.cos() * ra.cos(), dec.cos() * ra.sin(), dec.sin())
     }
 }
 
