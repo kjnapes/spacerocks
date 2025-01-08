@@ -34,15 +34,18 @@ pub fn create_mixed_array<T: pyo3::ToPyObject>(data: Vec<Option<T>>, py: Python)
 #[pyclass]
 pub struct RockCollection {
     pub rocks: Vec<SpaceRock>,
-    pub name_hash_map: HashMap<String, usize>,
+    // pub name_hash_map: HashMap<String, usize>,
 }
 
 #[pymethods]
 impl RockCollection {
     #[new]
     pub fn new() -> Self {
-        RockCollection { rocks: Vec::new(), name_hash_map: HashMap::new() }
+        RockCollection { rocks: Vec::new() }
     }
+    // pub fn new() -> Self {
+    //     RockCollection { rocks: Vec::new(), name_hash_map: HashMap::new() }
+    // }
 
     // #[classmethod]
     // pub fn random(_cls: &PyType, n: usize) -> Self {
@@ -54,26 +57,30 @@ impl RockCollection {
     //     RockCollection { rocks: rocks, name_hash_map: name_hash_map }
     // }
 
-    pub fn add(&mut self, rock: PyRef<PySpaceRock>) -> Result<(), PyErr> {
-        // if the name is already in the hashmap, return an error
-        if self.name_hash_map.contains_key(&rock.inner.name.to_string()) {
-            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("There is already a rock with name {} in the RockCollection", rock.inner.name)));
-        }
-        // self.name_hash_map.insert((*rock.inner.name).clone(), self.rocks.len());
-        self.name_hash_map.insert(rock.inner.name.to_string(), self.rocks.len());
+    // pub fn add(&mut self, rock: PyRef<PySpaceRock>) -> Result<(), PyErr> {
+    //     // if the name is already in the hashmap, return an error
+    //     if self.name_hash_map.contains_key(&rock.inner.name.to_string()) {
+    //         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("There is already a rock with name {} in the RockCollection", rock.inner.name)));
+    //     }
+    //     // self.name_hash_map.insert((*rock.inner.name).clone(), self.rocks.len());
+    //     self.name_hash_map.insert(rock.inner.name.to_string(), self.rocks.len());
+    //     self.rocks.push(rock.inner.clone());
+    //     Ok(())
+    // }
+
+    pub fn add(&mut self, rock: PyRef<PySpaceRock>) {
         self.rocks.push(rock.inner.clone());
-        Ok(())
     }
 
 
-    pub fn get_by_name(&self, name: &str) -> PyResult<PySpaceRock> {
-        let index = self.name_hash_map.get(name);
-        if index.is_none() {
-            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Rock with name {} not found", name)));
-        }
-        let index = index.unwrap();
-        Ok(PySpaceRock { inner: self.rocks[*index].clone() })
-    }
+    // pub fn get_by_name(&self, name: &str) -> PyResult<PySpaceRock> {
+    //     let index = self.name_hash_map.get(name);
+    //     if index.is_none() {
+    //         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Rock with name {} not found", name)));
+    //     }
+    //     let index = index.unwrap();
+    //     Ok(PySpaceRock { inner: self.rocks[*index].clone() })
+    // }
 
     fn __getitem__(&self, index: usize) -> PyResult<PySpaceRock> {
         if index < self.rocks.len() {
@@ -195,7 +202,7 @@ impl RockCollection {
         vz.into_pyarray(py).to_owned().into()
     }
 
-    #[getter]
+    // #[getter]
     pub fn r(&self, py: Python) -> Py<PyArray1<f64>> {
         let r: Vec<f64> = self.rocks.par_iter().map(|rock| rock.r()).collect();
         r.into_pyarray(py).to_owned().into()
@@ -211,48 +218,51 @@ impl RockCollection {
     //     create_mixed_array(names, py)
     // }
 
+    pub fn a(&self, py: Python) -> Py<PyArray1<f64>> {
+        let a_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.a()).collect();
+        a_values.into_pyarray(py).to_owned().into()
+    }
 
-    // #[getter]
-    // pub fn node(&self, py: Python) -> Py<PyArray1<f64>> {
-    //     // self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().node).collect()
-    //     let nodes: Vec<f64> = self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().node).collect();
-    //     nodes.into_pyarray(py).to_owned()
-    // }
+    pub fn q(&self, py: Python) -> Py<PyArray1<f64>> {
+        let q_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.q()).collect();
+        q_values.into_pyarray(py).to_owned().into()
+    }
 
-    // #[getter]
-    // pub fn inc(&self, py: Python) -> Py<PyArray1<f64>> {
-    //     // self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().inc).collect()
-    //     let incs: Vec<f64> = self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().inc).collect();
-    //     incs.into_pyarray(py).to_owned()
-    // }
+    pub fn e(&self, py: Python) -> Py<PyArray1<f64>> {
+        let e_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.e()).collect();
+        e_values.into_pyarray(py).to_owned().into()
+    }
 
-    // #[getter]
-    // pub fn e(&self, py: Python) -> Py<PyArray1<f64>> {
-    //     // self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().e).collect()
-    //     let es: Vec<f64> = self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().e).collect();
-    //     es.into_pyarray(py).to_owned()
-    // }
+    pub fn inc(&self, py: Python) -> Py<PyArray1<f64>> {
+        let inc_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.inc()).collect();
+        inc_values.into_pyarray(py).to_owned().into()
+    }
 
-    // #[getter]
-    // pub fn a(&self, py: Python) -> Py<PyArray1<f64>> {
-    //     // self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().a).collect()
-    //     let a_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().a).collect();
-    //     a_values.into_pyarray(py).to_owned()
-    // }
+    pub fn node(&self, py: Python) -> Py<PyArray1<f64>> {
+        let node_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.node()).collect();
+        node_values.into_pyarray(py).to_owned().into()
+    }
 
-    // #[getter]
-    // pub fn arg(&self, py: Python) -> Py<PyArray1<f64>> {
-    //     // self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().arg).collect()
-    //     let args: Vec<f64> = self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().arg).collect();
-    //     args.into_pyarray(py).to_owned()
-    // }
+    pub fn arg(&self, py: Python) -> Py<PyArray1<f64>> {
+        let arg_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.arg()).collect();
+        arg_values.into_pyarray(py).to_owned().into()
+    }
 
-    // #[getter]
-    // pub fn varpi(&self, py: Python) -> Py<PyArray1<f64>> {
-    //     // self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().varpi()).collect()
-    //     let varpis: Vec<f64> = self.rocks.par_iter().map(|rock| rock.orbit.as_ref().unwrap().varpi()).collect();
-    //     varpis.into_pyarray(py).to_owned()
-    // }
+    pub fn true_anomaly(&self, py: Python) -> Py<PyArray1<f64>> {
+        let true_anomaly_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.true_anomaly()).collect();
+        true_anomaly_values.into_pyarray(py).to_owned().into()
+    }
+
+    pub fn mean_anomaly(&self, py: Python) -> Py<PyArray1<f64>> {
+        let mean_anomaly_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.mean_anomaly()).collect();
+        mean_anomaly_values.into_pyarray(py).to_owned().into()
+    }
+
+    pub fn conic_anomaly(&self, py: Python) -> Py<PyArray1<f64>> {
+        let conic_anomaly_values: Vec<f64> = self.rocks.par_iter().map(|rock| rock.conic_anomaly()).collect();
+        conic_anomaly_values.into_pyarray(py).to_owned().into()
+    }
+
 
     // #[getter]
     // pub fn epoch(&self) -> Vec<f64> {

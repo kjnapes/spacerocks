@@ -8,8 +8,8 @@ use crate::transforms::{calc_conic_anomaly_from_true_anomaly, calc_mean_anomaly_
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
 
-// use rand;
-// use rand::Rng;
+use rand;
+use rand::Rng;
 
 use std::collections::HashMap;
 
@@ -76,6 +76,39 @@ impl SpaceRock {
 
         Ok(rock)
 
+    }
+
+    /// Instantiate a SpaceRock with random keplerian elements
+    ///
+    /// # Arguments
+    /// * `name` - The name of the object
+    /// * `epoch` - The epoch of the ephemeris
+    /// * `reference_plane` - The coordinate reference_plane of the ephemeris
+    /// * `origin` - The origin of the orbit
+    ///
+    /// # Returns
+    /// * A SpaceRock object
+    ///
+    /// # Example
+    /// ```
+    /// use spacerocks::SpaceRock;
+    /// use spacerocks::Time;
+    ///
+    /// let epoch = Time::now();
+    /// let rock = SpaceRock::random("rock", &epoch, "J2000", "SSB");
+    /// ```
+    pub fn random(name: &str, epoch: &Time, reference_plane: &str, origin: &str) -> Result<Self, Box<dyn std::error::Error>> {
+
+        let mut rng = rand::thread_rng();
+        let q = rng.gen_range(2.0..50.0);
+        let e = rng.gen_range(0.0..0.9);
+        let inc = rng.gen_range(0.0..std::f64::consts::PI);
+        let arg = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
+        let node = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
+        let true_anomaly = rng.gen_range(0.0..2.0 * std::f64::consts::PI);
+
+        let rock = SpaceRock::from_kepler(name, q, e, inc, arg, node, true_anomaly, epoch.clone(), reference_plane, origin)?;
+        Ok(rock)
     }
 
     /// Instantiate a SpaceRock from cartesian coordinates
