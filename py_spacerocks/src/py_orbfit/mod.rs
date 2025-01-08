@@ -8,6 +8,7 @@ pub fn make_orbfit_submodule(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()
     
     // Add the submodule’s contents
     submodule.add_function(wrap_pyfunction!(gauss::gauss_py, submodule.clone())?)?;
+    // submodule.add_function(wrap_pyfunction!(gauss::gauss2_py, submodule.clone())?)?;
 
 
 
