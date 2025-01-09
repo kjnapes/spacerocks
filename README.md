@@ -1,4 +1,6 @@
-![Alt text](assets/logo.png)
+<!-- ![Alt text](assets/logo.png) -->
+<img src="assets/logo.png" alt="drawing" width="400" style="display: block; margin-left: auto; margin-right: auto;">
+<br>
 
 ![spacerocks](https://github.com/kjnapes/spacerocks/workflows/spacerocks/badge.svg?branch=master)
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
