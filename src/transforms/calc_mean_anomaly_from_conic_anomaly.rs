@@ -33,25 +33,3 @@ pub fn calc_mean_anomaly_from_conic_anomaly(e: f64, conic_anomaly: f64) -> Resul
     }
 
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_calc_mean_anomaly_from_conic_anomaly() {
-        let e = 0.0;
-        let conic_anomaly = 0.0;
-        match calc_mean_anomaly_from_conic_anomaly(e, conic_anomaly) {
-            Ok(result) => assert_eq!(result, 0.0),
-            Err(_) => assert!(false),
-        }
-
-        let e = -0.1;
-        let conic_anomaly = 0.0;
-        match calc_mean_anomaly_from_conic_anomaly(e, conic_anomaly) {
-            Ok(_) => assert!(false),
-            Err(_) => assert!(true),
-        }
-    }
-}

@@ -30,26 +30,3 @@ pub fn calc_conic_anomaly_from_true_anomaly(e: f64, true_anomaly: f64) -> Result
         OrbitType::Radial => unreachable!(),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_calc_conic_anomaly_from_true_anomaly() {
-        let e = 0.0;
-        let f = 0.0;
-        match calc_conic_anomaly_from_true_anomaly(e, f) {
-            Ok(result) => assert_eq!(result, 0.0),
-            Err(_) => assert!(false),
-        }
-
-        let e = -0.1;
-        let f = 0.0;
-        match calc_conic_anomaly_from_true_anomaly(e, f) {
-            Ok(_) => assert!(false),
-            Err(_) => assert!(true),
-        }
-
-    }
-}

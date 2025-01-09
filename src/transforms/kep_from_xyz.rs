@@ -1,7 +1,7 @@
-use crate::error::OrbitError;
+use crate::errors::OrbitError;
 use crate::orbit_type::OrbitType;
 
-use nalgebrs::Vector3;
+use nalgebra::Vector3;
 
 struct KeplerOrbit {
     pub specific_energy: f64,
@@ -20,9 +20,10 @@ struct KeplerOrbit {
 /// # Returns
 ///
 /// * `Result<f64, OrbitError>` - The mean anomaly in radians.
-pub fn calc_kep_from_state(position: Vector3, velocity: Vector3, mu: f64) -> Result<KeplerOrbit, OrbitError> {
+pub fn calc_kep_from_state(position: Vector3<f64>, velocity: Vector3<f64>, mu: f64) -> Result<KeplerOrbit, OrbitError> {
 
     let rsq = position.norm_squared();
+    let r = position.norm();
     let vsq = velocity.norm_squared();
     let vr = position.dot(&velocity) / position.norm();
 
@@ -35,9 +36,14 @@ pub fn calc_kep_from_state(position: Vector3, velocity: Vector3, mu: f64) -> Res
     let e = evec.norm();
 
     let sin_true_anomaly = h * vr / mu;
-    let cos_true_anomaly = (h * h / (mu * r) - 1) / e;
+    let cos_true_anomaly = (h * h / (mu * r) - 1.0) / e;
     let true_anomaly = sin_true_anomaly.atan2(cos_true_anomaly);
 
+    Ok(KeplerOrbit {
+        specific_energy,
+        h,
+        hz: hvec.z,
+    })
     
 
 }

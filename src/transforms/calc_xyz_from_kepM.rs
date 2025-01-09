@@ -1,12 +1,13 @@
-use crate::transforms::calc_E_from_M;
-use crate::transforms::calc_f_from_E;
+use crate::transforms::calc_conic_anomaly_from_mean_anomaly;
+use crate::transforms::calc_true_anomaly_from_conic_anomaly;
+use crate::errors::OrbitError;
 
 use nalgebra::Vector3;
 
 #[allow(non_snake_case)]
-pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64, mu: f64) -> (Vector3<f64>, Vector3<f64>) {
+pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64, mu: f64) -> Result<(Vector3<f64>, Vector3<f64>), OrbitError>  {
 
-    let E = calc_E_from_M(e, M);
+    let E = calc_conic_anomaly_from_mean_anomaly(e, M)?;
 
     let ox;
     let oy;
@@ -17,7 +18,7 @@ pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64,
     
         let cosE = E.cos();
         let omece = 1.0 - e * cosE;
-        let f = calc_f_from_E(e, E);
+        let f = calc_true_anomaly_from_conic_anomaly(e, E)?;
         let r = a * omece;
         let c = (mu * a).sqrt() / r;
     
@@ -28,7 +29,7 @@ pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64,
     
     } else {
         
-        let f = calc_f_from_E(e, E);
+        let f = calc_true_anomaly_from_conic_anomaly(e, E)?;
         let r = a * (1.0 - e*e) / (1.0 + e * f.cos());
         let c = (-mu * a).sqrt() / r;
     
@@ -58,5 +59,5 @@ pub fn calc_xyz_from_kepM(a: f64, e: f64, inc: f64, arg: f64, node: f64, M: f64,
     let position = Vector3::new(ox * c1 - oy * c2, ox * c3 + oy * c4, ox * c5 + oy * c6);
     let velocity = Vector3::new(vox * c1 - voy * c2, vox * c3 + voy * c4, vox * c5 + voy * c6);
 
-    return (position, velocity);
+    Ok((position, velocity))
 }

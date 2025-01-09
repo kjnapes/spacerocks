@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum OrbitError {
     NegativeEccentricity(f64),
     ConvergenceFailure(f64, f64),  // (eccentricity, mean_anomaly)

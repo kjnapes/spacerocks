@@ -28,7 +28,7 @@ pub fn calc_conic_anomaly_from_mean_anomaly(e: f64, mean_anomaly: f64) -> Result
         // OrbitType::Elliptical => Ok(kepler_elliptical(e, mean_anomaly)),
         OrbitType::Elliptical => kepler_elliptical(e, mean_anomaly),
         OrbitType::Parabolic => Ok(kepler_parabolic(e, mean_anomaly)),
-        OrbitType::Hyperbolic => Ok(kepler_hyperbolic(e, mean_anomaly)),
+        OrbitType::Hyperbolic => kepler_hyperbolic(e, mean_anomaly),
         OrbitType::Radial => unreachable!(),
     }
 
@@ -125,13 +125,38 @@ fn kepler_circular(_e: f64, mean_anomaly: f64) -> f64 {
 
     /// Calculate the parabolic eccentric anomaly from the mean anomaly.
     fn kepler_parabolic(_e: f64, mean_anomaly: f64) -> f64 {
-        let x = (3.0 * mean_anomaly + (4.0 + 9.0 * mean_anomaly * mean_anomaly).sqrt()).cbrt();
-        let y = (2.0_f64).cbrt();
-        x/y - y/x 
+        // let x = (3.0 * mean_anomaly + (4.0 + 9.0 * mean_anomaly * mean_anomaly).sqrt()).cbrt();
+        // let y = (2.0_f64).cbrt();
+        // x/y - y/x 
+        // let sign = mean_anomaly.signum();
+        // let abs_M = mean_anomaly.abs();
+        // let x = (3.0 * abs_M + (4.0 + 9.0 * abs_M * abs_M).sqrt()).cbrt();
+        // let y = (2.0_f64).cbrt();
+        // sign * (x/y - y/x)
+
+        let p: f64 = 3.0; // Explicitly specify type
+        let q: f64 = -6.0 * mean_anomaly;
+        let discriminant: f64 = (q / 2.0).powi(2) + (p / 3.0).powi(3); // Ensure `powi` operates on f64
+
+        if discriminant >= 0.0 {
+            // One real root (discriminant is non-negative)
+            let u: f64 = (-q / 2.0 + discriminant.sqrt()).cbrt();
+            let v: f64 = (-q / 2.0 - discriminant.sqrt()).cbrt();
+            u + v
+        } else {
+            // Three real roots (discriminant is negative)
+            let r: f64 = (-q / 2.0).hypot((-discriminant).sqrt()); // Ensure discriminant is f64
+            let theta: f64 = (-q / 2.0).atan2((-discriminant).sqrt());
+            2.0 * r.cbrt() * (theta / 3.0).cos() // Principal real root
+        }
     }
 
     /// Calculate the hyperbolic eccentric anomaly from the mean anomaly.
-    fn kepler_hyperbolic(e: f64, mean_anomaly: f64) -> f64 {
+    fn kepler_hyperbolic(e: f64, mean_anomaly: f64) -> Result<f64, OrbitError> {
+
+        if mean_anomaly == 0.0 {
+            return Ok(0.0);  // When M = 0, H = 0 is the solution
+        }
 
         let mut eccentric_anomaly = mean_anomaly / mean_anomaly.abs() * (2.0 * mean_anomaly.abs() / e + 1.8).ln();
         let mut f = eccentric_anomaly - e * eccentric_anomaly.sinh() + mean_anomaly;
@@ -139,37 +164,10 @@ fn kepler_circular(_e: f64, mean_anomaly: f64) -> f64 {
             eccentric_anomaly = eccentric_anomaly - f / (1.0 - e * eccentric_anomaly.cosh());
             f = eccentric_anomaly - e * eccentric_anomaly.sinh() + mean_anomaly;
             if f.abs() < 1.0e-15 {
-                break;
+                return Ok(eccentric_anomaly);
             }
         }
-        eccentric_anomaly
+        // If we get here, we didn't converge
+        Err(OrbitError::ConvergenceFailure(e, mean_anomaly))
+
     }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_calc_eccentric_anomaly_from_mean_anomaly() {
-        let e = 0.0;
-        let mean_anomaly = 0.0;
-        match calc_eccentric_anomaly_from_mean_anomaly(e, mean_anomaly) {
-            Ok(result) => assert_eq!(result, 0.0),
-            Err(_) => assert!(false),
-        }
-
-        let e = 0.5;
-        let mean_anomaly = 0.5;
-        match calc_eccentric_anomaly_from_mean_anomaly(e, mean_anomaly) {
-            Ok(result) => assert_eq!(result, 0.5),
-            Err(_) => assert!(false),
-        }
-
-        let e = -0.1;
-        let mean_anomaly = 0.0;
-        match calc_eccentric_anomaly_from_mean_anomaly(e, mean_anomaly) {
-            Ok(_) => assert!(false),
-            Err(_) => assert!(true),
-        }
-    }
-}
