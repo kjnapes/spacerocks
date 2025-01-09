@@ -221,7 +221,7 @@ impl PySpaceRock {
         self.inner.mass()
     }
 
-    #[setter]
+    // #[setter]
     fn set_mass(&mut self, mass: f64) -> PyResult<()> {
         self.inner.set_mass(mass);
         Ok(())

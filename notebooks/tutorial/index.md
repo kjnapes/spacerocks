@@ -4,3 +4,4 @@ Tutorial Notebook Index
 
 - 002: Integrate an asteroid for an extended period of time, and get the osculating elements.
 
+- 003: Include custom perturbers in a simulation.
