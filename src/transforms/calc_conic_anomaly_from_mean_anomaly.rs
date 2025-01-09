@@ -38,136 +38,96 @@ fn kepler_circular(_e: f64, mean_anomaly: f64) -> f64 {
     mean_anomaly
 }
 
-// fn kepler_elliptical(e: f64, mean_anomaly: f64) -> f64 {
+fn kepler_elliptical(e: f64, mean_anomaly: f64) -> Result<f64, OrbitError> {
+    let mut flag = false;
+    let mut mean_anomaly = mean_anomaly;
+    if mean_anomaly > std::f64::consts::PI {
+        mean_anomaly = 2.0 * std::f64::consts::PI - mean_anomaly;
+        flag = true;
+    }
 
-//     let mut flag = false;
-//     let mut mean_anomaly = mean_anomaly;
-//     if mean_anomaly > std::f64::consts::PI {
-//         mean_anomaly = 2.0 * std::f64::consts::PI - mean_anomaly;
-//         flag = true;
-//     }
-
-//     // Define initial estimate
-//     let sin_mean_anomaly = mean_anomaly.sin();
-//     let mut eccentric_anomaly = e * sin_mean_anomaly + f64::max(mean_anomaly, e * (sin_mean_anomaly + 0.591));
+    // Define initial estimate
+    let sin_mean_anomaly = mean_anomaly.sin();
+    let mut eccentric_anomaly = e * sin_mean_anomaly + f64::max(mean_anomaly, e * (sin_mean_anomaly + 0.591));
     
-
-//     // Perform Newton-Raphson estimate
-//     for _ in 0..10 {
-
-//         // Compute f(E), f'(E), f''(E) and f'''(E), avoiding recomputation of sine and cosine.
-//         let esin_eccentric_anomaly = e * eccentric_anomaly.sin();
-//         let ecos_eccentric_anomaly = e * eccentric_anomaly.cos();
+    // Perform Newton-Raphson estimate
+    for _ in 0..10 {
+        let esin_eccentric_anomaly = e * eccentric_anomaly.sin();
+        let ecos_eccentric_anomaly = e * eccentric_anomaly.cos();
         
-//         let f = eccentric_anomaly - esin_eccentric_anomaly - mean_anomaly;
+        let f = eccentric_anomaly - esin_eccentric_anomaly - mean_anomaly;
 
-//         if f.abs() < 1.0e-15 {
-//             if flag {
-//                 eccentric_anomaly = 2.0 * std::f64::consts::PI - eccentric_anomaly;
-//             }
-//             return eccentric_anomaly;
-//         }
-
-//         let first = 1.0 - ecos_eccentric_anomaly;
-//         let second = esin_eccentric_anomaly;
-//         let third = ecos_eccentric_anomaly;
-
-//         let delta_i1 = -f / first;
-//         let delta_i2 = -f / (first + 0.5 * delta_i1 * second);
-//         let delta_i3 = -f / (first + 0.5 * delta_i2 * second + 1.0/6.0 * third * delta_i2 * delta_i2);
-        
-//         // Update E
-//         eccentric_anomaly += delta_i3;
-//     }
-//     eccentric_anomaly
-// }
-
-    fn kepler_elliptical(e: f64, mean_anomaly: f64) -> Result<f64, OrbitError> {
-        let mut flag = false;
-        let mut mean_anomaly = mean_anomaly;
-        if mean_anomaly > std::f64::consts::PI {
-            mean_anomaly = 2.0 * std::f64::consts::PI - mean_anomaly;
-            flag = true;
-        }
-
-        // Define initial estimate
-        let sin_mean_anomaly = mean_anomaly.sin();
-        let mut eccentric_anomaly = e * sin_mean_anomaly + f64::max(mean_anomaly, e * (sin_mean_anomaly + 0.591));
-        
-        // Perform Newton-Raphson estimate
-        for _ in 0..10 {
-            let esin_eccentric_anomaly = e * eccentric_anomaly.sin();
-            let ecos_eccentric_anomaly = e * eccentric_anomaly.cos();
-            
-            let f = eccentric_anomaly - esin_eccentric_anomaly - mean_anomaly;
-
-            if f.abs() < 1.0e-15 {
-                if flag {
-                    eccentric_anomaly = 2.0 * std::f64::consts::PI - eccentric_anomaly;
-                }
-                return Ok(eccentric_anomaly);
+        if f.abs() < 1.0e-15 {
+            if flag {
+                eccentric_anomaly = 2.0 * std::f64::consts::PI - eccentric_anomaly;
             }
-
-            let first = 1.0 - ecos_eccentric_anomaly;
-            let second = esin_eccentric_anomaly;
-            let third = ecos_eccentric_anomaly;
-
-            let delta_i1 = -f / first;
-            let delta_i2 = -f / (first + 0.5 * delta_i1 * second);
-            let delta_i3 = -f / (first + 0.5 * delta_i2 * second + 1.0/6.0 * third * delta_i2 * delta_i2);
-            
-            eccentric_anomaly += delta_i3;
+            return Ok(eccentric_anomaly);
         }
 
-        // If we get here, we didn't converge
-        Err(OrbitError::ConvergenceFailure(e, mean_anomaly))
+        let first = 1.0 - ecos_eccentric_anomaly;
+        let second = esin_eccentric_anomaly;
+        let third = ecos_eccentric_anomaly;
+
+        let delta_i1 = -f / first;
+        let delta_i2 = -f / (first + 0.5 * delta_i1 * second);
+        let delta_i3 = -f / (first + 0.5 * delta_i2 * second + 1.0/6.0 * third * delta_i2 * delta_i2);
+        
+        eccentric_anomaly += delta_i3;
     }
 
-    /// Calculate the parabolic eccentric anomaly from the mean anomaly.
-    fn kepler_parabolic(_e: f64, mean_anomaly: f64) -> f64 {
-        // let x = (3.0 * mean_anomaly + (4.0 + 9.0 * mean_anomaly * mean_anomaly).sqrt()).cbrt();
-        // let y = (2.0_f64).cbrt();
-        // x/y - y/x 
-        // let sign = mean_anomaly.signum();
-        // let abs_M = mean_anomaly.abs();
-        // let x = (3.0 * abs_M + (4.0 + 9.0 * abs_M * abs_M).sqrt()).cbrt();
-        // let y = (2.0_f64).cbrt();
-        // sign * (x/y - y/x)
+    // If we get here, we didn't converge
+    Err(OrbitError::ConvergenceFailure(e, mean_anomaly))
+}
 
-        let p: f64 = 3.0; // Explicitly specify type
-        let q: f64 = -6.0 * mean_anomaly;
-        let discriminant: f64 = (q / 2.0).powi(2) + (p / 3.0).powi(3); // Ensure `powi` operates on f64
+/// Calculate the parabolic eccentric anomaly from the mean anomaly.
+fn kepler_parabolic(_e: f64, mean_anomaly: f64) -> f64 {
+    // let x = (3.0 * mean_anomaly + (4.0 + 9.0 * mean_anomaly * mean_anomaly).sqrt()).cbrt();
+    // let y = (2.0_f64).cbrt();
+    // x/y - y/x 
+   
+    // We had the above code before, but it seemed to fail for some negative values of mean_anomaly. Now I'm using a full implementation of 
+    // Cardano's solution for the cubic equation, which is the basis for the above code. This should be more robust.
 
-        if discriminant >= 0.0 {
-            // One real root (discriminant is non-negative)
-            let u: f64 = (-q / 2.0 + discriminant.sqrt()).cbrt();
-            let v: f64 = (-q / 2.0 - discriminant.sqrt()).cbrt();
-            u + v
-        } else {
-            // Three real roots (discriminant is negative)
-            let r: f64 = (-q / 2.0).hypot((-discriminant).sqrt()); // Ensure discriminant is f64
-            let theta: f64 = (-q / 2.0).atan2((-discriminant).sqrt());
-            2.0 * r.cbrt() * (theta / 3.0).cos() // Principal real root
-        }
+    // Barker's equation relates mean anomaly and true anomaly, where B = tan(true_anomaly/2)
+    // B/2 - B^3/6 - M = 0
+    // Rewrite as x^3 + px + q = 0
+    // B^3 - 3B - 6M = 0
+    // Use Cardano's solution for the cubic equation
+
+    let p: f64 = 3.0; 
+    let q: f64 = -6.0 * mean_anomaly;
+    let discriminant: f64 = q.powi(2) / 4.0 + p.powi(3) / 27.0; 
+
+    if discriminant >= 0.0 {
+        // One real root (discriminant is non-negative)
+        let u: f64 = (-q / 2.0 + discriminant.sqrt()).cbrt();
+        let v: f64 = (-q / 2.0 - discriminant.sqrt()).cbrt();
+        u + v
+    } else {
+        // Three real roots (discriminant is negative)
+        let r: f64 = (-q / 2.0).hypot((-discriminant).sqrt()); 
+        let theta: f64 = (-q / 2.0).atan2((-discriminant).sqrt());
+        2.0 * r.cbrt() * (theta / 3.0).cos() // Principal real root
+    }
+}
+
+/// Calculate the hyperbolic eccentric anomaly from the mean anomaly.
+fn kepler_hyperbolic(e: f64, mean_anomaly: f64) -> Result<f64, OrbitError> {
+
+    if mean_anomaly == 0.0 {
+        return Ok(0.0);  // When M = 0, H = 0 is the solution
     }
 
-    /// Calculate the hyperbolic eccentric anomaly from the mean anomaly.
-    fn kepler_hyperbolic(e: f64, mean_anomaly: f64) -> Result<f64, OrbitError> {
-
-        if mean_anomaly == 0.0 {
-            return Ok(0.0);  // When M = 0, H = 0 is the solution
+    let mut eccentric_anomaly = mean_anomaly / mean_anomaly.abs() * (2.0 * mean_anomaly.abs() / e + 1.8).ln();
+    let mut f = eccentric_anomaly - e * eccentric_anomaly.sinh() + mean_anomaly;
+    for _ in 1..100 {
+        eccentric_anomaly = eccentric_anomaly - f / (1.0 - e * eccentric_anomaly.cosh());
+        f = eccentric_anomaly - e * eccentric_anomaly.sinh() + mean_anomaly;
+        if f.abs() < 1.0e-15 {
+            return Ok(eccentric_anomaly);
         }
-
-        let mut eccentric_anomaly = mean_anomaly / mean_anomaly.abs() * (2.0 * mean_anomaly.abs() / e + 1.8).ln();
-        let mut f = eccentric_anomaly - e * eccentric_anomaly.sinh() + mean_anomaly;
-        for _ in 1..100 {
-            eccentric_anomaly = eccentric_anomaly - f / (1.0 - e * eccentric_anomaly.cosh());
-            f = eccentric_anomaly - e * eccentric_anomaly.sinh() + mean_anomaly;
-            if f.abs() < 1.0e-15 {
-                return Ok(eccentric_anomaly);
-            }
-        }
-        // If we get here, we didn't converge
-        Err(OrbitError::ConvergenceFailure(e, mean_anomaly))
-
     }
+    // If we get here, we didn't converge
+    Err(OrbitError::ConvergenceFailure(e, mean_anomaly))
+
+}
