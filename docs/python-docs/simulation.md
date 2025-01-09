@@ -9,8 +9,37 @@
 
 ### Overview
 
+```python
+from spacerocks.nbody import Simulation, Integrator
+
+sim = Simulation()
+
+sim.set_epoch(epoch)
+sim.set_reference_plane("ECLIPJ2000")
+sim.set_origin('ssb')
+sim.set_integrator(Integrator.ias15(timestep=20.0))
+```
+
 ---
 ### Instantiation Methods
+
+#### `giants`
+Create a new simulation object.
+```python
+Simulation.giants() -> Simulation
+```
+
+#### `planets`
+Create a new simulation object.
+```python
+Simulation.planets() -> Simulation
+```
+
+#### `horizons`
+Create a new simulation object.
+```python
+Simulation.horizons() -> Simulation
+```
 
 #### `new`
 Create a new simulation object.

@@ -154,7 +154,7 @@ Key features:
    - Duplicate kernel loading is prevented automatically
 
 2. **Time Handling**
-   - Times are passed to SPICE as UTC JD values
+   - Times are passed to SPICE as `Time` objects
    - SPICE conversion to ET (Ephemeris Time) is handled in the `from_spice()` function
 
 3. **Unit Conversions `from_spice()` SpaceRock Method**
