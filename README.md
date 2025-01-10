@@ -1,5 +1,5 @@
 <p align="center">
-<img src="assets/logo.png" alt="drawing" width="300" style="display: block; margin-left: auto; margin-right: auto;">
+<img src="assets/logo.png" alt="drawing" width="400" style="display: block; margin-left: auto; margin-right: auto;">
 </p>
 
 ![spacerocks](https://github.com/kjnapes/spacerocks/workflows/spacerocks/badge.svg?branch=master)
