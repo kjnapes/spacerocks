@@ -4,10 +4,10 @@ use nalgebra::Vector3;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ObservationType {
-    Astrometric { ra: f64, dec: f64 },
-    Streak { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64 },
+    Astrometric { ra: f64, dec: f64, mag: Option<f64> },
+    Streak { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, mag: Option<f64> },
     Radar { ra: f64, dec: f64, range: f64, range_rate: f64 },
-    Complete { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, range: f64, range_rate: f64 },
+    Complete { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, range: f64, range_rate: f64, mag: Option<f64> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -26,16 +26,16 @@ impl Observation {
         Observation { epoch, observation_type, observer }
     }
 
-    pub fn from_astrometric(epoch: Time, ra: f64, dec: f64, observer: Observer) -> Observation {
-        Observation::new(epoch, ObservationType::Astrometric { ra, dec }, observer)
+    pub fn from_astrometric(epoch: Time, ra: f64, dec: f64, mag: Option<f64>, observer: Observer) -> Observation {
+        Observation::new(epoch, ObservationType::Astrometric { ra, dec, mag }, observer)
     }
 
-    pub fn from_streak(epoch: Time, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, observer: Observer) -> Observation {
-        Observation::new(epoch, ObservationType::Streak { ra, dec, ra_rate, dec_rate }, observer)
+    pub fn from_streak(epoch: Time, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, mag: Option<f64>, observer: Observer) -> Observation {
+        Observation::new(epoch, ObservationType::Streak { ra, dec, ra_rate, dec_rate, mag }, observer)
     }
 
-    pub fn from_complete(epoch: Time, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, range: f64, range_rate: f64, observer: Observer) -> Observation {
-        Observation::new(epoch, ObservationType::Complete { ra, dec, ra_rate, dec_rate, range, range_rate }, observer)
+    pub fn from_complete(epoch: Time, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, range: f64, range_rate: f64, mag: Option<f64>, observer: Observer) -> Observation {
+        Observation::new(epoch, ObservationType::Complete { ra, dec, ra_rate, dec_rate, range, range_rate, mag }, observer)
     }
 
     pub fn ra(&self) -> f64 {
@@ -92,6 +92,15 @@ impl Observation {
         }
     }
 
+    pub fn mag(&self) -> Option<f64> {
+        match self.observation_type {
+            ObservationType::Astrometric { mag, .. } => mag,
+            ObservationType::Streak { mag, .. } => mag,
+            ObservationType::Radar { .. } => None,
+            ObservationType::Complete { mag, .. } => mag,
+        }
+    }
+
     pub fn proper_motion(&self) -> Option<f64> {
         let ra_rate = self.ra_rate()?;
         let dec_rate = self.dec_rate()?;
@@ -109,10 +118,10 @@ impl Observation {
 impl std::fmt::Display for Observation {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self.observation_type {
-            ObservationType::Astrometric { ra, dec } => write!(f, "Astrometric observation at epoch {} with RA: {} and Dec: {}", self.epoch, ra, dec),
-            ObservationType::Streak { ra, dec, ra_rate, dec_rate } => write!(f, "Streak observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}", self.epoch, ra, dec, ra_rate, dec_rate),
+            ObservationType::Astrometric { ra, dec, mag } => write!(f, "Astrometric observation at epoch {} with RA: {} and Dec: {}", self.epoch, ra, dec),
+            ObservationType::Streak { ra, dec, ra_rate, dec_rate, mag } => write!(f, "Streak observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}", self.epoch, ra, dec, ra_rate, dec_rate),
             ObservationType::Radar { ra, dec, range, range_rate } => write!(f, "Radar observation at epoch {} with RA: {}, Dec: {}, Range: {}, Range rate: {}", self.epoch, ra, dec, range, range_rate),
-            ObservationType::Complete { ra, dec, ra_rate, dec_rate, range, range_rate } => write!(f, "Complete observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}, Range: {}, Range rate: {}", self.epoch, ra, dec, ra_rate, dec_rate, range, range_rate),
+            ObservationType::Complete { ra, dec, ra_rate, dec_rate, range, range_rate, mag } => write!(f, "Complete observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}, Range: {}, Range rate: {}", self.epoch, ra, dec, ra_rate, dec_rate, range, range_rate),
         }
     }
 }

@@ -13,6 +13,8 @@ use spacerocks::spacerock::SpaceRock;
 use crate::py_time::time::PyTime;
 use crate::PySpaceRock;
 use crate::py_observing::observer::PyObserver;
+use crate::py_observing::observation::PyObservation;
+use spacerocks::ReferencePlane;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -84,39 +86,41 @@ impl RockCollection {
     //     self.rocks.par_iter_mut().for_each(|rock| rock.calculate_orbit());
     // }
 
-    // pub fn observe(&mut self, observer: PyRef<PyObserver>) -> PyResult<DetectionCatalog> {
-    //     let o = observer.inner.clone();
+    pub fn observe(&mut self, observer: PyRef<PyObserver>) -> PyResult<Vec<PyObservation>> {
+        let o = observer.inner.clone();
 
-    //     if o.frame != ReferencePlane::J2000 {
-    //         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
-    //     }
+        if o.reference_plane() != "J2000" {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
+        }
 
-    //     // let observations: Vec<Result<PyDetection, PyErr>> = self.rocks.par_iter().map(|rock| {
-    //     //     match rock.observe(&observer.inner) {
-    //     //             Ok(detection) => detection,
-    //     //             Err(e) => Err(PyValueError::new_err(format!("Error observing: {}", e))),
-    //     //     }
-    //     // }).collect();
+        // let observations: Vec<Result<PyDetection, PyErr>> = self.rocks.par_iter().map(|rock| {
+        //     match rock.observe(&observer.inner) {
+        //             Ok(detection) => detection,
+        //             Err(e) => Err(PyValueError::new_err(format!("Error observing: {}", e))),
+        //     }
+        // }).collect();
 
-    //     // let mut results = Vec::new();
-    //     // let mut errors = Vec::new();
+        // let mut results = Vec::new();
+        // let mut errors = Vec::new();
 
-    //     // for observation in observations {
-    //     //     match observation {
-    //     //         Ok(detection) => results.push(detection),
-    //     //         Err(err) => errors.push(err.to_string()),
-    //     //     }
-    //     // }
+        // for observation in observations {
+        //     match observation {
+        //         Ok(detection) => results.push(detection),
+        //         Err(err) => errors.push(err.to_string()),
+        //     }
+        // }
 
-    //     // if !errors.is_empty() {
-    //     //     return Err(PyValueError::new_err(format!("Errors occurred: {}", errors.join(", "))));
-    //     // }
+        // if !errors.is_empty() {
+        //     return Err(PyValueError::new_err(format!("Errors occurred: {}", errors.join(", "))));
+        // }
 
-    //     // Ok(DetectionCatalog { observations: results })
+        // Ok(DetectionCatalog { observations: results })
 
-    //     let observations: Vec<_> = self.rocks.par_iter_mut().map(|rock| rock.observe(&o).unwrap()).collect();   
-    //     Ok(DetectionCatalog { observations: observations })     
-    // }
+        let observations: Vec<_> = self.rocks.par_iter_mut().map(|rock| rock.observe(&o).unwrap()).collect();   
+        let py_observations: Vec<_> = observations.into_iter().map(|obs| PyObservation { inner: obs }).collect();
+        Ok(py_observations)
+           
+    }
 
     // pub fn analytic_propagate(&mut self, t: PyRef<PyTime>) {
     //     let ep = &t.inner;
@@ -239,11 +243,9 @@ impl RockCollection {
     }
 
 
-    // #[getter]
-    // pub fn epoch(&self) -> Vec<f64> {
-    //     // self.rocks.par_iter().map(|rock| rock.epoch).collect()
-    //     let epochs: Vec<f64> = self.rocks.par_iter().map(|rock| rock.epoch).collect();
-
-    // }
+    #[getter]
+    pub fn epoch(&self) -> Vec<PyTime> {
+        self.rocks.par_iter().map(|rock| PyTime { inner: rock.epoch.clone() }).collect()
+    }
 
 }

@@ -226,6 +226,28 @@ impl PySpaceRock {
         Ok(())
     }
 
+    fn set_absolute_magnitude(&mut self, absolute_magnitude: f64) -> PyResult<()> {
+        self.inner.set_absolute_magnitude(absolute_magnitude);
+        Ok(())
+    }
+
+    #[getter]
+    fn absolute_magnitude(&self) -> f64 {
+        self.inner.absolute_magnitude()
+    }
+
+    fn set_gslope(&mut self, gslope: f64) -> PyResult<()> {
+        self.inner.set_gslope(gslope);
+        Ok(())
+    }
+
+    #[getter]
+    fn gslope(&self) -> f64 {
+        self.inner.gslope()
+    }
+
+
+
     #[getter]
     fn evec(&self) -> (f64, f64, f64) {
         let e = self.inner.evec();

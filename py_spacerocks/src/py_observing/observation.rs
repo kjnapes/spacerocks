@@ -18,13 +18,15 @@ pub struct PyObservation {
 impl PyObservation {
 
     #[classmethod]
-    fn from_astrometric(_cls: Py<PyType>, epoch: PyTime, ra: f64, dec: f64, observer: PyObserver) -> PyResult<PyObservation> {
-        Ok(PyObservation { inner: Observation::from_astrometric(epoch.inner, ra, dec, observer.inner) })
+    #[pyo3(signature = (epoch, ra, dec, observer, mag = None))]
+    fn from_astrometric(_cls: Py<PyType>, epoch: PyTime, ra: f64, dec: f64, observer: PyObserver, mag: Option<f64>) -> PyResult<PyObservation> {
+        Ok(PyObservation { inner: Observation::from_astrometric(epoch.inner, ra, dec, mag, observer.inner) })
     }
 
     #[classmethod]
-    fn from_streak(_cls: Py<PyType>, epoch: PyTime, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, observer: PyObserver) -> PyResult<PyObservation> {
-        Ok(PyObservation { inner: Observation::from_streak(epoch.inner, ra, dec, ra_rate, dec_rate, observer.inner) })
+    #[pyo3(signature = (epoch, ra, dec, ra_rate, dec_rate, observer, mag = None))]
+    fn from_streak(_cls: Py<PyType>, epoch: PyTime, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, observer: PyObserver, mag: Option<f64>) -> PyResult<PyObservation> {
+        Ok(PyObservation { inner: Observation::from_streak(epoch.inner, ra, dec, ra_rate, dec_rate, mag, observer.inner) })
     }
 
     #[getter]
@@ -55,6 +57,11 @@ impl PyObservation {
     #[getter]
     fn range_rate(&self) -> Option<f64> {
         self.inner.range_rate()
+    }
+
+    #[getter]
+    fn mag(&self) -> Option<f64> {
+        self.inner.mag()
     }
 
     #[getter]

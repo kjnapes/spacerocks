@@ -450,6 +450,34 @@ impl SpaceRock {
         }
     }
 
+    pub fn absolute_magnitude(&self) -> f64 {
+        match &self.properties {
+            Some(p) => p.absolute_magnitude.unwrap_or(0.0),
+            None => 0.0,
+        }
+    }
+
+    pub fn gslope(&self) -> f64 {
+        match &self.properties {
+            Some(p) => p.gslope.unwrap_or(0.15),
+            None => 0.15,
+        }
+    }
+
+    pub fn radius(&self) -> f64 {
+        match &self.properties {
+            Some(p) => p.radius.unwrap_or(0.0),
+            None => 0.0,
+        }
+    }
+
+    pub fn albedo(&self) -> f64 {
+        match &self.properties {
+            Some(p) => p.albedo.unwrap_or(0.0),
+            None => 0.0,
+        }
+    }
+
     pub fn set_absolute_magnitude(&mut self, absolute_magnitude: f64) {
         if self.properties.is_none() {
             self.properties = Some(Properties::default());
@@ -621,34 +649,37 @@ impl SpaceRock {
 
 
         // if self has properties, calculate the magnitude
-        // let mut mag = None;
-        // if let Some(properties) = &self.properties {
+        let mut mag = None;
+        
+        if let Some(properties) = &self.properties {
 
-        //     let H = properties.H.unwrap();
-        //     let Gslope = properties.Gslope.unwrap();
+            if let Some(absolute_magnitude) = properties.absolute_magnitude {
+                
+                let gslope = properties.gslope.unwrap();
 
-        //     let delta = cr.position.norm();
-        //     let sun_dist = (cr.position + observer.position).norm();
-        //     let earth_dist = observer.position.norm();
-        //     let q = (sun_dist.powi(2) + delta.powi(2) - earth_dist) / (2.0 * sun_dist * delta);
-        //     let mut beta = 0.0;
-        //     match q {
-        //         q if q <= -1.0 => beta = std::f64::consts::PI,
-        //         q if q >= 1.0 => beta = 0.0,
-        //         _ => beta = q.acos(),
-        //     };
-        //     let psi_1 = (-3.332 * ((beta / 2.0).tan()).powf(0.631)).exp();
-        //     let psi_2 = (-1.862 * ((beta / 2.0).tan()).powf(1.218)).exp();
-        //     mag = Some(H + 5.0 * (sun_dist * delta).log10());
-        //     if psi_1 == 0.0 && psi_2 == 0.0 {
-        //         mag = mag;
-        //     } else {
-        //         let mm = mag.unwrap() - 2.5 * ((1.0 - Gslope) * psi_1 + Gslope * psi_2).log10();
-        //         mag = Some(mm);
-        //     }
-        // }
+                let delta = cr.position.norm();
+                let sun_dist = (cr.position + observer.position()).norm();
+                let earth_dist = observer.position().norm();
+                let q = (sun_dist.powi(2) + delta.powi(2) - earth_dist) / (2.0 * sun_dist * delta);
+                let mut beta = 0.0;
+                match q {
+                    q if q <= -1.0 => beta = std::f64::consts::PI,
+                    q if q >= 1.0 => beta = 0.0,
+                    _ => beta = q.acos(),
+                };
+                let psi_1 = (-3.332 * ((beta / 2.0).tan()).powf(0.631)).exp();
+                let psi_2 = (-1.862 * ((beta / 2.0).tan()).powf(1.218)).exp();
+                mag = Some(absolute_magnitude + 5.0 * (sun_dist * delta).log10());
+                if psi_1 == 0.0 && psi_2 == 0.0 {
+                    mag = mag;
+                } else {
+                    let mm = mag.unwrap() - 2.5 * ((1.0 - gslope) * psi_1 + gslope * psi_2).log10();
+                    mag = Some(mm);
+                }
+            }
+        }
 
-        let observation = Observation::from_complete(self.epoch.clone(), ra, dec, ra_rate, dec_rate, rho, rho_rate, observer.clone());
+        let observation = Observation::from_complete(self.epoch.clone(), ra, dec, ra_rate, dec_rate, rho, rho_rate, mag, observer.clone());
         Ok(observation)
     }
 
