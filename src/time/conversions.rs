@@ -261,9 +261,29 @@ pub fn get_leap_seconds_at_epoch(jd: f64) -> f64 {
 pub fn isot_to_julian(isot: &str) -> f64 {
     let datetime: DateTime<Utc> = Utc.datetime_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap();
     // let datetime: DateTime<Utc> = DateTime::parse_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap().into();
+    // let datetime: DateTime<Utc> = DateTime::parse_from_str(isot, "%Y-%m-%dT%H:%M:%S%.fZ").unwrap().into();
     let unix_time = datetime.timestamp() as f64;
     let julian_day = unix_time / 86400.0 + 2440587.5;
     julian_day
 }
 
+
+
+
+// use std::time::{SystemTime, UNIX_EPOCH};
+
+// fn main() {
+//     // Get the system's current time
+//     let now = SystemTime::now();
+
+//     // Calculate the duration since 1970-01-01 00:00:00 UTC
+//     let duration_since_epoch = now
+//         .duration_since(UNIX_EPOCH)
+//         .expect("Time went backwards?");
+
+//     // Convert that duration to whole seconds
+//     let unix_timestamp = duration_since_epoch.as_secs();
+
+//     println!("Current Unix timestamp: {}", unix_timestamp);
+// }
 

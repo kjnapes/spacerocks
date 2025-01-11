@@ -84,12 +84,12 @@ impl PyTime {
         Ok(self.clone())
     }
     
-    fn to_tt(&mut self) -> PyResult<(Self)> {
+    fn to_tt(&mut self) -> PyResult<Self> {
         self.inner.to_tt();
         Ok(self.clone())
     }
     
-    fn to_tai(&mut self) -> PyResult<(Self)> {
+    fn to_tai(&mut self) -> PyResult<Self> {
         self.inner.to_tai();
         Ok(self.clone())
     }

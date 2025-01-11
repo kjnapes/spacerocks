@@ -4,7 +4,7 @@ use nalgebra::Vector3;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ObservationType {
-    Astrometric { ra: f64, dec: f64, mag: Option<f64> },
+    Astrometry { ra: f64, dec: f64, mag: Option<f64> },
     Streak { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, mag: Option<f64> },
     Radar { ra: f64, dec: f64, range: f64, range_rate: f64 },
     Complete { ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, range: f64, range_rate: f64, mag: Option<f64> },
@@ -15,8 +15,6 @@ pub struct Observation {
     pub epoch: Time,
     pub observation_type: ObservationType,
     pub observer: Observer,
-    // pub covariance: Option<Matrix<f64>>,
-    // pub magnitude: Option<f64>,
     // pub filter: Option<String>,
     // pub obsid: Option<String>,
 }
@@ -26,8 +24,8 @@ impl Observation {
         Observation { epoch, observation_type, observer }
     }
 
-    pub fn from_astrometric(epoch: Time, ra: f64, dec: f64, mag: Option<f64>, observer: Observer) -> Observation {
-        Observation::new(epoch, ObservationType::Astrometric { ra, dec, mag }, observer)
+    pub fn from_astrometry(epoch: Time, ra: f64, dec: f64, mag: Option<f64>, observer: Observer) -> Observation {
+        Observation::new(epoch, ObservationType::Astrometry { ra, dec, mag }, observer)
     }
 
     pub fn from_streak(epoch: Time, ra: f64, dec: f64, ra_rate: f64, dec_rate: f64, mag: Option<f64>, observer: Observer) -> Observation {
@@ -40,7 +38,7 @@ impl Observation {
 
     pub fn ra(&self) -> f64 {
         match self.observation_type {
-            ObservationType::Astrometric { ra, .. } => ra,
+            ObservationType::Astrometry { ra, .. } => ra,
             ObservationType::Streak { ra, .. } => ra,
             ObservationType::Radar { ra, .. } => ra,
             ObservationType::Complete { ra, .. } => ra,
@@ -49,7 +47,7 @@ impl Observation {
 
     pub fn dec(&self) -> f64 {
         match self.observation_type {
-            ObservationType::Astrometric { dec, .. } => dec,
+            ObservationType::Astrometry { dec, .. } => dec,
             ObservationType::Streak { dec, .. } => dec,
             ObservationType::Radar { dec, .. } => dec,
             ObservationType::Complete { dec, .. } => dec,
@@ -58,7 +56,7 @@ impl Observation {
 
     pub fn ra_rate(&self) -> Option<f64> {
         match self.observation_type {
-            ObservationType::Astrometric { .. } => None,
+            ObservationType::Astrometry { .. } => None,
             ObservationType::Streak { ra_rate, .. } => Some(ra_rate),
             ObservationType::Radar { .. } => None,
             ObservationType::Complete { ra_rate, .. } => Some(ra_rate),
@@ -67,7 +65,7 @@ impl Observation {
 
     pub fn dec_rate(&self) -> Option<f64> {
         match self.observation_type {
-            ObservationType::Astrometric { .. } => None,
+            ObservationType::Astrometry { .. } => None,
             ObservationType::Streak { dec_rate, .. } => Some(dec_rate),
             ObservationType::Radar { .. } => None,
             ObservationType::Complete { dec_rate, .. } => Some(dec_rate),
@@ -76,7 +74,7 @@ impl Observation {
 
     pub fn range(&self) -> Option<f64> {
         match self.observation_type {
-            ObservationType::Astrometric { .. } => None,
+            ObservationType::Astrometry { .. } => None,
             ObservationType::Streak { .. } => None,
             ObservationType::Radar { range, .. } => Some(range),
             ObservationType::Complete { range, .. } => Some(range),
@@ -85,7 +83,7 @@ impl Observation {
 
     pub fn range_rate(&self) -> Option<f64> {
         match self.observation_type {
-            ObservationType::Astrometric { .. } => None,
+            ObservationType::Astrometry { .. } => None,
             ObservationType::Streak { .. } => None,
             ObservationType::Radar { range_rate, .. } => Some(range_rate),
             ObservationType::Complete { range_rate, .. } => Some(range_rate),
@@ -94,7 +92,7 @@ impl Observation {
 
     pub fn mag(&self) -> Option<f64> {
         match self.observation_type {
-            ObservationType::Astrometric { mag, .. } => mag,
+            ObservationType::Astrometry { mag, .. } => mag,
             ObservationType::Streak { mag, .. } => mag,
             ObservationType::Radar { .. } => None,
             ObservationType::Complete { mag, .. } => mag,
@@ -118,10 +116,10 @@ impl Observation {
 impl std::fmt::Display for Observation {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self.observation_type {
-            ObservationType::Astrometric { ra, dec, mag } => write!(f, "Astrometric observation at epoch {} with RA: {} and Dec: {}", self.epoch, ra, dec),
-            ObservationType::Streak { ra, dec, ra_rate, dec_rate, mag } => write!(f, "Streak observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}", self.epoch, ra, dec, ra_rate, dec_rate),
+            ObservationType::Astrometry { ra, dec, .. } => write!(f, "Astrometric observation at epoch {} with RA: {} and Dec: {}", self.epoch, ra, dec),
+            ObservationType::Streak { ra, dec, ra_rate, dec_rate, .. } => write!(f, "Streak observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}", self.epoch, ra, dec, ra_rate, dec_rate),
             ObservationType::Radar { ra, dec, range, range_rate } => write!(f, "Radar observation at epoch {} with RA: {}, Dec: {}, Range: {}, Range rate: {}", self.epoch, ra, dec, range, range_rate),
-            ObservationType::Complete { ra, dec, ra_rate, dec_rate, range, range_rate, mag } => write!(f, "Complete observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}, Range: {}, Range rate: {}", self.epoch, ra, dec, ra_rate, dec_rate, range, range_rate),
+            ObservationType::Complete { ra, dec, ra_rate, dec_rate, range, range_rate, .. } => write!(f, "Complete observation at epoch {} with RA: {}, Dec: {}, RA rate: {}, Dec rate: {}, Range: {}, Range rate: {}", self.epoch, ra, dec, ra_rate, dec_rate, range, range_rate),
         }
     }
 }

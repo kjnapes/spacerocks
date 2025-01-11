@@ -13,7 +13,7 @@ use rand::Rng;
 
 use std::collections::HashMap;
 
-use uuid;
+// use uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpaceRock {
@@ -661,12 +661,18 @@ impl SpaceRock {
                 let sun_dist = (cr.position + observer.position()).norm();
                 let earth_dist = observer.position().norm();
                 let q = (sun_dist.powi(2) + delta.powi(2) - earth_dist) / (2.0 * sun_dist * delta);
-                let mut beta = 0.0;
-                match q {
-                    q if q <= -1.0 => beta = std::f64::consts::PI,
-                    q if q >= 1.0 => beta = 0.0,
-                    _ => beta = q.acos(),
+                // let mut beta = 0.0;
+                // match q {
+                //     q if q <= -1.0 => beta = std::f64::consts::PI,
+                //     q if q >= 1.0 => beta = 0.0,
+                //     _ => beta = q.acos(),
+                // };
+                let beta = match q {
+                    q if q <= -1.0 => std::f64::consts::PI,
+                    q if q >= 1.0 => 0.0,
+                    _ => q.acos(),
                 };
+
                 let psi_1 = (-3.332 * ((beta / 2.0).tan()).powf(0.631)).exp();
                 let psi_2 = (-1.862 * ((beta / 2.0).tan()).powf(1.218)).exp();
                 mag = Some(absolute_magnitude + 5.0 * (sun_dist * delta).log10());
@@ -786,7 +792,7 @@ fn generate_name(min_syllables: usize, max_syllables: usize) -> String {
 
     // Build the name
     let mut name = String::new();
-    for i in 0..syllables_count {
+    for _i in 0..syllables_count {
         let s = generate_syllable();
         name.push_str(&s);
     }

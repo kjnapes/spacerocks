@@ -4,7 +4,6 @@ use crate::py_observing::observation::PyObservation;
 use crate::PySpaceRock;
 
 use spacerocks::orbfit::gauss;
-use spacerocks::observing::Observation;
 
 #[pyfunction]
 #[pyo3(name = "gauss")]

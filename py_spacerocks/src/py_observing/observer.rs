@@ -1,12 +1,8 @@
 use pyo3::prelude::*;
-use pyo3::types::PyType;
 
 use spacerocks::observing::Observer;
-// use spacerocks::spacerock::{ReferencePlane, Origin}; 
 
 use crate::py_time::time::PyTime;
-use crate::{PySpaceRock};
-use crate::py_coordinates::origin::PyOrigin;
 
 use numpy::{PyArray1, IntoPyArray};
 

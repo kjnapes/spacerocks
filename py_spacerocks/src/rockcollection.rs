@@ -1,10 +1,5 @@
 use pyo3::prelude::*;
-use pyo3::types::PyType;
 use pyo3::exceptions::PyIndexError;
-use pyo3::types::PyBool;
-use pyo3::types::PyList;
-use pyo3::exceptions::PyValueError;
-use numpy::ToPyArray;
 
 use rayon::prelude::*;
 
@@ -14,22 +9,20 @@ use crate::py_time::time::PyTime;
 use crate::PySpaceRock;
 use crate::py_observing::observer::PyObserver;
 use crate::py_observing::observation::PyObservation;
-use spacerocks::ReferencePlane;
 
-use std::collections::HashMap;
-use std::sync::Arc;
+use numpy::{PyArray1, IntoPyArray};
 
-use numpy::{PyArray1, IntoPyArray, PyArray};
+// use numpy::{PyArray1, IntoPyArray, PyArray};
 
-pub fn create_mixed_array<T: pyo3::ToPyObject>(data: Vec<Option<T>>, py: Python) -> pyo3::Bound<'_, PyArray<pyo3::Py<PyAny>, numpy::ndarray::Dim<[usize; 1]>>> {
-    let numpy_array: Vec<_> = data.into_iter()
-            .map(|opt| match opt {
-                    Some(value) => value.to_object(py),
-                    None => py.None(),
-                }
-            ).collect();
-    numpy_array.into_pyarray(py).to_owned()
-}
+// pub fn create_mixed_array<T: pyo3::IntoPyObject>(data: Vec<Option<T>>, py: Python) -> pyo3::Bound<'_, PyArray<pyo3::Py<PyAny>, numpy::ndarray::Dim<[usize; 1]>>> {
+//     let numpy_array: Vec<_> = data.into_iter()
+//             .map(|opt| match opt {
+//                     Some(value) => value.to_object(py),
+//                     None => py.None(),
+//                 }
+//             ).collect();
+//     numpy_array.into_pyarray(py).to_owned()
+// }
 
 #[pyclass]
 pub struct RockCollection {
@@ -92,29 +85,6 @@ impl RockCollection {
         if o.reference_plane() != "J2000" {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Observer frame is not J2000. Cannot observe rocks.")));
         }
-
-        // let observations: Vec<Result<PyDetection, PyErr>> = self.rocks.par_iter().map(|rock| {
-        //     match rock.observe(&observer.inner) {
-        //             Ok(detection) => detection,
-        //             Err(e) => Err(PyValueError::new_err(format!("Error observing: {}", e))),
-        //     }
-        // }).collect();
-
-        // let mut results = Vec::new();
-        // let mut errors = Vec::new();
-
-        // for observation in observations {
-        //     match observation {
-        //         Ok(detection) => results.push(detection),
-        //         Err(err) => errors.push(err.to_string()),
-        //     }
-        // }
-
-        // if !errors.is_empty() {
-        //     return Err(PyValueError::new_err(format!("Errors occurred: {}", errors.join(", "))));
-        // }
-
-        // Ok(DetectionCatalog { observations: results })
 
         let observations: Vec<_> = self.rocks.par_iter_mut().map(|rock| rock.observe(&o).unwrap()).collect();   
         let py_observations: Vec<_> = observations.into_iter().map(|obs| PyObservation { inner: obs }).collect();
