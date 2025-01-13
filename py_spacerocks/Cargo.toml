@@ -15,3 +15,9 @@ pyo3 = { version = "*", features = ["extension-module"] }
 numpy = "*"
 rayon = "*"
 nalgebra = "0.32.2"
+
+arrow = "40.0" 
+flate2 = "1.0"
+serde_json = "1.0.68"
+serde = { version = "1.0.197", features = ["derive", "rc"]}
+reqwest = { version = "0.11.4", features = ["json", "blocking"] }

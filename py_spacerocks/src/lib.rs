@@ -27,6 +27,9 @@ use py_nbody::make_nbody_submodule;
 mod py_orbfit;
 use py_orbfit::make_orbfit_submodule;
 
+mod mpc;
+use mpc::MPC;
+
 #[pymodule]
 #[pyo3(name = "spacerocks")]
 pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -55,6 +58,7 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<PySpaceRock>()?;
     m.add_class::<RockCollection>()?;
+    m.add_class::<MPC>()?;
 
     Ok(())
 }
