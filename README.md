@@ -29,7 +29,7 @@ pip install maturin
 git clone https://github.com/kjnapier/spacerocks
 cd spacerocks
 git checkout v3
-cd py-spacerocks
+cd py_spacerocks
 maturin develop --release
 ```
 
