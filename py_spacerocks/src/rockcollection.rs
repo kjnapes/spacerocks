@@ -35,18 +35,45 @@ use crate::mpc::MPCData;
 //     numpy_array.into_pyarray(py).to_owned()
 // }
 
+/// Represents a collection of space rocks.
+///
+/// This struct is used to manage and manipulate a collection of 
+/// `SpaceRock` objects, including operations such as filtering, 
+/// observing, and converting formats.
 #[pyclass]
 pub struct RockCollection {
+    /// A vector holding all `SpaceRock` instances.
     pub rocks: Vec<SpaceRock>,
 }
 
 #[pymethods]
 impl RockCollection {
+    /// Creates a new, empty `RockCollection`.
     
     #[new]
     pub fn new() -> Self {
         RockCollection { rocks: Vec::new() }
     }
+
+    /// Constructs a `RockCollection` from MPC data.
+    ///
+    /// This method fetches and reads data from the Minor Planet Center (MPC)
+    /// and constructs a `RockCollection` from the data.
+    ///
+    /// # Arguments
+    /// * `mpc_path` - The path to the directory where the MPC data will be stored.
+    /// * `catalog` - The name of the MPC catalog to fetch (i.e, mpcorb_extended).
+    /// * `download_data` - A boolean flag indicating whether to download the data if it is not already present.
+    ///
+    /// # Returns
+    /// A `RockCollection` instance.
+    ///
+    /// # Example
+    /// ```python
+    /// from spacerocks import RockCollection
+    ///
+    /// rocks = RockCollection.from_mpc("data/mpc", "mpcorb_extended", download_data=True)
+    /// ```
 
     #[staticmethod]
     pub fn from_mpc(

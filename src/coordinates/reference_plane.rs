@@ -14,7 +14,20 @@ pub enum ReferencePlane {
     FK4,
 }
 
+/// The reference plane is the frame of reference in which the coordinates are specified.
+/// The reference plane can be J2000, ECLIPJ2000, INVARIABLE, GALACTIC, or FK4.
 impl ReferencePlane {
+
+    /// Create a new ReferencePlane from a string.
+    ///
+    /// # Arguments
+    /// * `s` - The string representation of the ReferencePlane (J2000, ECLIPJ2000, INVARIABLE, GALACTIC, or FK4).  
+    ///
+    /// # Example
+    /// ```
+    /// use spacerock::coordinates::ReferencePlane;
+    /// let reference_plane = ReferencePlane::from_str("J2000").unwrap();
+    /// ```
     pub fn from_str(s: &str) -> Result<Self, String> {
         match s.to_uppercase().as_str() {
             "J2000" => Ok(ReferencePlane::J2000),
@@ -26,7 +39,15 @@ impl ReferencePlane {
         }
     }
 
-    // get the rotation matrix for the frame
+    /// Return the rotation matrix of the ReferencePlane.
+    /// These rotation matrices are used to transform the coordinates from the specified reference plane to the J2000 reference plane, 
+    /// and can be found in the constants module.
+    ///
+    /// # Example
+    /// ```
+    /// let reference_plane = ReferencePlane::from_str("J2000").unwrap();
+    /// let rotation_matrix = reference_plane.get_rotation_matrix();
+    /// ```
     pub fn get_rotation_matrix(&self) -> Matrix3<f64> {
         match self {
             ReferencePlane::J2000 => ROTATION_J2000,
@@ -37,6 +58,13 @@ impl ReferencePlane {
         }
     }
 
+    /// Return the string representation of the ReferencePlane.
+    ///
+    /// # Example
+    /// ```
+    /// let reference_plane = ReferencePlane::from_str("J2000").unwrap();
+    /// assert_eq!(reference_plane.as_str(), "J2000");
+    /// ```
     pub fn as_str(&self) -> &str {
         match self {
             ReferencePlane::J2000 => "J2000",
