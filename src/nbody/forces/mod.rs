@@ -9,3 +9,6 @@ pub mod gravity;
 
 pub mod solar_gr;
     pub use self::solar_gr::SolarGR;
+
+pub mod solar_j2;
+    pub use self::solar_j2::SolarJ2;

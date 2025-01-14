@@ -90,6 +90,43 @@ const KM3_PER_SECOND2_TO_AU3_PER_DAY2: f64 = (1.0 / KM_PER_AU) * (1.0 / KM_PER_A
 //     };
 // }
 
+// lazy_static! {
+//     pub static ref MASSES: HashMap<String, f64> = {
+//         let mut m = HashMap::new();
+//         m.insert("sun".to_string(), 1.327_124_400_412_794_2E11 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("mercury barycenter".to_string(), 2.203_186_855_140_000_3E4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("venus barycenter".to_string(), 3.248_585_92E5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("earth".to_string(), 3.986_004_355_070_226_6E5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("moon".to_string(), 4.902_800_118_457_55E3 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("earth barycenter".to_string(), 3.986_004_418E5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("mars barycenter".to_string(), 4.282_837_581_575_61E4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("jupiter barycenter".to_string(), 1.267_127_640_999_999_8E8 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("saturn barycenter".to_string(), 3.794_058_484_18E7 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("uranus barycenter".to_string(), 5.794_556_399_999_998_5E6 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("neptune barycenter".to_string(), 6.836_527_100_580_399E6 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("pluto barycenter".to_string(), 9.755E2 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000001".to_string(), 6.262_888_864_440_993E1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000002".to_string(), 1.366_587_814_596_742_2E1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000003".to_string(), 1.920_570_700_202_589 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000004".to_string(), 1.728_823_287_917_151_3E1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000007".to_string(), 1.139_872_323_218_410_7 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000010".to_string(), 5.625_147_645_385_229 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000015".to_string(), 2.023_020_987_109_828_4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000016".to_string(), 1.589_658_244_170_942_4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000031".to_string(), 1.079_371_457_703_356 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000052".to_string(), 2.683_035_924_282_179_5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000065".to_string(), 9.381_057_563_915_133E-1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000087".to_string(), 2.168_232_073_699_691 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000088".to_string(), 1.189_807_708_812_190_8 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000107".to_string(), 1.443_738_403_186_6 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000433".to_string(), 4.463E-4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000511".to_string(), 3.894_483_148_170_564_4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m.insert("2000704".to_string(), 2.830_409_639_329_985 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+//         m
+//     };
+// }
+
+
 lazy_static! {
     pub static ref MASSES: HashMap<String, f64> = {
         let mut m = HashMap::new();
@@ -97,31 +134,33 @@ lazy_static! {
         m.insert("mercury barycenter".to_string(), 2.203_186_855_140_000_3E4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("venus barycenter".to_string(), 3.248_585_92E5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("earth".to_string(), 3.986_004_355_070_226_6E5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("moon".to_string(), 4.902_800_118_457_55E3 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("earth barycenter".to_string(), 3.986_004_418E5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+        m.insert("moon".to_string(), 4.9028001184575496E3 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+        m.insert("earth barycenter".to_string(), 4.0350323562548019E+05 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("mars barycenter".to_string(), 4.282_837_581_575_61E4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("jupiter barycenter".to_string(), 1.267_127_640_999_999_8E8 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("saturn barycenter".to_string(), 3.794_058_484_18E7 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("uranus barycenter".to_string(), 5.794_556_399_999_998_5E6 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("neptune barycenter".to_string(), 6.836_527_100_580_399E6 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
         m.insert("pluto barycenter".to_string(), 9.755E2 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000001".to_string(), 6.262_888_864_440_993E1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000002".to_string(), 1.366_587_814_596_742_2E1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000003".to_string(), 1.920_570_700_202_589 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000004".to_string(), 1.728_823_287_917_151_3E1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000007".to_string(), 1.139_872_323_218_410_7 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000010".to_string(), 5.625_147_645_385_229 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000015".to_string(), 2.023_020_987_109_828_4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000016".to_string(), 1.589_658_244_170_942_4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000031".to_string(), 1.079_371_457_703_356 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000052".to_string(), 2.683_035_924_282_179_5 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000065".to_string(), 9.381_057_563_915_133E-1 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000087".to_string(), 2.168_232_073_699_691 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000088".to_string(), 1.189_807_708_812_190_8 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000107".to_string(), 1.443_738_403_186_6 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000433".to_string(), 4.463E-4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000511".to_string(), 3.894_483_148_170_564_4 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
-        m.insert("2000704".to_string(), 2.830_409_639_329_985 * KM3_PER_SECOND2_TO_AU3_PER_DAY2 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000001".to_string(), 1.3964518123081070e-13 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000002".to_string(), 3.0471146330043200e-14 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000003".to_string(), 4.2823439677995011e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000004".to_string(), 3.8548000225257904e-14 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000007".to_string(), 2.5416014973471498e-15);
+        m.insert("2000010".to_string(), 1.2542530761640810e-14 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000015".to_string(), 4.5107799051436795e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000016".to_string(), 3.5445002842488978e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000031".to_string(), 2.4067012218937576e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000048".to_string(), 1.9085161956485640e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000052".to_string(), 5.9824315264869841e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000065".to_string(), 2.0917175955133682e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000087".to_string(), 4.8345606546105521e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000088".to_string(), 2.6529436610356353e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000107".to_string(), 3.2191392075878588e-15);
+        m.insert("2000451".to_string(), 1.2973797046097596e-15 / GRAVITATIONAL_CONSTANT);
+        // m.insert("2000433".to_string(), 9.9506001554648484e-19);
+        m.insert("2000511".to_string(), 8.6836253492286545e-15 / GRAVITATIONAL_CONSTANT);
+        m.insert("2000704".to_string(), 6.3110343420878887e-15 / GRAVITATIONAL_CONSTANT);
         m
     };
 }

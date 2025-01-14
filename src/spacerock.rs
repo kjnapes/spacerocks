@@ -196,7 +196,7 @@ impl SpaceRock {
         let command_str = format!("'{}'", name);
         params.insert("command", command_str.as_str());
 
-        let ep = epoch.clone();
+        let mut ep = epoch.clone();
 
         let timescale = &ep.timescale.to_str().to_uppercase();
         let timeformat = &ep.format.to_str().to_uppercase();
@@ -216,11 +216,14 @@ impl SpaceRock {
         }
 
 
-        if timescale == "UTC" {
-            params.insert("TIME_TYPE", "'UT'");
-        } else {
-            params.insert("TIME_TYPE", timescale);
-        }
+        // if timescale == "UTC" {
+        //     params.insert("TIME_TYPE", "'UT'");
+        // } else {
+        //     params.insert("TIME_TYPE", timescale);
+        // }
+
+        ep.to_tdb();
+        params.insert("TIME_TYPE", "'TDB'");
 
         let time_list = format!("'{}'", ep.epoch);
         params.insert("TLIST", time_list.as_str());
@@ -319,7 +322,6 @@ impl SpaceRock {
                 return Err("True anomaly is not commensurate with eccentricity".into());
             }
         }
-        
 
         let o = Origin::from_str(origin)?;
         let mu = o.mu();
@@ -336,7 +338,6 @@ impl SpaceRock {
         let x = r * rot_x;
         let y = r * rot_y;
         let z = r * rot_z;
-
 
         let rot_x2 = node.cos() * (arg + true_anomaly).sin() + node.sin() * (arg + true_anomaly).cos() * inc.cos();
         let rot_y2 = node.sin() * (arg + true_anomaly).sin() - node.cos() * (arg + true_anomaly).cos() * inc.cos();
@@ -622,7 +623,8 @@ impl SpaceRock {
         self.change_reference_plane("J2000")?;
 
         // throw an error if the observer and self have different epochs
-        if self.epoch != observer.epoch() {
+        if self.epoch.utc().jd() != observer.epoch().utc().jd() {
+            
             return Err("Observer and SpaceRock have different epochs".into());
         }
 

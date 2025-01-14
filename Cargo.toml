@@ -24,13 +24,14 @@ plotters = "*"
 # indicatif = "0.16.2"
 # rand_distr = "0.4.0"
 strsim = "0.11.1"
+cspice-sys = { version = "*" }
 
 [target.'x86_64-unknown-linux-gnu'.dependencies]
 rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 
 # target macos
 [target.'x86_64-apple-darwin'.dependencies]
-rust-spice = {version = "*"}
+rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 
 # target mac m1
 [target.'aarch64-apple-darwin'.dependencies]

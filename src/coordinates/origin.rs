@@ -43,7 +43,7 @@ impl Origin {
     pub fn mu(&self) -> f64 {
         match self {
             Origin::SUN => 0.000_295_912_208_284_119_5,
-            Origin::SSB => 0.00029630927493457475,
+            Origin::SSB => 2.9630927493968080e-04, //0.00029630927493457475, ,
             Origin::Custom { mu, .. } => *mu,
         }
     }

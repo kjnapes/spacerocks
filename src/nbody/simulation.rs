@@ -35,9 +35,11 @@ impl Default for Simulation {
 impl Simulation {
 
     pub fn new() -> Simulation {
+        let mut t = Time::now();
+        t.to_tdb();
         Simulation {
             particles: Vec::new(), 
-            epoch: Time::now(), 
+            epoch: t,
             forces: vec![Box::new(NewtonianGravity)],
             reference_plane: ReferencePlane::ECLIPJ2000,
             origin: Origin::SSB,
@@ -61,6 +63,7 @@ impl Simulation {
 
         let mut sim = Simulation::new();
         sim.epoch = epoch.clone();
+        sim.epoch.to_tdb();
         sim.integrator = Box::new(IAS15::new(1.0));
 
         // add sun, jupiter barycenter, saturn barycenter, uranus barycenter, neptune barycenter.
@@ -86,6 +89,7 @@ impl Simulation {
     pub fn planets(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
         let mut sim = Simulation::new();
         sim.epoch = epoch.clone();
+        sim.epoch.to_tdb();
         sim.integrator = Box::new(IAS15::new(1.0));
 
         let names = ["sun", "mercury barycenter", "venus barycenter", "earth barycenter", "mars barycenter", "jupiter barycenter", 
@@ -112,14 +116,31 @@ impl Simulation {
     pub fn horizons(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
         let mut sim = Simulation::new();
         sim.epoch = epoch.clone();
+        sim.epoch.to_tdb();
         sim.integrator = Box::new(IAS15::new(1.0));
 
         let names = ["sun", "mercury barycenter", "venus barycenter", "earth", "moon", "mars barycenter", "jupiter barycenter", 
-                     "saturn barycenter", "uranus barycenter", "neptune barycenter", "pluto barycenter", "2000001", "2000002", 
-                        "2000003", "2000004", "2000007", "2000010", "2000015", "2000016", "2000031", "2000052", "2000065", "2000087",
-                        "2000088", "2000107", "2000511", "2000704"];
+                     "saturn barycenter", "uranus barycenter", "neptune barycenter", "pluto barycenter", 
+                     "2000001", 
+                     "2000002", 
+                     "2000003", 
+                     "2000004", 
+                     "2000007",
+                     "2000010", 
+                     "2000015", 
+                     "2000016", 
+                     "2000031", 
+                    //  "2000048", 
+                     "2000052", 
+                     "2000065", 
+                     "2000087",
+                     "2000088", 
+                     "2000107",
+                    //  "2000451", 
+                     "2000511", 
+                     "2000704"];
         for name in names.iter() {
-            let particle = SpaceRock::from_spice(name, epoch, reference_plane, origin)?;
+            let mut particle = SpaceRock::from_spice(name, epoch, reference_plane, "ssb")?;
             sim.add(particle)?;
         }
         Ok(sim)
@@ -133,7 +154,7 @@ impl Simulation {
     /// * `particle` - The particle to add to the simulation.
     pub fn add(&mut self, mut particle: SpaceRock) -> Result<(), Box<dyn std::error::Error>> {
 
-        if self.epoch != particle.epoch {
+        if self.epoch.tdb().jd() != particle.epoch.tdb().jd() {
             let err = SimulationError::EpochMismatch(particle.epoch.clone(), self.epoch.clone(), particle.name.clone());
             return Err(err.into());
         }
@@ -149,6 +170,7 @@ impl Simulation {
         }
 
         particle.change_reference_plane(self.reference_plane.as_str())?;
+        particle.epoch.to_tdb();
         self.particle_index_map.insert((*particle.name).to_string(), self.particles.len());
         self.particles.push(particle);
 
@@ -255,10 +277,11 @@ impl Simulation {
     /// * `epoch` - The new epoch to integrate to.
     pub fn integrate(&mut self, epoch: &Time) {
 
-        let mut epoch = epoch.clone();
-        epoch.change_timescale(self.epoch.timescale.clone());
+        // let mut epoch = epoch.clone();
+        // epoch.change_timescale(self.epoch.timescale.clone());
 
-        let dt = &epoch - &self.epoch;
+        // let dt = &epoch - &self.epoch;
+        let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
         if dt.abs() < 1e-16 {
             return;
         }
@@ -268,7 +291,8 @@ impl Simulation {
         }
 
         loop {
-            let dt = &epoch - &self.epoch;
+            // let dt = &epoch - &self.epoch;
+            let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
             if dt.abs() < self.integrator.timestep().abs() {
                 break;
             }
@@ -282,13 +306,14 @@ impl Simulation {
             self.step();
         }
         
-        let dt = &epoch - &self.epoch;
+        // let dt = &epoch - &self.epoch;
+        let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
         if dt.abs() < 1e-16 {
             return;
         }
         // create an exact match for the epoch
         let old_timestep = self.integrator.timestep();
-        self.integrator.set_timestep(&epoch - &self.epoch);
+        self.integrator.set_timestep(dt);
         self.step();
         // reset the timestep
         self.integrator.set_timestep(old_timestep);

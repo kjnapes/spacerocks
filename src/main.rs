@@ -1,4 +1,4 @@
-use spacerocks::{SpaceRock, Time, SpiceKernel, Observatory};
+use spacerocks::{SpaceRock, Time, SpiceKernel, Observatory, Simulation};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -7,15 +7,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // define the epoch
     let epoch = Time::now();
 
+    println!("{}", epoch);
+
     // // // load spice kernels
-    // let mut kernel = SpiceKernel::new();
-    // kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
-    // kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
+    let mut kernel = SpiceKernel::new();
+    kernel.load(format!("{}/sb441-n373s.bsp", spice_root).as_str())?;
+    kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
+    kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
+    kernel.load(format!("{}/earth_latest_high_prec.bpc", spice_root).as_str())?;
+
 
     // observer not working rn, so commenting out for complilation
-    // let f51 = Observatory::from_obscode("F51")?;
+    let f51 = Observatory::from_obscode("F51")?;
 
-    // let observer = f51.at(&epoch)?;
+    let observer = f51.at(&epoch, "J2000", "SSB")?;
+    println!("{:?}", observer);
+
+    let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
+
+    let mut sim = Simulation::horizons(&epoch, "J2000", "SSB")?;
+    sim.add(arrokoth)?;
+
+    println!("{}", sim.epoch);
+
     // let observer = f51.at(&epoch)?;
 
     // let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;

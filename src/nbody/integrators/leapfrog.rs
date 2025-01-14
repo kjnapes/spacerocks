@@ -42,13 +42,15 @@ impl Integrator for Leapfrog {
         //     particle.epoch += 0.5 * self.timestep;
         // }
 
+        *epoch += self.timestep;
+
         for (particle, acceleration) in particles.iter_mut().zip(accelerations.iter()) {
             particle.velocity += self.timestep * acceleration;
             particle.position += particle.velocity * 0.5 * self.timestep;
-            particle.epoch += 0.5 * self.timestep;
+            particle.epoch = epoch.clone();
         }
 
-        *epoch += self.timestep;
+        
 
     }
 

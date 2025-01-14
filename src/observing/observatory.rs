@@ -71,9 +71,33 @@ impl Observatory {
                 let mut earth = SpaceRock::from_spice("earth", epoch, reference_plane, origin)?;
                 let rho_sin_lat = lat.sin() * rho;
                 let rho_cos_lat = lat.cos() * rho;
-                let [d_pos, d_vel] = compute_topocentric_correction(*lon, rho_sin_lat, rho_cos_lat, epoch.jd());
-                earth.position += d_pos;
+                
+                let delta_et = 10.0;
+                let et = spice::str2et(&format!("JD{epoch} UTC", epoch=epoch.utc().jd()));     
+                let m: nalgebra::Matrix3<f64> = spice::pxform("ITRF93", reference_plane, et).into();
+                let mp: nalgebra::Matrix3<f64> = spice::pxform("ITRF93", reference_plane, et + delta_et).into();
+                let mm: nalgebra::Matrix3<f64> = spice::pxform("ITRF93", reference_plane, et - delta_et).into();
+                // transpose the matrix
+                let m = m.transpose();
+                let mp = mp.transpose();
+                let mm = mm.transpose();
+
+                let ox = rho_cos_lat * lon.cos();
+                let oy = rho_cos_lat * lon.sin();
+                let oz = rho_sin_lat;
+                let obsVec = Vector3::new(ox, oy, oz);
+
+                let mVec = m * obsVec * EQUAT_RAD * M_TO_AU;
+                let mVecp = mp * obsVec * EQUAT_RAD * M_TO_AU;
+                let mVecm = mm * obsVec * EQUAT_RAD * M_TO_AU;
+                let d_vel = (mVecp - mVecm) / (2.0 * delta_et / 86400.0);
+                earth.position += mVec;
                 earth.velocity += d_vel;
+
+                
+                // let [d_pos, d_vel] = compute_topocentric_correction(*lon, rho_sin_lat, rho_cos_lat, epoch.jd());
+                // earth.position += d_pos;
+                // earth.velocity += d_vel;
                 Ok(Observer { spacerock: earth, observatory: self.clone() })
             },
             Observatory::SpaceTelecope { name } => {
@@ -179,3 +203,50 @@ fn compute_topocentric_correction(lon: f64, rho_sin_lat: f64, rho_cos_lat: f64, 
     return [d_pos, d_vel];
 
 }
+
+
+// earth_latest_high_prec.bpc
+// pxform
+
+// def barycentricObservatoryRates(et, obsCode, observatories, Rearth=RADIUS_EARTH_KM, delta_et=10):
+//     """
+//     Computes the position and rate of motion for the observatory in barycentric coordinates
+
+//     Parameters
+//     ----------
+//     et: float
+//         JPL ephemeris time
+//     obsCode: str
+//         MPC observatory code
+//     observatories: Observatory
+//         Observatory object with spherical representations for the obsCode
+//     Rearth: float
+//         Radius of the Earth (default is RADIUS_EARTH_KM)
+//     delta_et: float
+//         Difference in ephemeris time (in days) to derive the rotation matrix from the fixed Earth equatorial frame to J2000 (default: 10)
+//     Returns
+//     -------
+//      : array
+//         Position of the observatory (baricentric)
+//      : array
+//         Velocity of the observatory (baricentric)
+//     """
+//     # This JPL's quoted Earth radius (km)
+//     # et is JPL's internal time
+//     # Get the barycentric position of Earth
+//     posvel, _ = spice.spkezr("EARTH", et, "J2000", "NONE", "SSB")
+//     pos = posvel[0:3]
+//     vel = posvel[3:6]
+//     # Get the matrix that rotates from the Earth's equatorial body fixed frame to the J2000 equatorial frame.
+//     m = spice.pxform("ITRF93", "J2000", et)
+//     mp = spice.pxform("ITRF93", "J2000", et + delta_et)
+//     mm = spice.pxform("ITRF93", "J2000", et - delta_et)
+//     # Get the MPC's unit vector from the geocenter to
+//     # the observatory
+//     obsVec = observatories.ObservatoryXYZ[obsCode]
+//     obsVec = np.array(obsVec)
+//     # Carry out the rotation and scale
+//     mVec = np.dot(m, obsVec) * Rearth
+//     mVecp = np.dot(mp, obsVec) * Rearth
+//     mVecm = np.dot(mm, obsVec) * Rearth
+//     return pos + mVec, vel + (mVecp - mVecm) / (2 * delta_et)
