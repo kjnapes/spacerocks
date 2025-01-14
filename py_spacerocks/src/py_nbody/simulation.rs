@@ -3,6 +3,7 @@ use pyo3::types::PyType;
 
 use spacerocks::nbody::Simulation;
 use spacerocks::coordinates::{ReferencePlane, Origin};
+use spacerocks::Time;   
 
 use crate::PySpaceRock;
 // use crate::py_spacerock::rockcollection::RockCollection;
@@ -21,8 +22,11 @@ pub struct PySimulation {
 impl PySimulation {
 
     #[new]
-    pub fn new() -> Self {
-        PySimulation { inner: Simulation::new() }
+    pub fn new() -> PyResult<Self> {
+        match Simulation::new(&Time::now(), "J2000", "SSB") {
+            Ok(sim) => Ok(PySimulation { inner: sim }),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))
+        }
     }
 
     /// Create a new simulation with the giant planets.

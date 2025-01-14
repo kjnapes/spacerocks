@@ -28,24 +28,28 @@ pub struct Simulation {
 
 impl Default for Simulation {
     fn default() -> Self {
-        Self::new()
+        Self::new(&Time::now(), "J2000", "SSB").unwrap()
     }
 }
 
 impl Simulation {
 
-    pub fn new() -> Simulation {
+    pub fn new(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
         let mut t = Time::now();
         t.to_tdb();
-        Simulation {
+
+        let reference_plane = ReferencePlane::from_str(reference_plane)?;
+        let origin = Origin::from_str(origin)?;
+
+        Ok(Simulation {
             particles: Vec::new(), 
-            epoch: t,
+            epoch: epoch.clone(),
             forces: vec![Box::new(NewtonianGravity)],
-            reference_plane: ReferencePlane::ECLIPJ2000,
-            origin: Origin::SSB,
+            reference_plane: reference_plane,  
+            origin: origin,
             integrator: Box::new(IAS15::new(1.0)),
             particle_index_map: HashMap::new()
-        }
+        })
     }
 
     /// Instantiate a simulation with the solar system giants.
@@ -61,7 +65,7 @@ impl Simulation {
     /// * `Result<Simulation, Box<dyn std::error::Error>>` - The simulation with the solar system giants.
     pub fn giants(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
 
-        let mut sim = Simulation::new();
+        let mut sim = Simulation::new(epoch, reference_plane, origin)?;
         sim.epoch = epoch.clone();
         sim.epoch.to_tdb();
         sim.integrator = Box::new(IAS15::new(1.0));
@@ -87,7 +91,7 @@ impl Simulation {
     ///
     /// * `Result<Simulation, Box<dyn std::error::Error>>` - The simulation with the solar system planets.
     pub fn planets(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
-        let mut sim = Simulation::new();
+        let mut sim = Simulation::new(epoch, reference_plane, origin)?;
         sim.epoch = epoch.clone();
         sim.epoch.to_tdb();
         sim.integrator = Box::new(IAS15::new(1.0));
@@ -114,7 +118,7 @@ impl Simulation {
     ///
     /// * `Result<Simulation, Box<dyn std::error::Error>>` - The simulation with the solar system planets and moons.
     pub fn horizons(epoch: &Time, reference_plane: &str, origin: &str) -> Result<Simulation, Box<dyn std::error::Error>> {
-        let mut sim = Simulation::new();
+        let mut sim = Simulation::new(epoch, reference_plane, origin)?;
         sim.epoch = epoch.clone();
         sim.epoch.to_tdb();
         sim.integrator = Box::new(IAS15::new(1.0));
@@ -140,7 +144,7 @@ impl Simulation {
                      "2000511", 
                      "2000704"];
         for name in names.iter() {
-            let mut particle = SpaceRock::from_spice(name, epoch, reference_plane, "ssb")?;
+            let mut particle = SpaceRock::from_spice(name, epoch, reference_plane, origin)?;
             sim.add(particle)?;
         }
         Ok(sim)

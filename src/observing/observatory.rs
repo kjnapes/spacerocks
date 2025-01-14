@@ -87,12 +87,16 @@ impl Observatory {
                 let oz = rho_sin_lat;
                 let obsVec = Vector3::new(ox, oy, oz);
 
+                // println!("{:?}", obsVec);
+
                 let mVec = m * obsVec * EQUAT_RAD * M_TO_AU;
                 let mVecp = mp * obsVec * EQUAT_RAD * M_TO_AU;
                 let mVecm = mm * obsVec * EQUAT_RAD * M_TO_AU;
                 let d_vel = (mVecp - mVecm) / (2.0 * delta_et / 86400.0);
                 earth.position += mVec;
                 earth.velocity += d_vel;
+
+                // println!("{:?}", mVec);
 
                 
                 // let [d_pos, d_vel] = compute_topocentric_correction(*lon, rho_sin_lat, rho_cos_lat, epoch.jd());

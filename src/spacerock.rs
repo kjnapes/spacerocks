@@ -250,13 +250,16 @@ impl SpaceRock {
         let json: serde_json::Value = response.json()?;
         let text = json["result"].as_str();
 
+        // println!("{:?}", text);
+
         let lines: Vec<&str> = text.ok_or("No data")?.split('\n').collect();
         let first_data_line = lines.iter().skip_while(|&line| !line.starts_with("$$SOE")).nth(1).ok_or("No data")?;
         
         let data: Vec<f64> = first_data_line.split(',').filter_map(|s| s.trim().parse::<f64>().ok()).collect();
+        let given_epoch = Time::new(data[0], "tdb", "jd")?;
         let (x, y, z, vx, vy, vz) = (data[1], data[2], data[3], data[4], data[5], data[6]);
 
-        let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch.clone(), reference_plane, origin)?;
+        let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, given_epoch, reference_plane, origin)?;
         Ok(rock)
     }
 
