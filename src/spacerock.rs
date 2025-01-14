@@ -30,6 +30,9 @@ pub struct SpaceRock {
     pub properties: Option<Properties>,
 }
 
+/// A SpaceRock is a celestial object with a position and velocity in space. It can be instantiated from a spice kernel, 
+/// random keplerian elements, cartesian coordinates, spherical coordinates, or the JPL Horizons API. It can be propagated
+/// in time, and observed from an observer on Earth. It can also be transformed to the solar system barycenter or the heliocenter.
 impl SpaceRock {
 
     /// Instantiate a SpaceRock from a spice kernel. A kernel must be loaded before calling this method.
