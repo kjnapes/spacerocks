@@ -20,6 +20,8 @@
 
 - 008: Using the `transforms` module.
 
+- 009: Using the `MPCHandler` class.
+
 ### Worked Examples
 
 - 001: Calculate the ephemeris of an asteroid, and compare to the result from JPL Horizons.

@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use crate::mpc::MPCHandler;
 
 mod py_transforms;
 use py_transforms::make_transforms_submodule;
@@ -28,7 +29,7 @@ mod py_orbfit;
 use py_orbfit::make_orbfit_submodule;
 
 mod mpc;
-use mpc::MPC;
+// use mpc::MPC;
 
 #[pymodule]
 #[pyo3(name = "spacerocks")]
@@ -58,7 +59,7 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<PySpaceRock>()?;
     m.add_class::<RockCollection>()?;
-    m.add_class::<MPC>()?;
+    m.add_class::<MPCHandler>()?;
 
     Ok(())
 }
