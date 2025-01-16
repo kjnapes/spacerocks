@@ -1,8 +1,9 @@
 use pyo3::prelude::*;
-use pyo3::exceptions::PyIndexError;
-use pyo3::{PyErr, Python, PyResult, PyAny};
-
+use pyo3::exceptions::{PyIndexError,PyValueError};
+use pyo3::{PyErr, Python, PyResult};
+use pyo3::types::{PyList, PyType, IntoPyDict};
 use rayon::prelude::*;
+use pyo3::types::PySequence;
 
 use spacerocks::spacerock::SpaceRock;
 use spacerocks::Time;
@@ -22,6 +23,8 @@ use serde_json;
 use arrow::array::{Float64Array, StringArray};
 use crate::mpc::MPCHandler;
 
+
+use pyo3::impl_::pymethods::AsyncIterBaseKind;
 
 // use numpy::{PyArray1, IntoPyArray, PyArray};
 
@@ -107,21 +110,26 @@ impl RockCollection {
         }
     }
 
-    
 
     // function to filter rocks by a boolean array, and then return a new RockCollection of clones of the rocks that are True
-    // pub fn filter(&self, mask: &PyArray1<bool>) -> PyResult<RockCollection> {
-    //     let mask = unsafe {mask.as_array()};
-    //     let mut new_rocks = Vec::new();
-    //     let mut new_name_hash_map = HashMap::new();
-    //     for (i, rock) in self.rocks.iter().enumerate() {
-    //         if mask[i] {
-    //             new_rocks.push(rock.clone());
-    //             new_name_hash_map.insert(rock.name.to_string(), new_rocks.len()-1);
-    //         }
-    //     }
-    //     Ok(RockCollection { rocks: new_rocks, name_hash_map: new_name_hash_map })
-    // }
+    pub fn filter(&self, indices: Vec<bool>) -> PyResult<Self> {
+        if indices.len() != self.rocks.len() {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "Mask length must match the number of rocks.",
+            ));
+        }
+
+        let filtered_rocks = self
+            .rocks
+            .iter()
+            .zip(indices.iter())
+            .filter_map(|(rock, &keep)| if keep { Some(rock.clone()) } else { None })
+            .collect();
+
+        Ok(Self {
+            rocks: filtered_rocks,
+        })
+    }
 
 
     // pub fn calculate_orbit(&mut self) {
@@ -272,6 +280,4 @@ impl RockCollection {
     pub fn epoch(&self) -> Vec<PyTime> {
         self.rocks.par_iter().map(|rock| PyTime { inner: rock.epoch.clone() }).collect()
     }
-
 }
-
