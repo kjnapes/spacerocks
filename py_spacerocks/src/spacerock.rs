@@ -89,6 +89,18 @@ impl PySpaceRock {
         }
     }
 
+    /// Change the reference plane of the SpaceRock.
+    ///
+    /// # Arguments
+    ///
+    /// * `reference_plane` - The new reference plane.
+    fn change_reference_plane(&mut self, reference_plane: &str) -> PyResult<()> {
+        match self.inner.change_reference_plane(reference_plane) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to change reference plane: {}", e))),
+        }
+    }
+
     
     fn __repr__(&self) -> String {
         // build a string representation of the object

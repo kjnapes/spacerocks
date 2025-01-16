@@ -21,6 +21,7 @@ py_spacerocks/Cargo.lock
 /.ipynb_checkpoints/
 /notebooks/.ipynb_checkpoints/
 /spacerocks/.ipynb_checkpoints/
+/notebooks/mpc_data
 /spacerocks/test/__pycache__/
 
 /spacerocks/target/

@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyIndexError;
-use pyo3::{PyErr, Python, PyResult};
+use pyo3::{PyErr, Python, PyResult, PyAny};
 
 use rayon::prelude::*;
 
@@ -75,7 +75,6 @@ impl RockCollection {
     ///
     /// rocks = RockCollection.from_mpc("data/mpc", "mpcorb_extended", download_data=True)
     /// ```
-
     #[staticmethod]
     pub fn from_mpc(mpc_path: String, catalog: String, download_data: bool, orbit_type: Option<String>) -> PyResult<Self> {
         MPCHandler::create_rock_collection(
@@ -91,17 +90,14 @@ impl RockCollection {
     // #[classmethod]
     // pub fn random(_cls: &PyType, n: usize) -> Self {
     //     let rocks: Vec<SpaceRock> = (0..n).into_par_iter().map(|_| SpaceRock::random()).collect();
-    //     let mut name_hash_map = HashMap::new();
-    //     for (i, rock) in rocks.iter().enumerate() {
-    //         name_hash_map.insert(rock.name.to_string(), i);
-    //     }
-    //     RockCollection { rocks: rocks, name_hash_map: name_hash_map }
+    //     RockCollection { rocks: rocks }
     // }
 
 
     pub fn add(&mut self, rock: PyRef<PySpaceRock>) {
         self.rocks.push(rock.inner.clone());
     }
+
 
     fn __getitem__(&self, index: usize) -> PyResult<PySpaceRock> {
         if index < self.rocks.len() {
@@ -110,6 +106,8 @@ impl RockCollection {
             Err(PyIndexError::new_err("Index out of range!"))
         }
     }
+
+    
 
     // function to filter rocks by a boolean array, and then return a new RockCollection of clones of the rocks that are True
     // pub fn filter(&self, mask: &PyArray1<bool>) -> PyResult<RockCollection> {
@@ -217,6 +215,7 @@ impl RockCollection {
     // pub fn name(&self) -> Vec<String> {
     //     self.rocks.par_iter().map(|rock| rock.name.clone()).collect()
     // }
+
     // #[getter] 
     // pub fn name(&self, py: Python) -> PyResult<Py<PyArray1<PyObject>>> {
     //     let names: Vec<Option<String>> = self.rocks.par_iter().map(|rock| Some((*rock.name).clone())).collect();

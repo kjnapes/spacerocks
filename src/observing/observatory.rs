@@ -95,9 +95,6 @@ impl Observatory {
                 let d_vel = (mVecp - mVecm) / (2.0 * delta_et / 86400.0);
                 earth.position += mVec;
                 earth.velocity += d_vel;
-
-                // println!("{:?}", mVec);
-
                 
                 // let [d_pos, d_vel] = compute_topocentric_correction(*lon, rho_sin_lat, rho_cos_lat, epoch.jd());
                 // earth.position += d_pos;

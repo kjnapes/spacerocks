@@ -626,7 +626,7 @@ impl SpaceRock {
 
     pub fn observe(&mut self, observer: &Observer) -> Result<Observation, Box<dyn std::error::Error>> {
 
-        self.change_reference_plane("J2000")?;
+        // self.change_reference_plane("J2000")?;
 
         // throw an error if the observer and self have different epochs
         if self.epoch.utc().jd() != observer.epoch().utc().jd() {
@@ -634,6 +634,9 @@ impl SpaceRock {
             return Err("Observer and SpaceRock have different epochs".into());
         }
 
+        if self.reference_plane.as_str() != observer.reference_plane() {
+            return Err("Observer and SpaceRock have different reference planes".into());
+        }
         // Calculate the topocentric state, correct for light travel time
         let cr = correct_for_ltt(&self, observer);
 
