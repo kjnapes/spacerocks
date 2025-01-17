@@ -12,6 +12,11 @@ pub use self::calc_conic_anomaly_from_true_anomaly::calc_conic_anomaly_from_true
 pub mod calc_true_anomaly_from_mean_anomaly;
 pub use self::calc_true_anomaly_from_mean_anomaly::calc_true_anomaly_from_mean_anomaly_py;
 
+pub mod stumpff;
+pub use self::stumpff::{stumpff_c_py, stumpff_s_py};
+
+pub mod universal_kepler_solver;
+
 
 // pub mod calc_true_anomaly_from_conic_anomaly;
 // pub use self::calc_true_anomaly_from_conic_anomaly::calc_true_anomaly_from_conic_anomaly_py;
@@ -25,7 +30,11 @@ pub fn make_transforms_submodule(py: Python, m: &Bound<'_, PyModule>) -> PyResul
     submodule.add_function(wrap_pyfunction!(calc_conic_anomaly_from_mean_anomaly_py, submodule.clone())?)?;
     submodule.add_function(wrap_pyfunction!(calc_conic_anomaly_from_true_anomaly_py, submodule.clone())?)?;
     submodule.add_function(wrap_pyfunction!(calc_true_anomaly_from_mean_anomaly_py, submodule.clone())?)?;
-    // submodule.add_function(wrap_pyfunction!(calc_true_anomaly_from_conic_anomaly_py, submodule)?)?;
+
+    submodule.add_function(wrap_pyfunction!(stumpff_c_py, submodule.clone())?)?;
+    submodule.add_function(wrap_pyfunction!(stumpff_s_py, submodule.clone())?)?;
+    submodule.add_function(wrap_pyfunction!(universal_kepler_solver::solve_for_universal_anomaly_py, submodule.clone())?)?;
+
 
     m.add_submodule(&submodule)?;
     py.import("sys")?

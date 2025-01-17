@@ -15,3 +15,9 @@ pub mod calc_true_anomaly_from_conic_anomaly;
 
 pub mod calc_true_anomaly_from_mean_anomaly;
     pub use self::calc_true_anomaly_from_mean_anomaly::calc_true_anomaly_from_mean_anomaly;
+
+pub mod stumpff;
+    pub use self::stumpff::{stumpff_c, stumpff_s};
+
+pub mod universal_kepler_solver;
+    pub use self::universal_kepler_solver::solve_for_universal_anomaly;

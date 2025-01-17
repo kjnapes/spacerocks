@@ -1,6 +1,6 @@
 
 
-fn stumpff_s(z: f64) -> f64 {
+pub fn stumpff_s(z: f64) -> f64 {
     if z == 0.0 {
         1.0 / 6.0
     } else if z > 0.0 {
@@ -12,7 +12,7 @@ fn stumpff_s(z: f64) -> f64 {
     }
 }
 
-fn stumpff_c(z: f64) -> f64 {
+pub fn stumpff_c(z: f64) -> f64 {
     if z == 0.0 {
         1.0 / 2.0
     } else if z > 0.0 {
