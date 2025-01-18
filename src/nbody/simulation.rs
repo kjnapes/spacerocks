@@ -297,8 +297,15 @@ impl Simulation {
         loop {
             // let dt = &epoch - &self.epoch;
             let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
-            if dt.abs() < self.integrator.timestep().abs() {
+            // if dt.abs() < self.integrator.timestep().abs() {
+            //     break;
+            // }
+            if dt.abs() < 1e-16 {
                 break;
+            }
+
+            if dt.abs() < self.integrator.timestep().abs() {
+                self.integrator.set_timestep(dt);
             }
             if dt < 0.0 {
                 if self.integrator.timestep() > 0.0 {

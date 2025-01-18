@@ -280,6 +280,7 @@ impl Integrator for IAS15 {
         let mut new_timestep = calculate_new_timestep(particles, &accelerations, &self.bs, &old_timestep, &self.epsilon);
         let timestep_ratio = (new_timestep / old_timestep).abs();
 
+        // Step was rejected
         if timestep_ratio < SAFETY_FACTOR {
             self.timestep = new_timestep;
 
@@ -308,15 +309,15 @@ impl Integrator for IAS15 {
         }
 
         // Update the epoch
-        *epoch += self.timestep;
+        *epoch += self.timestep; //self.timestep;
 
-        // Update the perturbers
+        // Update the particles
         for idx in 0..n {
             let b = &self.bs[idx];
             // let g = &self.gs[idx];
             let particle = &mut particles[idx];
 
-            particle.epoch = epoch.clone();//+= self.timestep;
+            particle.epoch = epoch.clone();
             particle.position = initial_positions[idx] + self.timestep * initial_velocities[idx] + self.timestep.powi(2) * (initial_accelerations[idx] / 2.0 + b.p0 / 6.0 + b.p1 / 12.0 + b.p2 / 20.0 + b.p3 / 30.0 + b.p4 / 42.0 + b.p5 / 56.0 + b.p6 / 72.0);
             particle.velocity = initial_velocities[idx] + self.timestep * (initial_accelerations[idx] + b.p0 / 2.0 + b.p1 / 3.0 + b.p2 / 4.0 + b.p3 / 5.0 + b.p4 / 6.0 + b.p5 / 7.0 + b.p6 / 8.0);
         }
