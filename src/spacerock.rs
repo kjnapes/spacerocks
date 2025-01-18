@@ -3,7 +3,7 @@ use crate::constants::*;
 use crate::correct_for_ltt;
 use crate::OrbitType;
 
-use crate::transforms::{calc_conic_anomaly_from_true_anomaly, calc_mean_anomaly_from_conic_anomaly};
+use crate::transforms::{calc_conic_anomaly_from_true_anomaly, calc_mean_anomaly_from_conic_anomaly, solve_for_universal_anomaly, stumpff_c, stumpff_s};
 
 use serde::{Serialize, Deserialize};
 use nalgebra::Vector3;
@@ -12,8 +12,6 @@ use rand;
 use rand::Rng;
 
 use std::collections::HashMap;
-
-// use uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SpaceRock {
@@ -357,6 +355,39 @@ impl SpaceRock {
         let rock = SpaceRock::from_xyz(name, x, y, z, vx, vy, vz, epoch, reference_plane, origin)?;
         Ok(rock)
     }
+
+    /// Propagate the SpaceRock in time along a keplerian orbit. The operation is performed in place.
+    ///
+    /// # Arguments
+    /// * `epoch` - The epoch to propagate to
+    pub fn analytic_propagate(&mut self, epoch: &Time) -> Result<(), Box<dyn std::error::Error>> {
+
+        let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
+        let mu = self.origin.mu();
+        let r = self.position.norm();
+        let vr = self.velocity.dot(&self.position) / r;
+        let energy = self.v_squared() / 2.0 - mu / r;
+        let alpha = -2.0 * energy / mu;
+
+        let chi = solve_for_universal_anomaly(r, vr, alpha, mu, dt, 1e-10, 1000)?;
+        let z = alpha * chi.powi(2);
+
+        let gauss_f = 1.0 - chi.powi(2) / r * stumpff_c(z);
+        let gauss_g = dt - chi.powi(3) / mu.sqrt() * stumpff_s(z);
+
+        let gauss_fdot = (chi * mu.sqrt() / (r * vr)) * (z * stumpff_s(z) - 1.0);
+        let gauss_gdot = 1.0 - (chi.powi(2) / r) * stumpff_c(z);
+
+        let position = self.position * gauss_f + self.velocity * gauss_g;
+        let velocity = self.position * gauss_fdot + self.velocity * gauss_gdot;
+
+        self.position = position;
+        self.velocity = velocity;
+        self.epoch = epoch.clone();
+
+        Ok(())
+    }   
+        
 
     /// Change the reference plane of the SpaceRock
     ///
@@ -702,8 +733,6 @@ impl SpaceRock {
 
 }
 
-
-
     // pub fn from_state(name: &str, state: StateVector, epoch: Time, reference_plane: &ReferencePlane, origin: &Origin) -> Self {
     //     let position = state.position;
     //     let velocity = state.velocity;
@@ -789,8 +818,6 @@ impl std::fmt::Display for SpaceRock {
         self.name, self.epoch, self.reference_plane, self.origin, self.position, self.velocity, self.properties)
     }
 }
-
-
 
 
 
