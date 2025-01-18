@@ -387,6 +387,19 @@ impl SpaceRock {
 
         Ok(())
     }   
+
+    /// Make a new SpaceRock object with the same properties as the original, but propagated to a new epoch.
+    ///
+    /// # Arguments
+    /// * `epoch` - The epoch to propagate to
+    ///
+    /// # Returns
+    /// SpaceRock
+    pub fn analytic_at(&self, epoch: &Time) -> Result<SpaceRock, Box<dyn std::error::Error>> {
+        let mut rock = self.clone();
+        rock.analytic_propagate(epoch)?;
+        Ok(rock)
+    }
         
 
     /// Change the reference plane of the SpaceRock
