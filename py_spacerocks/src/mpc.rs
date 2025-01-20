@@ -19,7 +19,7 @@ use serde_json;
 
 use crate::RockCollection;
 use anyhow::Error;
-
+use spacerocks::constants::MPC_URL;
 
 #[derive(Debug, Clone)]
 pub enum StorageFormat {
@@ -142,7 +142,8 @@ impl MPCHandler {
 impl MPCHandler {
     fn get_data(&self, catalog: &str, storage_type: &StorageFormat) -> PyResult<Vec<MPCData>> {
         let url = format!(
-            "https://www.minorplanetcenter.net/Extended_Files/{}.json.gz",
+            "{}/{}.json.gz",
+            MPC_URL,
             catalog
         );
 

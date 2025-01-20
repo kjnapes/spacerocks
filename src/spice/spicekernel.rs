@@ -2,9 +2,7 @@ use std::path::{Path, PathBuf};
 use std::fs::{self, File};
 use std::io::Write;
 use serde::{Deserialize, Serialize};
-// use toml;
-
-const BASE_URL: &str = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels";
+use crate::constants::SPICE_URL;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct KernelSpec {
@@ -119,7 +117,7 @@ impl SpiceKernel {
 
     fn download_kernel(&self, kernel_type: &str, filename: &str) -> Result<PathBuf, String> {
         let config = self.config.as_ref().unwrap();
-        let url = format!("{}/{}/{}", BASE_URL, kernel_type, filename);
+        let url = format!("{}/{}/{}", SPICE_URL, kernel_type, filename);
         let path = config.download_dir.join(filename);
         
         println!("    Downloading from {}", url);
