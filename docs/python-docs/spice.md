@@ -1,165 +1,123 @@
-# SPICE Module (Python)
+# SPICE Module Documentation
 
 ### Table of Contents
 1. [Overview](#overview)
-2. [SpiceKernel Management](#spicekernel-management)
-3. [SpaceRock Integration](#spacerock-integration)
-4. [Notes](#notes)
+2. [SpiceKernel Class](#spicekernel-class)
+3. [Configuration](#configuration)
+4. [Examples](#examples)
+5. [SpaceRock Integration](#spacerock-integration)
 
 ## Overview
 
-The SPICE module provides integration with NASA's SPICE toolkit for spacecraft and planetary ephemerides calculations. It provides a Python interface for managing SPICE kernels and creating SpaceRock objects from SPICE data.
+The SPICE module provides integration with NASA's SPICE toolkit for spacecraft and planetary ephemerides calculations. This module manages SPICE kernel loading, downloading, and configuration.
 
-## SpiceKernel Management
+## SpiceKernel Class
 
-### SpiceKernel Class
 ```python
 class SpiceKernel:
-    def __init__(self):
-        self.loaded_files = []
+    def __init__(self, config: Optional[str] = None):
+        """
+        Initialize a SpiceKernel instance.
+        
+        Arguments:
+            config: Optional path to a config.toml file. 
+                   If provided, loads and manages kernels according to configuration.
+                   If None, creates an empty kernel for manual loading.
+        """
 ```
 
-The `SpiceKernel` class maintains a list of loaded SPICE kernel files and provides methods for kernel management.
+### Basic Methods
 
-### Kernal Initialization
-
-
-**Behavior:**
-- Creates an empty list to track loaded files
-
-**Example:**
 ```python
+def load(self, path: str) -> None:
+    """Load a SPICE kernel file from the specified path."""
+    
+def unload(self) -> None:
+    """Unload all kernels and clear loaded files list."""
+    
+@property
+def loaded_kernels(self) -> List[str]:
+    """Return list of currently loaded kernel file paths."""
+```
+
+## Configuration
+
+### Config File Structure (config.toml)
+```toml
+# Required kernels - will be loaded on initialization
+default_kernels = [
+    { name = "latest_leapseconds.tls", kernel_type = "lsk" }, 
+    { name = "de440s.bsp", kernel_type = "spk/planets" },
+    { name = "earth_1962_240827_2124_combined.bpc", kernel_type = "pck" } 
+]
+
+# Optional settings (defaults shown)
+auto_download = true          # Download missing kernels automatically
+kernel_paths = ["~/.spacerocks/kernels"]  # Where to look for existing kernels
+download_dir = "~/.spacerocks/kernels"    # Where to store downloaded kernels
+```
+
+### Config Behavior
+- Searches for kernels in specified kernel_paths
+- If kernel not found and auto_download=true:
+  - Downloads from SPICE server
+  - Stores in download_dir
+- If kernel not found and auto_download=false:
+  - Raises informative error about missing kernel
+
+## Examples
+
+### Basic Usage (Manual Loading)
+```python
+# Create kernel for manual loading
 kernel = SpiceKernel()
-```
 
-### Methods
+# Load specific kernels
+kernel.load("path/to/my/kernel.bsp")
+print(kernel.loaded_kernels)
 
-#### load()
-```python
-def load(self, path: str) -> None
-```
-
-Loads a SPICE kernel file from the specified path.
-
-**Arguments:**
-- `path`: Path to the kernel file to load
-
-**Returns:**
-- None if successful
-- Raises `ValueError` if the kernel was already loaded
-
-**Example:**
-```python
-kernel = SpiceKernel()
-kernel.load("path/to/kernel.bsp")
-```
-Loads a SPICE kernel file from the specified path. If the file is already loaded, raises a ValueError.
-
-Key features:
-- Prevents duplicate loading of the same kernel
-- Maintains a list of loaded kernels
-- Raises ValueError if kernel is already loaded
-
-#### unload()
-```python
+# Unload when done
 kernel.unload()
 ```
-Unloads all kernels and clears the loaded files list.
 
-#### __repr__()
+### Config-based Usage (Automatic Management)
 ```python
-def __repr__(self) -> str
-```
-Returns a string representation of the SpiceKernel instance, showing all loaded kernel files.
+# Initialize with config file
+kernel = SpiceKernel(config="path/to/config.toml")
 
-**Example output:**
-```python
->>> kernel = SpiceKernel()
->>> kernel.load("path/to/kernel1.bsp")
->>> kernel.load("path/to/kernel2.bsp")
->>> kernel
-SpiceKernel
- - path/to/kernel1.bsp
- - path/to/kernel2.bsp
-```
-
-#### loaded_files (property)
-```python
-@property
-def loaded_files(self) -> List[str]
-```
-Returns a list of currently loaded kernel file paths.
-
-**Example:**
-```python
->>> kernel = SpiceKernel()
->>> kernel.load("path/to/kernel1.bsp")
->>> kernel.load("path/to/kernel2.bsp")
->>> kernel.loaded_files
-['path/to/kernel1.bsp', 'path/to/kernel2.bsp']
+# Kernels are automatically loaded/downloaded based on config
+# Output shows process:
+#   Found kernel: de440s.bsp in /path/to/kernels
+#   Downloading: latest_leapseconds.tls...
+#   Found kernel: earth_combined.bpc in /other/path
 ```
 
 ## SpaceRock Integration
 
-### Creating SpaceRock Objects from SPICE
-
-#### from_spice()
 ```python
 @classmethod
-def from_spice(
-    cls,
-    name: str,
-    epoch: Time,
-    reference_plane: str,
-    origin: str
-) -> 'SpaceRock'
+def from_spice(cls, name: str, epoch: Time, reference_plane: str, origin: str) -> 'SpaceRock':
+    """
+    Create SpaceRock object using SPICE ephemerides.
+    
+    Arguments:
+        name: Body name (must match SPICE naming)
+        epoch: Time of state vector
+        reference_plane: Reference frame for coordinates
+        origin: Origin of coordinate system
+    
+    Returns:
+        SpaceRock instance
+    
+    Example:
+        epoch = Time(2750923.093, "utc", "jd")
+        mars = SpaceRock.from_spice("MARS BARYCENTER", epoch, "ECLIPJ2000", "SSB")
+    """
 ```
 
-Creates a new SpaceRock object using SPICE ephemerides data.
+### Notes
+- For planets, use barycenter names (e.g., "MARS BARYCENTER")
+- Position values converted from km to AU
+- Velocities converted from km/s to AU/day
+- Times handled through astropy Time objects
 
-**Arguments:**
-- `name`: Name of the celestial body (must match SPICE naming)
-- `epoch`: Time of the state vector
-- `reference_plane`: Reference frame for coordinates
-- `origin`: Origin of the coordinate system
-
-**Returns:**
-- SpaceRock instance if successful
-- Raises Exception if there was an error accessing SPICE data
-
-**Example:**
-```python
-epoch = Time(2750923.093, "utc", "jd")
-mars = SpaceRock.from_spice("MARS BARYCENTER", epoch, "ECLIPJ2000", "SSB")
-```
-
-Creates a new SpaceRock object using SPICE ephemerides data.
-
-Parameters:
-- `name`: Name of the celestial body (must match SPICE naming)
-- `epoch`: Time of the state vector
-- `reference_plane`: Reference frame for coordinates
-- `origin`: Origin of the coordinate system
-
-Key features:
-- Converts time to SPICE ET (Ephemeris Time)
-- Performs unit conversions (km to AU, km/s to AU/day)
-- Sets mass if available in MASSES constant
-- Handles coordinate frame transformations
-
-## Notes
-
-1. **Kernel Management**
-   - Use `unload()` to clear all kernels and free resources
-   - Duplicate kernel loading is prevented automatically
-
-2. **Time Handling**
-   - Times are passed to SPICE as `Time` objects
-   - SPICE conversion to ET (Ephemeris Time) is handled in the `from_spice()` function
-
-3. **Unit Conversions `from_spice()` SpaceRock Method**
-   - Position values are converted from km to AU
-   - Velocities are converted from km/s to AU/day
-
-4. **Planet ID's within SPICE**
-   - When attempting to generate a SpaceRock with the from_spice method for a planet within the Solar System, we must specify that we are using the barycenter of that planetary system (i.e: 'mars barycenter', 'jupiter barycenter', etc)
