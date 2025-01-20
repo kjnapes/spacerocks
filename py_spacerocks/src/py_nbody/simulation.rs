@@ -256,9 +256,30 @@ impl PySimulation {
         PyOrigin { inner: o }
     }
 
-    // #[getter]
-    // pub fn integrator(&self) -> PyIntegrator {
-    //     PyIntegrator { inner: self.inner.integrator.clone() }
-    // }
+
+    // repr
+    pub fn __repr__(&self) -> String {
+        // format!("Simulation:\n");
+        // format!("Epoch: {}\n", self.inner.epoch);
+        // format!("Reference Plane: {}\n", self.inner.reference_plane);
+        // format!("Origin: {}\n", self.inner.origin);
+        // format!("Timestep: {}\n", self.inner.integrator.timestep());
+        // format!("Forces: {:?}\n", self.inner.forces);
+        // format!("Integrator: {:?}\n", self.inner.integrator);
+        // format!("Particles: {}\n", self.inner.particles.len());
+
+        let mut s = String::new();
+        s.push_str("Simulation:\n");
+        s.push_str(&format!("    Epoch: {}\n", self.inner.epoch));
+        s.push_str(&format!("    Reference Plane: {}\n", self.inner.reference_plane));
+        s.push_str(&format!("    Origin: {}\n", self.inner.origin));
+        s.push_str(&format!("    Timestep: {}\n", self.inner.integrator.timestep()));
+        s
+    }
+
+    #[getter]
+    pub fn integrator(&self) -> PyIntegrator {
+        PyIntegrator { inner: self.inner.integrator.clone() }
+    }
 
 }
