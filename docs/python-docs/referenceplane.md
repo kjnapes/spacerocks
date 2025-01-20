@@ -30,9 +30,8 @@ rotation_matrix = ReferencePlane.GALACTIC.get_rotation_matrix()
 ```
 
 #### Technical Details
-`ReferencePlane` is implemented as a Rust enum, ensuring efficient storage and comparison of values. Each variant corresponds to a specific celestial reference frame and has an associated rotation matrix for coordinate transformations. The enum also provides utility methods for:
+`ReferencePlane` is implemented as a Rust enum. Each variant corresponds to a specific celestial reference frame and has an associated rotation matrix for coordinate transformations. The enum also provides utility methods for:
 
 - **String Conversion**: Convert between strings and `ReferencePlane` values using `from_str` and `as_str`.
 - **Rotation Matrix Access**: Obtain the rotation matrix for each reference plane using `get_rotation_matrix`.
 
-By using a Rust enum, `spacerocks` avoids the overhead of managing strings or custom objects for reference planes, ensuring better performance and type safety in computations.

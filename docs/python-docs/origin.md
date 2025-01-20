@@ -20,4 +20,4 @@ custom = Origin("My Origin", mu)
 ```
 
 #### Technical Details
-`Origin` is implemented under the hood as a `rust` enum so that the built-in cases don't need to carry around a string to specify the name. Cloning and moving strings is expensive, so by implementing `Origin` as a `rust` enum, we can avoid the overhead of cloning strings in the most common use cases. All of this is abstracted away from the user, so you can use `Origin` like any other Python class.
+`Origin` is implemented under the hood as a `rust` enum so that the built-in cases don't need to carry around a string to specify the name. 
