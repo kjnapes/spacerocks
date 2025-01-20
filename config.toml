@@ -1,0 +1,15 @@
+# Default kernels to load automatically
+
+default_kernels = [
+    { name = "latest_leapseconds.tls", kernel_type = "lsk" }, 
+    { name = "de440s.bsp", kernel_type = "spk/planets" },
+    { name = "earth_1962_240827_2124_combined.bpc", kernel_type = "pck" } 
+]
+
+# Auto-download is enabled by default, but you can set it explicitly
+
+auto_download = true
+
+# Directory settings - relative to package root
+kernel_paths = ["/Users/thomasruch/Gerdes", "/Users/thomasruch/srnew1/spacerocks/spice_and_mpc_data/"]
+download_dir = "/Users/thomasruch/srnew1/spacerocks/spice_and_mpc_data/"

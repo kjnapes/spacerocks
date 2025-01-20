@@ -7,8 +7,8 @@ use py_transforms::make_transforms_submodule;
 mod py_coordinates;
 use py_coordinates::make_coordinates_submodule;
 
-mod py_spice;
-use py_spice::make_spice_submodule;
+mod py_spice;  
+use py_spice::{make_spice_submodule, spicekernel::PySpiceKernel};
 
 mod py_time;
 use py_time::make_time_submodule;
@@ -60,6 +60,7 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySpaceRock>()?;
     m.add_class::<RockCollection>()?;
     m.add_class::<MPCHandler>()?;
+    m.add_class::<PySpiceKernel>()?;
 
     Ok(())
 }

@@ -25,6 +25,10 @@ plotters = "*"
 # rand_distr = "0.4.0"
 strsim = "0.11.1"
 cspice-sys = { version = "*" }
+url = "*"
+toml = "*"
+dirs = "*"
+pyo3 = { version = "*", features = ["extension-module"] }
 
 [target.'x86_64-unknown-linux-gnu'.dependencies]
 rust-spice = {version = "*", default-features = false, features = ["noclang"] }
