@@ -10,6 +10,6 @@ default_kernels = [
 
 auto_download = true
 
-# Directory settings - relative to package root
+# Directory settings 
 kernel_paths = ["/Users/thomasruch/Gerdes", "/Users/thomasruch/srnew1/spacerocks/spice_and_mpc_data/"]
 download_dir = "/Users/thomasruch/srnew1/spacerocks/spice_and_mpc_data/"
