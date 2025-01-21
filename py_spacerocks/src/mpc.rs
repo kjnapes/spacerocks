@@ -20,6 +20,9 @@ use serde_json;
 use crate::RockCollection;
 use anyhow::Error;
 use spacerocks::constants::MPC_URL;
+use dirs::home_dir;
+use std::time::Duration;
+use reqwest::ClientBuilder;
 
 #[derive(Debug, Clone)]
 pub enum StorageFormat {
@@ -35,7 +38,7 @@ pub enum OutputFormat {
 }
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MPCData {
     pub H: Option<f64>, 
     pub G: Option<f64>,
@@ -59,9 +62,18 @@ pub struct MPCHandler {
 #[pymethods]
 impl MPCHandler {
     #[new]
-    pub fn new(path: String) -> Self {
+    #[pyo3(signature = (path=None))]
+    pub fn new(path: Option<PathBuf>) -> Self {
+        let default_path = home_dir()
+            .unwrap_or_default()
+            .join(".spacerocks")
+            .join("mpc");
+        
+        let final_path = path.unwrap_or(default_path);
+        
+
         MPCHandler {
-            path: PathBuf::from(path),
+            path: final_path,
         }
     }
 
@@ -94,9 +106,15 @@ impl MPCHandler {
 
         // Filter by orbit_type if specified
         if let Some(orbit_filter) = orbit_type {
-            data.retain(|d| {
-                d.orbit_type.as_ref().map_or(false, |ot| ot == &orbit_filter)
-            });
+        //     data.retain(|d| {
+        //         d.orbit_type.as_ref().map_or(false, |ot| ot == &orbit_filter)
+        //     });
+        // }
+                let filtered: Vec<_> = data.par_iter()
+                .filter(|d| d.orbit_type.as_ref().map_or(false, |ot| ot == &orbit_filter))
+                .cloned()
+                .collect();
+            data = filtered;
         }
 
         // Convert to requested output format
@@ -107,8 +125,8 @@ impl MPCHandler {
     }
 
     #[staticmethod]
-    pub fn create_rock_collection(mpc_path: String, catalog: String, download_data: bool, orbit_type: Option<String>,) -> PyResult<RockCollection> {
-        let handler = MPCHandler::new(mpc_path);
+    pub fn create_rock_collection(mpc_path: PathBuf, catalog: String, download_data: bool, orbit_type: Option<String>,) -> PyResult<RockCollection> {
+        let handler = MPCHandler::new(Some(mpc_path));
 
         // Create the necessary directories
         fs::create_dir_all(&handler.path)?;
@@ -140,119 +158,171 @@ impl MPCHandler {
 }
 
 impl MPCHandler {
+
     fn get_data(&self, catalog: &str, storage_type: &StorageFormat) -> PyResult<Vec<MPCData>> {
+        // First check if we already have the data in any format
+        let feather_path = self.path.join(format!("{}.feather", catalog));
+        let json_path = self.path.join(format!("{}.json.gz", catalog));
+    
+        // If data exists, use it regardless of specified storage_type
+        if json_path.exists() {
+            println!("Using existing json file: {}", json_path.display());
+            let reader = GzDecoder::new(fs::File::open(&json_path)?);
+            return serde_json::from_reader(reader)
+                .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()));
+        } else if feather_path.exists() {
+            println!("Using existing feather file: {}", feather_path.display());
+            return self.read_from_feather(&feather_path);
+        }
+    
+        // If we get here, we need to download
         let url = format!(
             "{}/{}.json.gz",
             MPC_URL,
             catalog
         );
-
+    
+        let client = reqwest::blocking::ClientBuilder::new()
+            .timeout(Duration::from_secs(300))  // 5 minute timeout
+            .build()
+            .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
+    
+        // Download and process based on desired storage format
         match storage_type {
             StorageFormat::None => {
-                // Direct read from URL
                 println!("Downloading data from {}", url);
-                let response = reqwest::blocking::get(&url)
+                let response = client
+                    .get(&url)
+                    .send()
                     .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
                 let reader = GzDecoder::new(response);
                 serde_json::from_reader(reader)
                     .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))
             },
             StorageFormat::JsonGz => {
-                let zip_path = self.path.join(format!("{}.json.gz", catalog));
-                if !zip_path.exists() {
-                    println!("Downloading data from {}", url);
-                    println!("Saving to {}", zip_path.display());
-                    let response = reqwest::blocking::get(&url)
-                        .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
-                    let content = response.bytes()
-                        .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
-                    fs::create_dir_all(&self.path)?;
-                    fs::write(&zip_path, content)?;
-                } else {
-                    println!("Using existing file: {}", zip_path.display());
-                }
-                let reader = GzDecoder::new(fs::File::open(&zip_path)?);
+                println!("Downloading data from {}", url);
+                println!("Saving to {}", json_path.display());
+                let response = client
+                    .get(&url)
+                    .send()
+                    .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
+                let content = response.bytes()
+                    .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
+                fs::create_dir_all(&self.path)?;
+                fs::write(&json_path, content)?;
+                let reader = GzDecoder::new(fs::File::open(&json_path)?);
                 serde_json::from_reader(reader)
                     .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))
             },
             StorageFormat::Feather => {
-                let feather_path = self.path.join(format!("{}.feather", catalog));
-                if !feather_path.exists() {
-                    println!("Downloading data from {}", url);
-                    println!("Converting and saving to {}", feather_path.display());
-                    // First get JSON data
-                    let response = reqwest::blocking::get(&url)
-                        .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
-                    let reader = GzDecoder::new(response);
-                    let data: Vec<MPCData> = serde_json::from_reader(reader)
-                        .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
-                    
-                    // Save as feather
-                    fs::create_dir_all(&self.path)?;
-                    self.save_as_feather(&data, &feather_path)?;
-                    Ok(data)
-                } else {
-                    println!("Using existing file: {}", feather_path.display());
-                    self.read_from_feather(&feather_path)
-                }
+                println!("Downloading data from {}", url);
+                println!("Converting and saving to {}", feather_path.display());
+                let response = client
+                    .get(&url)
+                    .send()
+                    .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
+                let reader = GzDecoder::new(response);
+                let data: Vec<MPCData> = serde_json::from_reader(reader)
+                    .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
+                
+                fs::create_dir_all(&self.path)?;
+                self.save_as_feather(&data, &feather_path)?;
+                Ok(data)
             }
         }
     }
+
+    // fn to_dataframe(&self, data: Vec<MPCData>) -> PyResult<PyObject> {
+    //     Python::with_gil(|py| {
+    //         let pd = py.import("pandas")?;
+    //         let dict = PyDict::new(py);
+    //         dict.set_item("H", data.iter().map(|d| d.H).collect::<Vec<_>>())?;
+    //         dict.set_item("G", data.iter().map(|d| d.G).collect::<Vec<_>>())?;
+    //         dict.set_item("Epoch", data.iter().map(|d| d.Epoch).collect::<Vec<_>>())?;
+    //         dict.set_item("M", data.iter().map(|d| d.M).collect::<Vec<_>>())?;
+    //         dict.set_item("Peri", data.iter().map(|d| d.Peri).collect::<Vec<_>>())?;
+    //         dict.set_item("Node", data.iter().map(|d| d.Node).collect::<Vec<_>>())?;
+    //         dict.set_item("i", data.iter().map(|d| d.i).collect::<Vec<_>>())?;
+    //         dict.set_item("e", data.iter().map(|d| d.e).collect::<Vec<_>>())?;
+    //         dict.set_item("a", data.iter().map(|d| d.a).collect::<Vec<_>>())?;
+    //         dict.set_item("Principal_desig", data.iter().map(|d| &d.Principal_desig).collect::<Vec<_>>())?;
+    //         dict.set_item("orbit_type", data.iter().map(|d| &d.orbit_type).collect::<Vec<_>>())?;
+            
+    //         let df = pd.call_method1("DataFrame", (dict,))?;
+    //         Ok(df.into_py(py))
+    //     })
+    // }
 
     fn to_dataframe(&self, data: Vec<MPCData>) -> PyResult<PyObject> {
         Python::with_gil(|py| {
             let pd = py.import("pandas")?;
             let dict = PyDict::new(py);
-            dict.set_item("H", data.iter().map(|d| d.H).collect::<Vec<_>>())?;
-            dict.set_item("G", data.iter().map(|d| d.G).collect::<Vec<_>>())?;
-            dict.set_item("Epoch", data.iter().map(|d| d.Epoch).collect::<Vec<_>>())?;
-            dict.set_item("M", data.iter().map(|d| d.M).collect::<Vec<_>>())?;
-            dict.set_item("Peri", data.iter().map(|d| d.Peri).collect::<Vec<_>>())?;
-            dict.set_item("Node", data.iter().map(|d| d.Node).collect::<Vec<_>>())?;
-            dict.set_item("i", data.iter().map(|d| d.i).collect::<Vec<_>>())?;
-            dict.set_item("e", data.iter().map(|d| d.e).collect::<Vec<_>>())?;
-            dict.set_item("a", data.iter().map(|d| d.a).collect::<Vec<_>>())?;
-            dict.set_item("Principal_desig", data.iter().map(|d| &d.Principal_desig).collect::<Vec<_>>())?;
-            dict.set_item("orbit_type", data.iter().map(|d| &d.orbit_type).collect::<Vec<_>>())?;
+            
+            // First join: split into two main groups
+            let (group1, group2) = rayon::join(
+                || {
+                    // Second join: split first group
+                    rayon::join(
+                        || {
+                            // Process H, G, Epoch
+                            (
+                                data.par_iter().map(|d| d.H).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| d.G).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| d.Epoch).collect::<Vec<_>>()
+                            )
+                        },
+                        || {
+                            // Process M, Peri, Node
+                            (
+                                data.par_iter().map(|d| d.M).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| d.Peri).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| d.Node).collect::<Vec<_>>()
+                            )
+                        }
+                    )
+                },
+                || {
+                    // Third join: split second group
+                    rayon::join(
+                        || {
+                            // Process i, e, a
+                            (
+                                data.par_iter().map(|d| d.i).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| d.e).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| d.a).collect::<Vec<_>>()
+                            )
+                        },
+                        || {
+                            // Process Principal_desig and orbit_type
+                            (
+                                data.par_iter().map(|d| &d.Principal_desig).collect::<Vec<_>>(),
+                                data.par_iter().map(|d| &d.orbit_type).collect::<Vec<_>>()
+                            )
+                        }
+                    )
+                }
+            );
+    
+            let ((h, g, epoch), (m, peri, node)) = group1;
+            let ((inc, e, a), (desig, orbit)) = group2;
+    
+            // Set all items
+            dict.set_item("H", h)?;
+            dict.set_item("G", g)?;
+            dict.set_item("Epoch", epoch)?;
+            dict.set_item("M", m)?;
+            dict.set_item("Peri", peri)?;
+            dict.set_item("Node", node)?;
+            dict.set_item("i", inc)?;
+            dict.set_item("e", e)?;
+            dict.set_item("a", a)?;
+            dict.set_item("Principal_desig", desig)?;
+            dict.set_item("orbit_type", orbit)?;
             
             let df = pd.call_method1("DataFrame", (dict,))?;
             Ok(df.into_py(py))
         })
     }
-
-    // fn to_rock_collection(&self, data: Vec<MPCData>) -> PyResult<PyObject> {
-    //     let rocks: Result<Vec<SpaceRock>, Box<dyn std::error::Error>> = data.par_iter().map(|d| {
-    //         let mut rock = SpaceRock::from_kepler(
-    //             &d.Principal_desig,
-    //             d.a,
-    //             d.e,
-    //             d.i,
-    //             d.Peri,
-    //             d.Node,
-    //             d.M,
-    //             Time::new(d.Epoch, "utc", "jd")?,
-    //             "J2000",
-    //             "SSB",
-    //         )?;
-
-    //         if let Some(h) = d.H {
-    //             rock.set_absolute_magnitude(h);
-    //         }
-
-    //         if let Some(g) = d.G {
-    //             rock.set_gslope(g);
-    //         }
-
-    //         Ok(rock)
-    //     }).collect();
-
-    //     match rocks {
-    //         Ok(rocks) => Python::with_gil(|py| {
-    //             Ok(RockCollection { rocks }.into_py(py))
-    //         }),
-    //         Err(e) => Err(PyErr::new::<PyRuntimeError, _>(e.to_string()))
-    //     }
-    // }
 
     fn to_rock_collection(&self, data: Vec<MPCData>) -> PyResult<PyObject> {
         let rocks: Vec<Result<SpaceRock, String>> = 
@@ -357,20 +427,6 @@ impl MPCHandler {
         Ok(())
     }
 
-    // fn read_from_feather(&self, path: &Path) -> PyResult<Vec<MPCData>> {
-    //     let file = fs::File::open(path)?;
-    //     let reader = arrow::ipc::reader::FileReader::try_new(file, None)
-    //         .map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
-
-    //     let mut data = Vec::new();
-
-    //     for batch in reader {
-    //         let batch = batch.map_err(|e| PyErr::new::<PyRuntimeError, _>(e.to_string()))?;
-    //         data.extend(self.record_batch_to_mpc_data(&batch)?);
-    //     }
-
-    //     Ok(data)
-    // }
 
     fn read_from_feather(&self, path: &Path) -> PyResult<Vec<MPCData>> {
         let file = fs::File::open(path)?;
@@ -454,68 +510,3 @@ impl MPCHandler {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//         let url = format!(
-//             "https://www.minorplanetcenter.net/Extended_Files/{}.json.gz",
-//             catalog
-//         );
-    
-//         let zip_path = self.path.join(format!("{}.json.gz", catalog));
-//         if !zip_path.exists() {
-//             println!("Downloading from URL: {}", url);
-//             let response = reqwest::blocking::get(&url)
-//                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
-//             let content = response.bytes()
-//                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
-//             fs::write(&zip_path, &content)
-//                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
-//         }
-    
-//         // Parse JSON into a DataFrame
-//         let mut reader = GzDecoder::new(fs::File::open(&zip_path)?);
-//         let mut data: Vec<MPCData> = serde_json::from_reader(reader)
-//             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
-
-//         // Filter by orbit_type if specified
-//         if let Some(orbit_filter) = orbit_type {
-//             data.retain(|d| {
-//                 d.orbit_type.as_ref().map_or(false, |ot| ot == &orbit_filter)
-//             });
-//         }
-    
-//         if save_to_df {
-//             Python::with_gil(|py| {
-//                 let pd = py.import("pandas")?;
-//                 let dict = PyDict::new(py);
-//                 dict.set_item("H", data.iter().map(|d| d.H).collect::<Vec<_>>())?;
-//                 dict.set_item("G", data.iter().map(|d| d.G).collect::<Vec<_>>())?;
-//                 dict.set_item("Epoch", data.iter().map(|d| d.Epoch).collect::<Vec<_>>())?;
-//                 dict.set_item("M", data.iter().map(|d| d.M).collect::<Vec<_>>())?;
-//                 dict.set_item("Peri", data.iter().map(|d| d.Peri).collect::<Vec<_>>())?;
-//                 dict.set_item("Node", data.iter().map(|d| d.Node).collect::<Vec<_>>())?;
-//                 dict.set_item("i", data.iter().map(|d| d.i).collect::<Vec<_>>())?;
-//                 dict.set_item("e", data.iter().map(|d| d.e).collect::<Vec<_>>())?;
-//                 dict.set_item("a", data.iter().map(|d| d.a).collect::<Vec<_>>())?;
-//                 dict.set_item("Principal_desig", data.iter().map(|d| &d.Principal_desig).collect::<Vec<_>>())?;
-//                 dict.set_item("orbit_type", data.iter().map(|d| &d.orbit_type).collect::<Vec<_>>())?;
-                
-//                 let df = pd.call_method1("DataFrame", (dict,))?;
-//                 Ok(df.into_py(py)) 
-//             })
-//         } else {
-//             Python::with_gil(|py| Ok(py.None()))
-//         }
-//     }
-// }
