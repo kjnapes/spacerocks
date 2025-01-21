@@ -178,6 +178,13 @@ impl Simulation {
         self.particle_index_map.insert((*particle.name).to_string(), self.particles.len());
         self.particles.push(particle);
 
+        // make sure to sort the particles by mass
+        self.particles.sort_by(|a, b| b.mass().partial_cmp(&a.mass()).unwrap());
+        // update the particle index map
+        for (idx, particle) in self.particles.iter().enumerate() {
+            self.particle_index_map.insert((*particle.name).to_string(), idx);
+        }
+
         Ok(())
     }
 
@@ -294,19 +301,25 @@ impl Simulation {
             self.integrator.set_timestep(-self.integrator.timestep());
         }
 
+
         loop {
-            // let dt = &epoch - &self.epoch;
             let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
-            // if dt.abs() < self.integrator.timestep().abs() {
-            //     break;
-            // }
+
+            // done integrating
             if dt.abs() < 1e-16 {
                 break;
             }
 
+            // if we're within a timestep of the epoch, just take a step of that size
             if dt.abs() < self.integrator.timestep().abs() {
+                let last_timestep = self.integrator.timestep().clone();
                 self.integrator.set_timestep(dt);
+                self.step();
+                self.integrator.set_timestep(last_timestep);
+                break;
             }
+
+            // if the timestep is negative, make sure the integrator is set to negative
             if dt < 0.0 {
                 if self.integrator.timestep() > 0.0 {
                     self.integrator.set_timestep(-self.integrator.timestep());
@@ -318,16 +331,16 @@ impl Simulation {
         }
         
         // let dt = &epoch - &self.epoch;
-        let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
-        if dt.abs() < 1e-16 {
-            return;
-        }
-        // create an exact match for the epoch
-        let old_timestep = self.integrator.timestep();
-        self.integrator.set_timestep(dt);
-        self.step();
-        // reset the timestep
-        self.integrator.set_timestep(old_timestep);
+        // let dt = epoch.tdb().jd() - self.epoch.tdb().jd();
+        // if dt.abs() < 1e-16 {
+        //     return;
+        // }
+        // // create an exact match for the epoch
+        // let old_timestep = self.integrator.timestep();
+        // self.integrator.set_timestep(dt);
+        // self.step();
+        // // reset the timestep
+        // self.integrator.set_timestep(old_timestep);
     }
 
     /// Get a particle from the simulation by name.

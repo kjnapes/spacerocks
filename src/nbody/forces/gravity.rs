@@ -16,42 +16,70 @@ impl Force for NewtonianGravity {
 
         let mut acceleration = vec![Vector3::zeros(); entities.len()];
 
-        let mut massless_indices = Vec::new();
-        let mut massive_indices = Vec::new();
-        for (idx, entity) in entities.iter().enumerate() {
-            if entity.mass() == 0.0 {
-                massless_indices.push(idx);
-            } else {
-                massive_indices.push(idx);
+        let n_entities = entities.len();
+        for idx in 0..n_entities {
+
+            if entities[idx].mass() == 0.0 {
+                break;
             }
-        }
 
-        let n_massive = massive_indices.len();
+            for jdx in (idx + 1)..n_entities {
 
-        for ii in 0..n_massive {
-            let idx = massive_indices[ii];
+                // if (entities[idx].mass() == 0.0) & (entities[jdx].mass() == 0.0) {
+                //     continue;
+                // }
 
-            // loop over all massive entities
-            for jj in (ii + 1)..n_massive {
-                let jdx = massive_indices[jj];
+                // if idx_massless & (entities[jdx].mass() == 0.0) {
+                //     continue;
+                // }
+
                 let r_vec = entities[idx].position - entities[jdx].position;
                 let r = r_vec.norm();
+
                 let xi = -GRAVITATIONAL_CONSTANT * r_vec / (r * r * r);
                 let idx_acceleration = xi * entities[jdx].mass();
                 let jdx_acceleration = -xi * entities[idx].mass();
                 acceleration[idx] += idx_acceleration;
                 acceleration[jdx] += jdx_acceleration;
             }
-
-            // loop over all massless entities
-            for kdx in &massless_indices {
-                let r_vec = entities[idx].position - entities[*kdx].position;
-                let r = r_vec.norm();
-                let xi = -GRAVITATIONAL_CONSTANT * r_vec / (r * r * r);
-                let kdx_acceleration = -xi * entities[idx].mass();
-                acceleration[*kdx] += kdx_acceleration;
-            }
         }
+
+    //     let mut massless_indices = Vec::new();
+    //     let mut massive_indices = Vec::new();
+    //     for (idx, entity) in entities.iter().enumerate() {
+    //         if entity.mass() == 0.0 {
+    //             massless_indices.push(idx);
+    //         } else {
+    //             massive_indices.push(idx);
+    //         }
+    //     }
+
+    //     let n_massive = massive_indices.len();
+
+    //     for ii in 0..n_massive {
+    //         let idx = massive_indices[ii];
+
+    //         // loop over all massive entities
+    //         for jj in (ii + 1)..n_massive {
+    //             let jdx = massive_indices[jj];
+    //             let r_vec = entities[idx].position - entities[jdx].position;
+    //             let r = r_vec.norm();
+    //             let xi = -GRAVITATIONAL_CONSTANT * r_vec / (r * r * r);
+    //             let idx_acceleration = xi * entities[jdx].mass();
+    //             let jdx_acceleration = -xi * entities[idx].mass();
+    //             acceleration[idx] += idx_acceleration;
+    //             acceleration[jdx] += jdx_acceleration;
+    //         }
+
+    //         // loop over all massless entities
+    //         for kdx in &massless_indices {
+    //             let r_vec = entities[idx].position - entities[*kdx].position;
+    //             let r = r_vec.norm();
+    //             let xi = -GRAVITATIONAL_CONSTANT * r_vec / (r * r * r);
+    //             let kdx_acceleration = -xi * entities[idx].mass();
+    //             acceleration[*kdx] += kdx_acceleration;
+    //         }
+    //     }
         acceleration
     }
 }
