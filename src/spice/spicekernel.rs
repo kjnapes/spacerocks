@@ -25,6 +25,44 @@ pub struct Config {
     pub download_dir: PathBuf,
 }
 
+impl Config {
+    fn default_with_download(download: bool) -> Self {
+        let default_path = dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".spacerocks")
+            .join("spice");
+
+        Config {
+            default_kernels: vec![
+                KernelSpec {
+                    name: "latest_leapseconds.tls".to_string(),
+                    kernel_type: "lsk".to_string(),
+                },
+                KernelSpec {
+                    name: "de440s.bsp".to_string(),
+                    kernel_type: "spk/planets".to_string(),
+                },
+                KernelSpec {
+                    name: "earth_1962_240827_2124_combined.bpc".to_string(),
+                    kernel_type: "pck".to_string(),
+                },
+            ],
+            kernel_paths: vec![default_path.clone()],
+            auto_download: download,
+            download_dir: default_path,
+        }
+    }
+
+    fn from_file(path: &str) -> Result<Self, String> {
+        let content = fs::read_to_string(path)
+            .map_err(|e| format!("Failed to read config file: {}", e))?;
+            
+        toml::from_str(&content)
+            .map_err(|e| format!("Failed to parse config: {}", e))
+    }
+}
+
+
 fn default_download_setting() -> bool {
     true
 }
@@ -49,28 +87,41 @@ impl SpiceKernel {
         }
     }
 
-    pub fn from_config(path: &str) -> Result<Self, String> {
-        println!("Loading configuration from {}", path);
-        
-        let content = fs::read_to_string(path)
-            .map_err(|e| format!("Failed to read config file: {}", e))?;
-            
-        let config: Config = toml::from_str(&content)
-            .map_err(|e| format!("Failed to parse config: {}", e))?;
-            
-        println!("\nConfiguration loaded:");
-        println!("  Kernel paths: {:?}", config.kernel_paths);
-        println!("  Download directory: {:?}", config.download_dir);
-        println!("  Auto-download: {}", config.auto_download);
-        
+    pub fn defaults(download: bool) -> Result<Self, String> {
+        let config = Config::default_with_download(download);
         let mut kernel = SpiceKernel {
             loaded_files: vec![],
             config: Some(config),
         };
         
-        // Process default kernels
-        kernel.load_default_kernels()?;
+        println!("\nUsing default configuration:");
+        if let Some(cfg) = &kernel.config {
+            println!("  Kernel paths: {:?}", cfg.kernel_paths);
+            println!("  Download directory: {:?}", cfg.download_dir);
+            println!("  Auto-download: {}", cfg.auto_download);
+        }
         
+        kernel.load_default_kernels()?;
+        Ok(kernel)
+    }
+
+    pub fn from_config(path: &str) -> Result<Self, String> {
+        println!("Loading configuration from {}", path);
+        
+        let config = Config::from_file(path)?;
+        let mut kernel = SpiceKernel {
+            loaded_files: vec![],
+            config: Some(config),
+        };
+        
+        println!("\nConfiguration loaded:");
+        if let Some(cfg) = &kernel.config {
+            println!("  Kernel paths: {:?}", cfg.kernel_paths);
+            println!("  Download directory: {:?}", cfg.download_dir);
+            println!("  Auto-download: {}", cfg.auto_download);
+        }
+        
+        kernel.load_default_kernels()?;
         Ok(kernel)
     }
 
@@ -89,7 +140,7 @@ impl SpiceKernel {
             
             // Not found in paths - try downloading
             if config.auto_download {
-                println!("➜ Kernel not found locally, downloading...");
+                println!("➜ Downloading kernel...");
                 fs::create_dir_all(&config.download_dir)
                     .map_err(|e| format!("Failed to create download directory: {}", e))?;
                     
