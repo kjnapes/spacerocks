@@ -33,7 +33,7 @@ fn default_download_dir() -> PathBuf {
     dirs::home_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join(".spacerocks")
-        .join("kernels")
+        .join("spice")
 }
 
 pub struct SpiceKernel {
