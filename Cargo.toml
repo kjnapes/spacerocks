@@ -21,14 +21,12 @@ uuid = { version = "1.3.0", features = ["v4", "fast-rng", "macro-diagnostics"] }
 phf = {version = "0.11.2", features = ["macros"]}
 rayon = "1.9"
 plotters = "*"
-# indicatif = "0.16.2"
-# rand_distr = "0.4.0"
 strsim = "0.11.1"
-cspice-sys = { version = "*" }
 url = "*"
 toml = "*"
 dirs = "*"
 pyo3 = { version = "*", features = ["extension-module"] }
+
 
 [target.'x86_64-unknown-linux-gnu'.dependencies]
 rust-spice = {version = "*", default-features = false, features = ["noclang"] }
@@ -39,7 +37,7 @@ rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 
 # target mac m1
 [target.'aarch64-apple-darwin'.dependencies]
-rust-spice = {version = "*"}
+rust-spice = {version = "*" }
 
 # target aarch raspberry pi
 [target.'aarh64-unknown-linux-gnu'.dependencies]
@@ -54,7 +52,6 @@ rust-spice = {version = "*", default-features = false, features = ["noclang"] }
 rust-spice = {version = "*"}
 
 
-# [workspace]
-# exclude = [
-#     "py-spacerocks",
-# ]
+
+# [build-dependencies]
+# reqwest = { version = "0.11", features = ["blocking"] }
