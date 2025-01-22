@@ -70,5 +70,29 @@ Transforms:
 [] Detection Catalogue
 
 
+# Markdown files
+## Python
+- Observing ✔
+    - ra_rate in rads/s or rads/day?
+- Coordinates ✔
+    - Origin ✔
+    - Reference Plane ✔
+- RockCollection ✔
+- Simulation ✔
+    - Simulation ✔
+    - Forces ✔
+    - Integrators ✔
+        - More info on integrators?
+- SpaceRock ✔
+- Spice ✔
+- Time ✔ 
+- MPC ✔
+- Transforms ✔
+- Orbfit ✔
+    - What exactly is min_distance?
+
+
+
+All methods pulling data from mpc will be in degrees
 
 

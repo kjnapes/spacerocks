@@ -1,197 +1,187 @@
-# Observing 
+<h1 style="border-bottom: 5px solid white;">Observing Module</h1>
+
 
 ### Table of Contents
 1. [Overview](#overview)
-2. [Observatory Class](#observatory-class)
-3. [Observer Class](#observer-class)
-4. [Observation Class](#observation-class)
+2. [Primary Classes](#primary-classes)
+3. [Methods](#methods)
+4. [Properties](#properties)
 5. [Examples](#examples)
+6. [Notes](#notes)
 
-## Overview
+<h2 style="border-bottom: 3px solid white;">Overview</h2>
 
-The SpaceRocks observing module provides tools for working with astronomical observations, including handling observatory locations, observer positions, and various types of observational data. The module consists of three main classes that work together:
+
+The Observing module provides tools for working with astronomical observations. It handles observatory locations, observer positions, and various types of observational data through three main classes:
 - `Observatory`: Represents physical observation locations
 - `Observer`: Represents an observatory at a specific time
 - `Observation`: Handles different types of astronomical measurements
 
-## Observatory Class
+<h2 style="border-bottom: 3px solid white;">Primary Classes</h2>
 
-The Observatory class manages observation locations, including both ground-based observatories and space telescopes.
-
+### Observatory
 ```python
 class Observatory:
-    @classmethod
-    def from_obscode(cls, obscode: str) -> Observatory:
-        """
-        Create an Observatory instance from a standard observatory code.
-        
-        Args:
-            obscode: Standard observatory code (e.g., '500' for Geocenter)
-            
-        Returns:
-            Observatory instance
-        
-        Raises:
-            ValueError: If observatory code is not found
-        """
+    """
+    Manages observation locations including ground-based observatories and space telescopes.
     
-    def at(self, epoch: Time, reference_plane: str = "J2000", 
-           origin: str = "SSB") -> Observer:
-        """
-        Get Observer instance at specific time.
-        
-        Args:
-            epoch: Time of observation
-            reference_plane: Reference frame (default: "J2000")
-            origin: Origin of coordinate system (default: "SSB")
-            
-        Returns:
-            Observer instance at specified time
-        """
-    
-    @property
-    def lat(self) -> Optional[float]:
-        """Latitude in radians (ground-based only)"""
-    
-    @property
-    def lon(self) -> Optional[float]:
-        """Longitude in radians (ground-based only)"""
-    
-    @property
-    def rho(self) -> Optional[float]:
-        """Distance from geocenter in Earth radii (ground-based only)"""
+    Example:
+        maunakea = Observatory.from_obscode('568')
+        observer = maunakea.at(epoch)
+    """
 ```
 
-## Observer Class
-
-The Observer class represents an observatory at a specific time, providing access to its position and velocity.
-
+### Observer
 ```python
 class Observer:
-    @property
-    def position(self) -> numpy.ndarray:
-        """3D position vector [x, y, z] in AU"""
+    """
+    Represents an observatory at a specific time, providing position and velocity information.
     
-    @property
-    def velocity(self) -> numpy.ndarray:
-        """3D velocity vector [vx, vy, vz] in AU/day"""
-    
-    @property
-    def origin(self) -> str:
-        """Origin of coordinate system"""
-    
-    @property
-    def reference_plane(self) -> str:
-        """Reference coordinate frame"""
-    
-    @property
-    def epoch(self) -> Time:
-        """Observation epoch"""
-    
-    @property
-    def lat(self) -> Optional[float]:
-        """Observer latitude in radians (if applicable)"""
-    
-    @property
-    def lon(self) -> Optional[float]:
-        """Observer longitude in radians (if applicable)"""
-    
-    @property
-    def rho(self) -> Optional[float]:
-        """Observer distance from geocenter (if applicable)"""
+    Example:
+        observer = observatory.at(epoch)
+        position = observer.position  # [x, y, z] in AU
+    """
 ```
 
-## Observation Class
-
-The Observation class handles different types of astronomical observations and their measurements.
-
-### Constructor Methods
-
+### Observation
 ```python
 class Observation:
-    @classmethod
-    def from_astrometry(cls, epoch: Time, ra: float, dec: float, 
-                       observer: Observer, mag: Optional[float] = None) -> Observation:
-        """
-        Create an astrometric observation.
-        
-        Args:
-            epoch: Observation time
-            ra: Right ascension in radians
-            dec: Declination in radians
-            observer: Observer instance
-            mag: Optional visual magnitude
-            
-        Returns:
-            Observation instance
-        """
+    """
+    Handles different types of astronomical observations and their measurements.
     
-    @classmethod
-    def from_streak(cls, epoch: Time, ra: float, dec: float, 
-                   ra_rate: float, dec_rate: float, observer: Observer, 
-                   mag: Optional[float] = None) -> Observation:
-        """
-        Create a streak observation.
-        
-        Args:
-            epoch: Observation time
-            ra: Right ascension in radians
-            dec: Declination in radians
-            ra_rate: RA rate in rad/s
-            dec_rate: Dec rate in rad/s
-            observer: Observer instance
-            mag: Optional visual magnitude
-            
-        Returns:
-            Observation instance
-        """
+    Example:
+        obs = Observation.from_astrometry(epoch, ra, dec, observer)
+        print(f"RA: {obs.ra}, Dec: {obs.dec}")
+    """
 ```
 
-### Properties
+<h2 style="border-bottom: 3px solid white;">Methods</h2>
 
+### Observatory Methods
+---
+
+**`from_obscode()`**
 ```python
-class Observation:
-    @property
-    def ra(self) -> float:
-        """Right ascension in radians"""
-    
-    @property
-    def dec(self) -> float:
-        """Declination in radians"""
-    
-    @property
-    def ra_rate(self) -> Optional[float]:
-        """RA rate in rad/s"""
-    
-    @property
-    def dec_rate(self) -> Optional[float]:
-        """Dec rate in rad/s"""
-    
-    @property
-    def range(self) -> Optional[float]:
-        """Range in AU"""
-    
-    @property
-    def range_rate(self) -> Optional[float]:
-        """Range rate in AU/day"""
-    
-    @property
-    def mag(self) -> Optional[float]:
-        """Visual magnitude"""
-        
-    @property
-    def epoch(self) -> Time:
-        """Observation epoch"""
-        
-    @property
-    def observer(self) -> Observer:
-        """Observer that made the observation"""
+@classmethod
+def from_obscode(cls, obscode: str) -> Observatory
 ```
 
-## Examples
+**Arguments:**
+- `obscode`: Standard observatory code (e.g., '500' for Geocenter)
+
+**Returns:**
+- New Observatory instance
+
+*Example:*
+```python
+siding_spring = Observatory.from_obscode('413')
+```
+
+**`at()`**
+```python
+def at(self, epoch: Time, reference_plane: str = "J2000", 
+       origin: str = "SSB") -> Observer
+```
+
+**Arguments:**
+- `epoch`: Time of observation
+- `reference_plane`: Reference frame (default: "J2000")
+- `origin`: Origin of coordinate system (default: "SSB")
+
+**Returns:**
+- Observer instance at specified time
+
+*Example:*
+```python
+observer = observatory.at(epoch, reference_plane="ECLIPJ2000")
+```
+
+### Observation Methods
+---
+
+
+**`from_astrometry()`**
+```python
+@classmethod
+def from_astrometry(cls, epoch: Time, ra: float, dec: float, 
+                   observer: Observer, mag: Optional[float] = None) -> Observation
+```
+
+**Arguments:**
+- `epoch`: Observation time
+- `ra`: Right ascension in radians
+- `dec`: Declination in radians
+- `observer`: Observer instance
+- `mag`: Optional visual magnitude
+
+**Returns:**
+- New Observation instance
+
+*Example:*
+```python
+obs = Observation.from_astrometry(epoch, ra, dec, observer, mag=20.5)
+```
+
+**`from_streak()`**
+```python
+@classmethod
+def from_streak(cls, epoch: Time, ra: float, dec: float, 
+               ra_rate: float, dec_rate: float, observer: Observer, 
+               mag: Optional[float] = None) -> Observation
+```
+
+**Arguments:**
+- `epoch`: Observation time
+- `ra`: Right ascension in radians
+- `dec`: Declination in radians
+- `ra_rate`: RA rate in rad/day
+- `dec_rate`: Dec rate in rad/day
+- `observer`: Observer instance
+- `mag`: Optional visual magnitude
+
+**Returns:**
+- New Observation instance
+
+*Example:*
+```python
+obs = Observation.from_streak(epoch, ra, dec, ra_rate, dec_rate, observer)
+```
+
+<h2 style="border-bottom: 3px solid white;">Properties</h2>
+
+### Observatory Properties
+---
+| Property | Type | Description |
+|----------|------|-------------|
+| `lat` | `Optional[float]` | Latitude in radians (ground-based only) |
+| `lon` | `Optional[float]` | Longitude in radians (ground-based only) |
+| `rho` | `Optional[float]` | Distance from geocenter in Earth radii |
+
+### Observer Properties
+---
+| Property | Type | Description |
+|----------|------|-------------|
+| `position` | `numpy.ndarray` | 3D position vector [x, y, z] in AU |
+| `velocity` | `numpy.ndarray` | 3D velocity vector [vx, vy, vz] in AU/day |
+| `epoch` | `Time` | Observation epoch |
+| `reference_plane` | `ReferencePlane` | Reference coordinate frame |
+| `origin` | `Origin` | Origin of coordinate system |
+
+### Observation Properties
+---
+| Property | Type | Description |
+|----------|------|-------------|
+| `ra` | `float` | Right ascension in radians |
+| `dec` | `float` | Declination in radians |
+| `ra_rate` | `Optional[float]` | RA rate in rad/day |
+| `dec_rate` | `Optional[float]` | Dec rate in rad/day |
+| `range` | `Optional[float]` | Range in AU |
+| `range_rate` | `Optional[float]` | Range rate in AU/day |
+| `mag` | `Optional[float]` | Visual magnitude |
+
+<h2 style="border-bottom: 3px solid white;">Examples</h2>
 
 ### Basic SpaceRock Observation
-
 ```python
 from spacerocks.observing import Observatory
 from spacerocks.time import Time
@@ -200,162 +190,50 @@ from spacerocks.spice import SpiceKernel
 
 # Initialize SPICE kernels
 kernel = SpiceKernel()
-kernel.load("path/to/latest_leapseconds.tls")
-kernel.load("path/to/de440s.bsp")
+kernel.load("latest_leapseconds.tls")
+kernel.load("de440s.bsp")
 
 # Create observatory and time
-w84 = Observatory.from_obscode('F51')  # Warrumbungle Observatory
-epoch = Time.now()
-
-# Create and configure SpaceRock
-arrokoth = SpaceRock.from_horizons(
-    "Arrokoth", 
-    epoch,
-    reference_plane="J2000",
-    origin='SSB'
-)
-arrokoth.set_absolute_magnitude(11.0)
-
-# Get observer and generate observation
-observer = w84.at(epoch)
-obs = arrokoth.observe(observer)
-
-# Access observation details
-print(f"Magnitude: {obs.mag}")
-print(f"RA: {obs.ra} radians")
-print(f"Dec: {obs.dec} radians")
-print(f"Range: {obs.range} AU")
-
-if obs.ra_rate is not None:
-    print(f"RA rate: {obs.ra_rate} rad/s")
-if obs.dec_rate is not None:
-    print(f"Dec rate: {obs.dec_rate} rad/s")
-```
-
-### Observing from Multiple Sites
-
-```python
-# Initialize SPICE and time
-kernel = SpiceKernel()
-kernel.load("path/to/latest_leapseconds.tls")
-kernel.load("path/to/de440s.bsp")
-epoch = Time.now()
-
-# Set up multiple observatories
-mauna_kea = Observatory.from_obscode('568')
-siding_spring = Observatory.from_obscode('413')
-
-# Create and configure asteroid
-bennu = SpaceRock.from_horizons(
-    "Bennu",
-    epoch,
-    reference_plane="J2000",
-    origin='SSB'
-)
-bennu.set_absolute_magnitude(20.5)
-
-# Observe from different locations
-obs_mk = bennu.observe(mauna_kea.at(epoch))
-obs_sso = bennu.observe(siding_spring.at(epoch))
-
-# Compare observations
-print("Mauna Kea:")
-print(f"RA: {obs_mk.ra}, Dec: {obs_mk.dec}")
-print(f"Range: {obs_mk.range} AU")
-print(f"Magnitude: {obs_mk.mag}")
-
-print("\nSiding Spring:")
-print(f"RA: {obs_sso.ra}, Dec: {obs_sso.dec}")
-print(f"Range: {obs_sso.range} AU")
-print(f"Magnitude: {obs_sso.mag}")
-```
-
-### Time Series Example
-
-```python
-from spacerocks.observing import Observatory
-from spacerocks.time import Time
-from spacerocks import SpaceRock
-from spacerocks.spice import SpiceKernel
-
-# Initialize SPICE
-kernel = SpiceKernel()
-kernel.load("path/to/latest_leapseconds.tls")
-kernel.load("path/to/de440s.bsp")
-
-# Set up time range
-epoch_start = Time.from_iso("2024-01-01T00:00:00")
-epoch_end = Time.from_iso("2024-01-02T00:00:00")
-intervals = 24  # One observation per hour
-
-# Set up observatory
 telescope = Observatory.from_obscode('F51')
-time_step = (epoch_end.jd() - epoch_start.jd()) / intervals
+epoch = Time.now()
 
-# Method 1: Using Horizons Ephemerides
-observations = []
-current_epoch = epoch_start
-
-for i in range(intervals + 1):
-    # Get new ephemeris at each time point
-    # This gives the most accurate positions by querying Horizons,
-    # but requires internet connection and is slower
-    target = SpaceRock.from_horizons(
-        "Apophis", 
-        current_epoch,
-        reference_plane="J2000",
-        origin='SSB'
-    )
-    target.set_absolute_magnitude(19.7)
-    
-    # Get observer and observation
-    observer = telescope.at(current_epoch)
-    obs = target.observe(observer)
-    observations.append(obs)
-    
-    print(f"Time: {current_epoch.iso()}")
-    print(f"RA: {obs.ra}")
-    print(f"Dec: {obs.dec}")
-    print(f"Magnitude: {obs.mag}")
-    
-    current_epoch = Time.from_jd(current_epoch.jd() + time_step)
-
-# Method 2: Using Analytic Propagation
-observations = []
-current_epoch = epoch_start
-
-# Get initial state from Horizons
+# Create and configure target
 target = SpaceRock.from_horizons(
     "Apophis", 
-    epoch_start,
+    epoch,
     reference_plane="J2000",
     origin='SSB'
 )
 target.set_absolute_magnitude(19.7)
 
-for i in range(intervals + 1):
-    # Propagate the orbit analytically
-    # This is faster and works offline
-    propagated_target = target.analytic_at(current_epoch)
-    
-    # Get observer and observation
-    observer = telescope.at(current_epoch)
-    obs = propagated_target.observe(observer)
-    observations.append(obs)
-    
-    print(f"Time: {current_epoch.iso()}")
-    print(f"RA: {obs.ra}")
-    print(f"Dec: {obs.dec}")
-    print(f"Magnitude: {obs.mag}")
+# Get observation
+observer = telescope.at(epoch)
+obs = target.observe(observer)
 
-    
-    current_epoch = Time.from_jd(current_epoch.jd() + time_step)
+print(f"RA: {obs.ra}")
+print(f"Dec: {obs.dec}")
+print(f"Range: {obs.range} AU")
+print(f"Magnitude: {obs.mag}")
 ```
 
-### Unit Notes
+### Multi-Site Time Series
+```python
+# Set up observatories
+mauna_kea = Observatory.from_obscode('568')
+siding_spring = Observatory.from_obscode('413')
 
-- Angles (RA, Dec, latitude, longitude): radians
-- Positions: AU (Astronomical Units)
-- Velocities: AU/day for orbital motions, rad/s for apparent motions
-- Times: Various formats through Time class
-- Observatory codes: Standard MPC/IAU codes
+# Observe from both sites
+obs_mk = target.observe(mauna_kea.at(epoch))
+obs_sso = target.observe(siding_spring.at(epoch))
+
+```
+
+<h2 style="border-bottom: 3px solid white;">Notes</h2>
+
+- Angles (RA, Dec, latitude, longitude) are consistently in radians
+- Positions are in Astronomical Units (AU)
+- Velocities use AU/day for orbital motions and rad/day for apparent motions
+- Times are handled through the Time class in various formats
+- Observatory codes follow the standard MPC/IAU format
+- All coordinate transformations preserve precision through the use of SPICE
+- When using streak observations, rates must be in proper spherical coordinates

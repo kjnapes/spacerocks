@@ -1,159 +1,310 @@
-# `SpaceRock`
+<h1 style="border-bottom: 5px solid white;">SpaceRock Module</h1>
 
 ### Table of Contents
 1. [Overview](#overview)
-2. [Attributes](#attributes)
-3. [Instantiation Methods](#instantiation-methods)
-4. [Operation Methods](#operation-calculation-methods)
-5. [Setter Methods](#setter-methods)
-6. [Getter Methods](#getter-methods)
-7. [Examples](#examples)
+2. [Primary Classes](#primary-classes)
+3. [Constructor Methods](#constructor-methods)
+4. [Operation Methods](#operation-methods)
+5. [Derived Methods](#derived-methods)
+6. [Setter Methods](#setter-methods)
+7. [Getter Methods](#getter-methods)
+8. [Examples](#examples)
+9. [Notes](#notes)
+
+<h2 style="border-bottom: 3px solid white;">Overview</h2>
+The SpaceRock module provides functionality for representing and manipulating celestial bodies in spacerocks. It handles object state vectors, orbital elements, physical properties, and observational calculations.
+
+<h2 style="border-bottom: 3px solid white;">Primary Classes</h2>
 
 
-### Overview
-
----
-
-### Attributes
-| Attribute | Type | Description |
-| --- | --- | --- |
-| `name` | `str` | Name of the SpaceRock. |
-| `position` | `np.ndarray` | Position of the SpaceRock in au. |
-| `velocity` | `np.ndarray` | Velocity of the SpaceRock in au/day. |
-| `epoch` | `Time` | Epoch of the SpaceRock. |
-| `origin` | `Origin` | Origin of the SpaceRock. |
-| `reference plane` | `ReferencePlane` | Reference plane of the SpaceRock. |
-| `properties` | `Properties` | Properties of the SpaceRock. |
-
----
-### Instantiation Methods
-
-#### `from_horizons`
-Create a SpaceRock object from JPL Horizons data.
+### SpaceRock
 ```python
-SpaceRock.from_horizons(name: str, epoch: Time, reference_plane: str, origin: str) -> SpaceRock
+class SpaceRock:
+    """
+    Core class for representing celestial bodies in spacerocks.
+    
+    Example:
+        rock = SpaceRock.from_horizons("Arrokoth", epoch)
+        rock.set_mass(1e-10)  # solar masses
+    """
 ```
 
-#### `from_spice`
-Create a SpaceRock object from a SPICE kernel.
+<h2 style="border-bottom: 3px solid white;">Constructor Methods</h2>
+
+
+**`from_horizons()`**
 ```python
-SpaceRock.from_spice(name: str, epoch: Time, reference_plane: str, origin: str) -> SpaceRock
+@classmethod
+def from_horizons(cls, name: str, epoch: Time, reference_plane: str = "ECLIPJ2000", 
+                 origin: str = "SSB") -> SpaceRock
+```
+**Arguments:**
+- `name`: Object identifier for JPL Horizons
+- `epoch`: Time object representing the state epoch
+- `reference_plane`: Reference frame (e.g., "ECLIPJ2000")
+- `origin`: Origin of coordinate system (e.g., "SSB")
+
+**Returns:**
+- New SpaceRock instance from Horizons data
+
+*Example:*
+```python
+rock = SpaceRock.from_horizons("Ceres", epoch=Time.now())
 ```
 
-#### `from_xyz`
-Create a SpaceRock object from position and velocity data.
+**`from_spice()`**
 ```python
-SpaceRock.from_xyz(name: str, position: np.ndarray, velocity: np.ndarray, epoch: Time, origin: str, reference_plane: str) -> SpaceRock
+@classmethod
+def from_spice(cls, name: str, epoch: Time, reference_plane: str = "ECLIPJ2000", 
+               origin: str = "SSB") -> SpaceRock
+```
+**Arguments:**
+- `name`: Object name in loaded SPICE kernel
+- `epoch`: Time object representing the state epoch
+- `reference_plane`: Reference frame (e.g., "ECLIPJ2000")
+- `origin`: Origin of coordinate system (e.g., "SSB")
+
+**Returns:**
+- New SpaceRock instance from SPICE data
+
+*Example:*
+```python
+jupiter = SpaceRock.from_spice("jupiter barycenter", epoch=Time.now())
 ```
 
-#### `from_spherical`
-Create a SpaceRock object using the coordinate basis described in Napier and Holman (2024).
+**`from_xyz()`**
 ```python
-SpaceRock.from_spherical(name: str, r: float, theta: float, phi: float, vr: float, vo: float, psi: float, epoch: Time, origin: str, reference_plane: str) -> SpaceRock
+@classmethod
+def from_xyz(cls, name: str, x: float, y: float, z: float, vx: float, vy: float, 
+            vz: float, epoch: Time, reference_plane: str = "ECLIPJ2000", 
+            origin: str = "SSB") -> SpaceRock
+```
+**Arguments:**
+- `name`: Object identifier
+- `x, y, z`: Position components in AU
+- `vx, vy, vz`: Velocity components in AU/day
+- `epoch`: Time object representing the state epoch
+- `reference_plane`: Reference frame (e.g., "ECLIPJ2000")
+- `origin`: Origin of coordinate system (e.g., "SSB")
+
+**Returns:**
+- New SpaceRock instance from Cartesian coordinates
+
+*Example:*
+```python
+rock = SpaceRock.from_xyz("asteroid", x=1.0, y=0.0, z=0.0, 
+                         vx=0.0, vy=1.0, vz=0.0, epoch=epoch)
 ```
 
----
-
-### Operation and Calculation Methods
-
-#### `observe`
-Calculate the ephemeris of the SpaceRock object, given an observer.
+**`from_spherical()`**
 ```python
-rock.observe(observer: Observer) -> Observation
+@classmethod
+def from_spherical(cls, name: str, phi: float, theta: float, r: float, vr: float, 
+                  vo: float, psi: float, epoch: Time, reference_plane: str = "ECLIPJ2000",
+                  origin: str = "SSB") -> SpaceRock
+```
+***Note:***
+This is intended to be used with a custom spherical coordinate basis (Napier and Holman (2024)). The foundation of this basis can be found [here](https://arxiv.org/abs/2410.03598).
+
+**Arguments:**
+- `name`: Object identifier
+- `phi`: Longitude in radians
+- `theta`: Latitude in radians
+- `r`: Distance in AU
+- `vr`: Radial velocity in AU/day
+- `vo`: Tangential velocity in AU/day
+- `psi`: Angle between radial and tangential velocities in radians
+- `epoch`: Time object representing the state epoch
+- `reference_plane`: Reference frame (e.g., "ECLIPJ2000")
+- `origin`: Origin of coordinate system (e.g., "SSB")
+
+**Returns:**
+- New SpaceRock instance from spherical coordinates
+
+*Example:*
+```python
+rock = SpaceRock.from_spherical("object", phi=0.0, theta=0.0, r=1.0,
+                               vr=0.0, vo=1.0, psi=0.0, epoch=epoch)
 ```
 
-#### `change_reference_plane`
-Change the reference plane of the SpaceRock object.
+**`from_kepler()`**
 ```python
-rock.change_reference_plane(reference_plane: str) -> None
+@classmethod
+def from_kepler(cls, name: str, q: float, e: float, inc: float, arg: float, 
+                node: float, true_anomaly: float, epoch: Time, 
+                reference_plane: str = "ECLIPJ2000", origin: str = "SSB") -> SpaceRock
+```
+**Arguments:**
+- `name`: Object identifier
+- `q`: Perihelion distance in AU
+- `e`: Eccentricity
+- `inc`: Inclination in radians
+- `arg`: Argument of perihelion in radians
+- `node`: Longitude of ascending node in radians
+- `true_anomaly`: True anomaly in radians
+- `epoch`: Time object representing the state epoch
+- `reference_plane`: Reference frame (e.g., "ECLIPJ2000")
+- `origin`: Origin of coordinate system (e.g., "SSB")
+
+**Returns:**
+- New SpaceRock instance from orbital elements
+
+*Example:*
+```python
+rock = SpaceRock.from_kepler("asteroid", q=2.5, e=0.5, inc=0.4, arg=2.1, 
+                            node=1.2, true_anomaly=0.0, epoch=epoch)
 ```
 
-#### `change_origin`
-Change the origin of the SpaceRock object.
+**`random()`**
 ```python
-rock.change_origin(origin: str) -> None
+@classmethod
+def random(cls, epoch: Time, reference_plane: str = "ECLIPJ2000", 
+           origin: str = "SSB") -> SpaceRock
+```
+**Arguments:**
+- `epoch`: Time object representing the state epoch
+- `reference_plane`: Reference frame (e.g., "ECLIPJ2000")
+- `origin`: Origin of coordinate system (e.g., "SSB")
+
+**Returns:**
+- New SpaceRock instance with random orbital elements
+
+*Example:*
+```python
+rock = SpaceRock.random(epoch=Time.now())
 ```
 
-There are also a number of derived properties that can be calculated from the position and velocity data of a SpaceRock object. The general usage pattern is 
+<h2 style="border-bottom: 3px solid white;">Operation Methods</h2>
+
+
+**`observe()`**
 ```python
-rock.property()
+def observe(self, observer: Observer) -> Observation
 ```
-where `property` is the name of the property you want to calculate. A list of the derived properties is given below.
+**Arguments:**
+- `observer`: Observer object with position and velocity state
+
+**Returns:**
+- Observation object containing calculated ephemeris
+
+*Example:*
+```python
+observation = rock.observe(observer)
+```
+
+**`change_reference_plane()`**
+```python
+def change_reference_plane(self, reference_plane: str) -> None
+```
+**Arguments:**
+- `reference_plane`: String specifying the new reference frame (e.g., "ECLIPJ2000")
+
+*Example:*
+```python
+rock.change_reference_plane("ECLIPJ2000")
+```
+
+<h2 style="border-bottom: 3px solid white;">Derived Methods</h2>
+
+
+These methods calculate various properties from the SpaceRock's state. Usage: `rock.property()`
 
 | Method | Returns | Description |
 | --- | --- | --- |
-| `a` | `float` | Calculate the semi-major axis of the SpaceRock in au. |
-| `e` | `float` | Calculate the eccentricity of the SpaceRock. |
-| `inc` | `float` | Calculate the inclination of the SpaceRock in radians. |
-| `node` | `float` | Calculate the longitude of the ascending node of the SpaceRock in radians. |
-| `arg` | `float` | Calculate the argument of periapsis of the SpaceRock in radians. |
-| `true_anomaly` | `float` | Calculate the true anomaly of the SpaceRock in radians. |
-| `mean_anomaly` | `float` | Calculate the mean anomaly of the SpaceRock in radians. |
-| `conic_anomaly` | `float` | Calculate the conic (eccentric, parabolic, or hyperbolic) anomaly of the SpaceRock in radians. |
-| `q` | `float` | Calculate the perihelion distance of the SpaceRock in au. |
-| `p` | `float` | Calculate the semi-latus rectum of the SpaceRock in au. |
-| `h` | `float` | Calculate the specific angular momentum of the SpaceRock in au^2/day. |
-| `evec` | `np.ndarray` | Calculate the eccentricity vector of the SpaceRock. |
-| `hvec` | `np.ndarray` | Calculate the specific angular momentum vector of the SpaceRock. |
-| `r` | `float` | Calculate the distance from the origin to the SpaceRock in au. |
-| `v` | `float` | Calculate the speed of the SpaceRock in au/day. |
-| `specific_energy` | `float` | Calculate the specific energy of the SpaceRock in au^2 / day^2. |
----
+| `a` | `float` | Calculate the semi-major axis in AU |
+| `e` | `float` | Calculate the eccentricity |
+| `inc` | `float` | Calculate the inclination in radians |
+| `node` | `float` | Calculate the longitude of ascending node in radians |
+| `arg` | `float` | Calculate the argument of periapsis in radians |
+| `true_anomaly` | `float` | Calculate the true anomaly in radians |
+| `mean_anomaly` | `float` | Calculate the mean anomaly in radians |
+| `conic_anomaly` | `float` | Calculate the conic anomaly in radians |
+| `q` | `float` | Calculate the perihelion distance in AU |
+| `p` | `float` | Calculate the semi-latus rectum in AU |
+| `evec` | `tuple` | Calculate the eccentricity vector |
+| `r` | `float` | Calculate the distance from origin in AU |
+| `mu` | `float` | Get the gravitational parameter of origin |
 
-### Setter Methods
 
-These methods allow you to modify a SpaceRock object after it has been created. The general usage pattern is 
-```python
-rock.set_property(value)
-```
-where `property` is the name of the property you want to set, and `value` is the value you want to set it to. A list of the setter methods is given below.
+<h2 style="border-bottom: 3px solid white;">Setter Methods</h2>
+
+
+These methods modify SpaceRock properties. Usage: `rock.set_property(value)`
 
 | Method | Returns | Description |
 | --- | --- | --- |
-| `set_absolute_magnitude` | `None` | Set the absolute magnitude (H) of a SpaceRock object. |
-| `set_albedo` | `None` | Set the albedo of a SpaceRock object. |
-| `set_gslope` | `None` | Set the G-slope of a SpaceRock object. |
-| `set_mass` | `None` | Set the mass of a SpaceRock object in units of solar masses. |
-| `set_radius` | `None` | Set the radius of a SpaceRock object in km. |
-| `set_x` | `None` | Set the x-coordinate of the SpaceRock in au. |
-| `set_y` | `None` | Set the y-coordinate of the SpaceRock in au. |
-| `set_z` | `None` | Set the z-coordinate of the SpaceRock in au. |
-| `set_vx` | `None` | Set the x-component of the velocity of the SpaceRock in au/day. |
-| `set_vy` | `None` | Set the y-component of the velocity of the SpaceRock in au/day. |
-| `set_vz` | `None` | Set the z-component of the velocity of the SpaceRock in au/day. |
+| `set_absolute_magnitude` | `None` | Set absolute magnitude (H) |
+| `set_gslope` | `None` | Set G-slope parameter |
+| `set_mass` | `None` | Set mass in solar masses |
+| `set_x` | `None` | Set x-coordinate in AU |
+| `set_y` | `None` | Set y-coordinate in AU |
+| `set_z` | `None` | Set z-coordinate in AU |
+| `set_vx` | `None` | Set x velocity in AU/day |
+| `set_vy` | `None` | Set y velocity in AU/day |
+| `set_vz` | `None` | Set z velocity in AU/day |
+
+<h2 style="border-bottom: 3px solid white;">Getter Methods</h2>
 
 
----
-### Getter Methods
-
-These methods allow you to access the properties of a SpaceRock object. The general usage pattern is 
-```python
-rock.get_property()
-```
-where `property` is the name of the property you want to access. A list of the getter methods is given below.
+These methods access SpaceRock properties. Usage: `rock.method()`
 
 | Method | Returns | Description |
 | --- | --- | --- |
-| `absolute_magnitude` | `float` or `None` | Get the absolute magnitude (H) of the SpaceRock. |
-| `albedo` | `float` or `None` | Get the albedo of the SpaceRock. |
-| `gslope` | `float` or `None` | Get the G-slope of the SpaceRock. |
-| `mass` | `float` or `None` | Get the mass of the SpaceRock in units of solar masses. |
-| `radius` | `float` or `None` | Get the radius of the SpaceRock in km. |
-| `x` | `float` | Get the x-coordinate of the SpaceRock in au. |
-| `y` | `float` | Get the y-coordinate of the SpaceRock in au. |
-| `z` | `float` | Get the z-coordinate of the SpaceRock in au. |
-| `vx` | `float` | Get the x-component of the velocity of the SpaceRock in au/day. |
-| `vy` | `float` | Get the y-component of the velocity of the SpaceRock in au/day. |
-| `vz` | `float` | Get the z-component of the velocity of the SpaceRock in au/day. |
+| `absolute_magnitude` | `float` or `None` | Get absolute magnitude (H) |
+| `gslope` | `float` or `None` | Get G-slope parameter |
+| `mass` | `float` or `None` | Get mass in solar masses |
+| `x` | `float` | Get x-coordinate in AU |
+| `y` | `float` | Get y-coordinate in AU |
+| `z` | `float` | Get z-coordinate in AU |
+| `vx` | `float` | Get x velocity in AU/day |
+| `vy` | `float` | Get y velocity in AU/day |
+| `vz` | `float` | Get z velocity in AU/day |
 
----
+<h2 style="border-bottom: 3px solid white;">Examples</h2>
 
-### Examples
+
+### Basic Usage
 ```python
 from spacerocks import SpaceRock
 from spacerocks.time import Time
 
+# Create SpaceRock
+epoch = Time.now()
+arrokoth = SpaceRock.from_horizons("Arrokoth", epoch)
+
+# Calculate orbital elements
+print(f"Semi-major axis: {arrokoth.a()} AU")
+print(f"Eccentricity: {arrokoth.e()}")
+
+# Set physical properties
+arrokoth.set_mass(1e-10)
+arrokoth.set_absolute_magnitude(15.0)
+```
+
+### Observation Calculation
+```python
+from spacerocks.observing import Observatory
+
+# Set up objects
 epoch = Time.now()
 
-arrokoth = SpaceRock.from_horizons("Arrokoth", epoch, "ECLIPJ2000", "ssb")
+telescope = Observatory.from_obscode("w84")
+observer = telescope.at(epoch)  
+
+asteroid = SpaceRock.from_horizons("Ceres", epoch, "J2000")
+
+# Calculate ephemeris
+observation = asteroid.observe(observer)
+print(f"RA: {observation.ra} rad")
+print(f"Dec: {observation.dec} rad")
 ```
+
+<h2 style="border-bottom: 3px solid white;">Notes</h2>
+
+- All positions are in Astronomical Units (AU)
+- All velocities are in AU/day
+- All angles are in radians
+- Masses are in solar masses (M☉)
+- SPICE kernels must be loaded before using SPICE-dependent features
+- Physical properties are optional and default to 0.0
+- The G slope parameter defaults to 0.15 if not specified

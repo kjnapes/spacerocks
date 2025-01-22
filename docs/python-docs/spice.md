@@ -1,123 +1,180 @@
-# SPICE Module Documentation
+<h1 style="border-bottom: 5px solid white;">SPICE Module</h1>
 
 ### Table of Contents
 1. [Overview](#overview)
-2. [SpiceKernel Class](#spicekernel-class)
-3. [Configuration](#configuration)
-4. [Examples](#examples)
-5. [SpaceRock Integration](#spacerock-integration)
+2. [Primary Classes](#primary-classes)
+3. [Methods](#constructor-methods)
+4. [Configuration](#configuration)
+5. [Examples](#examples)
+6. [Notes](#notes)
 
-## Overview
+<h2 style="border-bottom: 3px solid white;">Overview</h2>
 
-The SPICE module provides integration with NASA's SPICE toolkit for spacecraft and planetary ephemerides calculations. This module manages SPICE kernel loading, downloading, and configuration.
+The SPICE module provides integration with NASA's SPICE toolkit for spacecraft and planetary ephemerides calculations. It handles kernel management, including automatic downloading and configuration. 
 
-## SpiceKernel Class
+<h2 style="border-bottom: 3px solid white;">Primary Classes</h2>
 
+### SpiceKernel
 ```python
 class SpiceKernel:
-    def __init__(self, config: Optional[str] = None):
-        """
-        Initialize a SpiceKernel instance.
-        
-        Arguments:
-            config: Optional path to a config.toml file. 
-                   If provided, loads and manages kernels according to configuration.
-                   If None, creates an empty kernel for manual loading.
-        """
-```
-
-### Basic Methods
-
-```python
-def load(self, path: str) -> None:
-    """Load a SPICE kernel file from the specified path."""
+    """
+    Manages SPICE kernel loading and configuration.
     
-def unload(self) -> None:
-    """Unload all kernels and clear loaded files list."""
-    
-@property
-def loaded_kernels(self) -> List[str]:
-    """Return list of currently loaded kernel file paths."""
+    Example:
+        kernel = SpiceKernel.defaults()
+        kernel.load("de440s.bsp")
+    """
 ```
 
-## Configuration
+<h2 style="border-bottom: 3px solid white;">Methods</h2>
 
-### Config File Structure (config.toml)
-```toml
-# Required kernels - will be loaded on initialization
-default_kernels = [
-    { name = "latest_leapseconds.tls", kernel_type = "lsk" }, 
-    { name = "de440s.bsp", kernel_type = "spk/planets" },
-    { name = "earth_1962_240827_2124_combined.bpc", kernel_type = "pck" } 
-]
 
-# Optional settings (defaults shown)
-auto_download = true          # Download missing kernels automatically
-kernel_paths = ["~/.spacerocks/kernels"]  # Where to look for existing kernels
-download_dir = "~/.spacerocks/kernels"    # Where to store downloaded kernels
-```
+### Constructor Methods
+---
 
-### Config Behavior
-- Searches for kernels in specified kernel_paths
-- If kernel not found and auto_download=true:
-  - Downloads from SPICE server
-  - Stores in download_dir
-- If kernel not found and auto_download=false:
-  - Raises informative error about missing kernel
+**`new()`**
 
-## Examples
+**Returns:**
+- New SpiceKernel instance
 
-### Basic Usage (Manual Loading)
+*Example:*
 ```python
-# Create kernel for manual loading
 kernel = SpiceKernel()
+```
 
-# Load specific kernels
-kernel.load("path/to/my/kernel.bsp")
-print(kernel.loaded_kernels)
+**`defaults()`**
+```python
+@classmethod
+def defaults(cls, download: bool = True) -> SpiceKernel
+```
+**Arguments:**
+- `download`: Whether to automatically download missing kernels
 
-# Unload when done
+**Returns:**
+- SpiceKernel instance with default configuration loaded
+
+*Example:*
+```python
+kernel = SpiceKernel.defaults(download=True)
+```
+
+**`from_config()`**
+```python
+@classmethod
+def from_config(cls, path: str) -> SpiceKernel
+```
+**Arguments:**
+- `path`: Path to configuration file
+
+**Returns:**
+- SpiceKernel instance configured according to specified file
+
+*Example:*
+```python
+kernel = SpiceKernel.from_config("config.toml")
+```
+
+### Operation Methods
+---
+
+**`load()`**
+```python
+def load(self, path: str) -> None
+```
+**Arguments:**
+- `path`: Path to SPICE kernel file to load
+
+*Example:*
+```python
+kernel.load("path/to/kernel.bsp")
+```
+
+**`unload()`**
+```python
+def unload(self) -> None
+```
+Unloads all currently loaded kernels.
+
+*Example:*
+```python
 kernel.unload()
 ```
 
-### Config-based Usage (Automatic Management)
+**`loaded_kernels()`**
 ```python
-# Initialize with config file
-kernel = SpiceKernel(config="path/to/config.toml")
+@property
+def loaded_kernels(self) -> List[str]
+```
+**Returns:**
+- List of paths to currently loaded kernel files
 
-# Kernels are automatically loaded/downloaded based on config
+*Example:*
+```python
+paths = kernel.loaded_kernels
+```
+
+<h2 style="border-bottom: 3px solid white;">Configuration</h2>
+
+
+### Config File Format (config.toml)
+---
+```toml
+# Required kernels that will be loaded on initialization
+default_kernels = [
+    { name = "latest_leapseconds.tls", kernel_type = "lsk" },
+    { name = "de440s.bsp", kernel_type = "spk/planets" },
+    { name = "earth_1962_240827_2124_combined.bpc", kernel_type = "pck" }
+]
+
+# Optional settings with defaults shown
+auto_download = true                      # Download missing kernels
+kernel_paths = ["~/.spacerocks/kernels"]  # Search paths for kernels
+download_dir = "~/.spacerocks/kernels"    # Download location
+```
+
+<h2 style="border-bottom: 3px solid white;">Examples</h2>
+
+
+### Manual Kernel Management
+```python
+from spacerocks.spice import SpiceKernel
+
+# Create empty kernel manager
+kernel = SpiceKernel()
+
+# Manually load specific kernels
+kernel.load("de440s.bsp")
+kernel.load("latest_leapseconds.tls")
+
+# Check loaded kernels
+print(kernel.loaded_kernels)
+
+# Unload when finished
+kernel.unload()
+```
+
+### Automatic Management
+```python
+from spacerocks.spice import SpiceKernel
+
+# Use default configuration
+kernel = SpiceKernel.defaults()
+
+# Kernels are automatically loaded
 # Output shows process:
 #   Found kernel: de440s.bsp in /path/to/kernels
 #   Downloading: latest_leapseconds.tls...
-#   Found kernel: earth_combined.bpc in /other/path
+#   Found kernel: earth_combined.bpc in /path
+
+# Or use custom configuration
+kernel = SpiceKernel.from_config("myconfig.toml")
 ```
 
-## SpaceRock Integration
+<h2 style="border-bottom: 3px solid white;">Notes</h2>
 
-```python
-@classmethod
-def from_spice(cls, name: str, epoch: Time, reference_plane: str, origin: str) -> 'SpaceRock':
-    """
-    Create SpaceRock object using SPICE ephemerides.
-    
-    Arguments:
-        name: Body name (must match SPICE naming)
-        epoch: Time of state vector
-        reference_plane: Reference frame for coordinates
-        origin: Origin of coordinate system
-    
-    Returns:
-        SpaceRock instance
-    
-    Example:
-        epoch = Time(2750923.093, "utc", "jd")
-        mars = SpaceRock.from_spice("MARS BARYCENTER", epoch, "ECLIPJ2000", "SSB")
-    """
-```
-
-### Notes
-- For planets, use barycenter names (e.g., "MARS BARYCENTER")
-- Position values converted from km to AU
-- Velocities converted from km/s to AU/day
-- Times handled through astropy Time objects
-
+- Kernels must be loaded before using SPICE-dependent features
+- Default configuration provides essential kernels for most use cases
+- Downloaded kernels are cached for future use
+- Kernel search paths are checked before downloading
+- Configuration paths use `~` for home directory expansion
+- All kernels are automatically unloaded when the object is destroyed
