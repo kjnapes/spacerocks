@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
-use pyo3::types::PyDict;
+use pyo3::types::{PyDict, IntoPyDict};
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use flate2::read::GzDecoder;
@@ -23,6 +23,10 @@ use spacerocks::constants::MPC_URL;
 use dirs::home_dir;
 use std::time::Duration;
 use reqwest::ClientBuilder;
+
+
+const MPC_OBS_URL: &str = "https://data.minorplanetcenter.net/api/get-obs";
+
 
 #[derive(Debug, Clone)]
 pub enum StorageFormat {
@@ -155,6 +159,32 @@ impl MPCHandler {
             Ok(rocks_collection)
         })
     }
+
+    #[pyo3(signature = (designation, formats=vec!["ADES_DF".to_string()], ades_version=None))]
+    pub fn get_detections(&self, designation: &str, formats: Vec<String>, ades_version: Option<String>) -> PyResult<PyObject> {
+        
+        Python::with_gil(|py| {
+            let requests = PyModule::import(py, "requests")?;
+            
+            let request_data = PyDict::new(py);
+            request_data.set_item("desigs", vec![designation.to_string()])?;
+            request_data.set_item("output_format", formats)?;
+            if let Some(version) = ades_version {
+                request_data.set_item("ades_version", version)?;
+            }
+
+            let kwargs = PyDict::new(py);
+            kwargs.set_item("json", request_data)?;
+
+            let get_func = requests.getattr("get")?;
+            let response = get_func.call((MPC_OBS_URL,), Some(&kwargs))?;
+            
+            let json_response = response.call_method0("json")?;
+
+            Ok(json_response.into())
+        })
+    }
+
 }
 
 impl MPCHandler {
