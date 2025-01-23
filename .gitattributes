@@ -1,5 +1,5 @@
 docs/* linguist-documentation
 notebooks/* linguist-documentation
-spacerocks/data/* linguist-documentation
-spacerocks/data/spice/* linguist-documentation
-src/pyOrbfit/* linguist-documentation
+notebooks/examples/* linguist-documentation
+notebooks/primer/* linguist-documentation
+assets/* linguist-documentation
