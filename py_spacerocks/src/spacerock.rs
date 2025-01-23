@@ -89,6 +89,20 @@ impl PySpaceRock {
         }
     }
 
+    fn analytic_propagate(&mut self, epoch: PyRef<PyTime>) -> PyResult<()> {
+        match self.inner.analytic_propagate(&epoch.inner) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to propagate rock: {}", e))),
+        }
+    }
+
+    fn analytic_at(&self, epoch: PyRef<PyTime>) -> PyResult<PySpaceRock> {
+        match self.inner.analytic_at(&epoch.inner) {
+            Ok(rock) => Ok(PySpaceRock { inner: rock }),
+            Err(e) => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Failed to create propagated rock: {}", e))),
+        }
+    }
+
     /// Change the reference plane of the SpaceRock.
     ///
     /// # Arguments

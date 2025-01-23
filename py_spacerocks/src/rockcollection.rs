@@ -158,10 +158,23 @@ impl RockCollection {
            
     }
 
-    // pub fn analytic_propagate(&mut self, t: PyRef<PyTime>) {
-    //     let ep = &t.inner;
-    //     self.rocks.par_iter_mut().for_each(|rock| rock.analytic_propagate(ep));
-    // }
+    pub fn analytic_propagate(&mut self, epoch: PyRef<PyTime>) -> PyResult<()> {
+        let ep = &epoch.inner;
+    
+        if let Some(error) = self.rocks
+            .par_iter_mut()
+            .filter_map(|rock| {
+                match rock.analytic_propagate(ep) {
+                    Err(e) => Some(format!("Failed to propagate rock: {}", e)),
+                    Ok(_) => None
+                }
+            })
+            .find_first(|_| true) {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(error));
+        }
+        
+        Ok(())
+    }
 
     pub fn change_reference_plane(&mut self, reference_plane: &str) {
         self.rocks.par_iter_mut().for_each(|rock| rock.change_reference_plane(reference_plane).expect("Failed to change frame"));
