@@ -204,12 +204,12 @@ def change_reference_plane(self, reference_plane: str) -> None
 rock.change_reference_plane("ECLIPJ2000")
 ```
 
-<h2 style="border-bottom: 3px solid white;">Derived Methods</h2>
+<h2 style="border-bottom: 3px solid white;">Derived Properties</h2>
 
 
 These methods calculate various properties from the SpaceRock's state. Usage: `rock.property()`
 
-| Method | Returns | Description |
+| Property | Returns | Description |
 | --- | --- | --- |
 | `a` | `float` | Calculate the semi-major axis in AU |
 | `e` | `float` | Calculate the eccentricity |
@@ -221,9 +221,6 @@ These methods calculate various properties from the SpaceRock's state. Usage: `r
 | `conic_anomaly` | `float` | Calculate the conic anomaly in radians |
 | `q` | `float` | Calculate the perihelion distance in AU |
 | `p` | `float` | Calculate the semi-latus rectum in AU |
-| `evec` | `tuple` | Calculate the eccentricity vector |
-| `r` | `float` | Calculate the distance from origin in AU |
-| `mu` | `float` | Get the gravitational parameter of origin |
 
 
 <h2 style="border-bottom: 3px solid white;">Setter Methods</h2>
@@ -246,9 +243,9 @@ These methods modify SpaceRock properties. Usage: `rock.set_property(value)`
 <h2 style="border-bottom: 3px solid white;">Getter Methods</h2>
 
 
-These methods access SpaceRock properties. Usage: `rock.method()`
+These methods access SpaceRock properties. Usage: `rock.property`
 
-| Method | Returns | Description |
+| Property | Returns | Description |
 | --- | --- | --- |
 | `absolute_magnitude` | `float` or `None` | Get absolute magnitude (H) |
 | `gslope` | `float` or `None` | Get G-slope parameter |
@@ -259,6 +256,9 @@ These methods access SpaceRock properties. Usage: `rock.method()`
 | `vx` | `float` | Get x velocity in AU/day |
 | `vy` | `float` | Get y velocity in AU/day |
 | `vz` | `float` | Get z velocity in AU/day |
+| `evec` | `tuple` | Calculate the eccentricity vector |
+| `r` | `float` | Calculate the distance from origin in AU |
+| `mu` | `float` | Get the gravitational parameter of origin |
 
 <h2 style="border-bottom: 3px solid white;">Examples</h2>
 
