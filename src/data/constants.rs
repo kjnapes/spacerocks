@@ -4,6 +4,7 @@ use nalgebra::Matrix3;
 
 pub const SPICE_URL: &str = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels";
 pub const MPC_URL: &str = "https://www.minorplanetcenter.net/Extended_Files";
+pub const MPC_API: &str = "https://data.minorplanetcenter.net/api/get-obs";
 
 pub const KM_TO_AU: f64 = 1.0 / 149_597_870.700;
 pub const M_TO_AU: f64 = KM_TO_AU / 1000.0;

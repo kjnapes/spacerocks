@@ -23,9 +23,7 @@ use spacerocks::constants::MPC_URL;
 use dirs::home_dir;
 use std::time::Duration;
 use reqwest::ClientBuilder;
-
-
-const MPC_OBS_URL: &str = "https://data.minorplanetcenter.net/api/get-obs";
+use spacerocks::constants::MPC_API;
 
 
 #[derive(Debug, Clone)]
@@ -177,7 +175,7 @@ impl MPCHandler {
             kwargs.set_item("json", request_data)?;
 
             let get_func = requests.getattr("get")?;
-            let response = get_func.call((MPC_OBS_URL,), Some(&kwargs))?;
+            let response = get_func.call((MPC_API,), Some(&kwargs))?;
             
             let json_response = response.call_method0("json")?;
 
