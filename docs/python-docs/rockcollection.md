@@ -74,6 +74,23 @@ trojan_collection = RockCollection.from_mpc(
 ### Operation Methods
 ---
 
+**`analytic_propagate()`**
+```python
+def analytic_propagate(self, epoch: Time) -> RockCollection
+```
+**Arguments:**
+- `epoch`: The Time object representing the epoch that we want to propagate the SpaceRocks in our RockCollection to.
+
+Calculates and converts SpaceRock elements at new epoch, in place, for all rocks in the RockCollection.
+
+*Example:*
+```python
+rockcollection = RockCollection()
+# ...
+ten_years = Time.now() + (365.25 * 10)
+rockcollection.analytic_propagate(ten_years)
+```
+
 **`add()`**
 ```python
 def add(self, rock: SpaceRock) -> None

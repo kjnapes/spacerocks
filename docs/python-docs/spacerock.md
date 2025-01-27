@@ -176,6 +176,39 @@ rock = SpaceRock.random(epoch=Time.now())
 
 <h2 style="border-bottom: 3px solid white;">Operation Methods</h2>
 
+**`analytic_propagate()`**
+```python
+def analytic_propagate(self, epoch: Time) -> SpaceRock
+```
+**Arguments:**
+- `epoch`: The Time object representing the epoch that we want to propagate the SpaceRock to.
+
+Calculates and converts SpaceRock elements at new epoch, in place.
+
+*Example:*
+```python
+rock = SpaceRock.from_horizons("Arrokoth", Time.now())
+
+ten_years = Time.now() + (365.25 * 10)
+rock.analytic_propagate(ten_years)
+```
+
+**`analytic_at()`**
+```python
+def analytic_at(self, epoch: Time) -> SpaceRock
+```
+**Arguments:**
+- `epoch`: The Time object representing the epoch that we want to propagate the SpaceRock to in time 
+
+The same as `analytic_propogate()`, except returning a new SpaceRock object
+
+*Example:*
+```python
+rock = SpaceRock.from_horizons("Arrokoth", Time.now())
+
+ten_years = Time.now() + (365.25 * 10)
+rock_in_ten_years = rock.analytic_at(ten_years)
+```
 
 **`observe()`**
 ```python
