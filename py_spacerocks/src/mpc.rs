@@ -24,6 +24,7 @@ use dirs::home_dir;
 use std::time::Duration;
 use reqwest::ClientBuilder;
 use spacerocks::constants::MPC_API;
+use spacerocks::observing::{Observer, Observation};
 
 
 #[derive(Debug, Clone)]
@@ -359,10 +360,10 @@ impl MPCHandler {
                     &d.Principal_desig,
                     d.a,
                     d.e,
-                    d.i,
-                    d.Peri,
-                    d.Node,
-                    d.M,
+                    d.i.to_radians(),
+                    d.Peri.to_radians(),
+                    d.Node.to_radians(),
+                    d.M.to_radians(),
                     Time::new(d.Epoch, "utc", "jd").map_err(|e| e.to_string())?,
                     "J2000",
                     "SSB",
