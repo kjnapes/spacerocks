@@ -175,9 +175,18 @@ impl Simulation {
 
         particle.change_reference_plane(self.reference_plane.as_str())?;
         particle.epoch.to_tdb();
+        // self.particle_index_map.insert((*particle.name).to_string(), self.particles.len());
+        // self.particles.push(particle);
+
+        if particle.mass() == 0.0 {
+            self.particle_index_map.insert((*particle.name).to_string(), self.particles.len());
+            self.particles.push(particle);
+            return Ok(());
+        }
+
         self.particle_index_map.insert((*particle.name).to_string(), self.particles.len());
         self.particles.push(particle);
-
+        
         // make sure to sort the particles by mass
         self.particles.sort_by(|a, b| b.mass().partial_cmp(&a.mass()).unwrap());
         // update the particle index map
