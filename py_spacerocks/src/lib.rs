@@ -31,6 +31,9 @@ use py_orbfit::make_orbfit_submodule;
 mod mpc;
 // use mpc::MPC;
 
+mod orbit_type;  // declare the module
+use orbit_type::PyOrbitType;  // import the type
+
 #[pymodule]
 #[pyo3(name = "spacerocks")]
 pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -61,6 +64,7 @@ pub fn py_spacerocks(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<RockCollection>()?;
     m.add_class::<MPCHandler>()?;
     m.add_class::<PySpiceKernel>()?;
+    m.add_class::<PyOrbitType>()?; 
 
     Ok(())
 }
