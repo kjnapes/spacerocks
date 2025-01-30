@@ -180,6 +180,31 @@ impl Time {
         Time::new(epoch, timescale, format)
     }
 
+    /// Create a new `Time` object from an ISO 8601 string.
+    ///
+    /// # Arguments
+    ///
+    /// * `isot` - The ISO 8601 string.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Time, TimeError>` - The time object.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let t = Time::from_isot("2021-01-01T00:00:00Z");
+    /// ```
+    
+    pub fn from_isot(isot: &str) -> Result<Self, TimeError> {
+        let epoch = isot_to_julian(isot);
+        Ok(Time {
+            epoch,
+            timescale: TimeScale::UTC,
+            format: TimeFormat::JD,
+        })
+    }
+
 
     // Return a new Time object with converted timescale
 

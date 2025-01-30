@@ -44,6 +44,15 @@ impl PyTime {
         }
     }
 
+    #[classmethod]
+    fn from_isot(_cls: Py<PyType>, isot: &str) -> PyResult<Self> {
+        match Time::from_isot(isot) {
+            Ok(time) => Ok(PyTime { inner: time }),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
+
+
     // Methods that return new objects with converted timescale
 
     fn utc(&self) -> PyTime {
