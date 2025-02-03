@@ -46,6 +46,14 @@ impl Config {
                     name: "earth_1962_240827_2124_combined.bpc".to_string(),
                     kernel_type: "pck".to_string(),
                 },
+                KernelSpec {
+                    name: "codes_300ast_20100725.bsp".to_string(),
+                    kernel_type: "spk/asteroids".to_string(),
+                },
+                KernelSpec {
+                    name: "codes_300ast_20100725.tf".to_string(),
+                    kernel_type: "spk/asteroids".to_string(),
+                },
             ],
             kernel_paths: vec![default_path.clone()],
             auto_download: download,

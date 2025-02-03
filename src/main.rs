@@ -2,19 +2,43 @@ use spacerocks::{SpaceRock, Time, SpiceKernel, Observatory, Simulation};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-    let spice_root = "/Users/kjnapier/data/spice";
+    // let spice_root = "/Users/kjnapier/data/spice";
+    let spice_root = "/Users/thomasruch/.spacerocks/spice";
 
     // define the epoch
-    let epoch = Time::now();
+    let epoch = Time::now() - 1000.0;
 
     println!("{}", epoch);
 
     // // // load spice kernels
-    let mut kernel = SpiceKernel::new();
-    kernel.load(format!("{}/sb441-n373s.bsp", spice_root).as_str())?;
-    kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
-    kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
-    kernel.load(format!("{}/earth_latest_high_prec.bpc", spice_root).as_str())?;
+    // let mut kernel = SpiceKernel::new();
+    // kernel.load(format!("{}/sb441-n373s.bsp", spice_root).as_str())?;
+    // kernel.load(format!("{}/de440s.bsp", spice_root).as_str())?;
+    // kernel.load(format!("{}/latest_leapseconds.tls", spice_root).as_str())?;
+    // kernel.load(format!("{}/earth_latest_high_prec.bpc", spice_root).as_str())?;
+
+    let mut kernel = SpiceKernel::defaults(true)?;
+
+    
+
+    // kernel.load(format!("{}/codes_300ast_20100725.tf", spice_root).as_str())?;
+    // kernel.load(format!("{}/pck00011.tpc", spice_root).as_str())?;
+   
+    // Try these in sequence
+    let jupiter = SpaceRock::from_spice("jupiter barycenter", &epoch, "J2000", "ssb")?;
+    println!("Jupiter worked!");
+
+    let mars = SpaceRock::from_spice("mars barycenter", &epoch, "J2000", "ssb")?;
+    println!("Mars worked!");
+
+    let ceres = SpaceRock::from_spice("CERES", &epoch, "J2000", "SSB")?;
+    println!("Ceres by name worked!");
+
+    let ceres = SpaceRock::from_spice("2000001", &epoch, "J2000", "ssb")?;
+    println!("Ceres worked!");
+
+
+
 
 
     // observer not working rn, so commenting out for complilation
@@ -23,9 +47,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let observer = f51.at(&epoch, "J2000", "SSB")?;
     println!("{:?}", observer);
 
-    let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "j2000", "ssb")?;
+    let mut arrokoth = SpaceRock::from_horizons("Arrokoth", &epoch, "J2000", "SSB")?;
+    println!("{}", arrokoth);
 
     let mut sim = Simulation::horizons(&epoch, "J2000", "SSB")?;
+    println!("Sim is working");
     sim.add(arrokoth)?;
 
     println!("{}", sim.epoch);
